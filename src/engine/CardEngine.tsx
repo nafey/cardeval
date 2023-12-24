@@ -73,14 +73,17 @@ export class CardEngine {
 	moveCard = (cardChoice: CardChoice, zoneChoice: string) => {
 		let c: Card = this.getChosenCard(cardChoice)
 		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
-		let clean : boolean = true
+		let legal : boolean = true
 
 		moveRules.forEach((mr : MoveCheckRule) => {
             let verdict : boolean = mr.rule(c, this.getZone(cardChoice.zone), this.getZone(zoneChoice), this.getContext())
-            if (!verdict ) clean = false
+            if (!verdict ) legal = false
         })
 
-        if (!clean) throw Error("You cannot move that card to the chosen location")
+        if (!legal) {
+			console.log("You cannot move that card to the chosen location")
+			return;
+		}
 
 
         let criteria : CardChoice = cardChoice;
@@ -93,6 +96,25 @@ export class CardEngine {
                 zoneToMoveTo.add(cMove)
             }
         }
+	}
+
+	moveStack = (fromZone: string, atPos: number, toZone: string) => {
+		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
+		let c = this.getZone(fromZone).at(atPos)
+		let legal : boolean = true
+
+		moveRules.forEach((mr : MoveCheckRule) => {
+            let verdict : boolean = mr.rule(c, this.getZone(fromZone), this.getZone(toZone), this.getContext())
+            if (!verdict ) legal = false
+        })
+
+        if (!legal) {
+			console.log("You cannot move that card to the chosen location")
+			return;
+		}
+
+		let carr = this.getZone(fromZone).takeStackFrom(atPos)
+		this.getZone(toZone).addMany(carr)
 	}
     
     print = (z = "") => {

@@ -15,17 +15,27 @@ export default class Zone {
 	size = () : number => this.cards.length
 
 	add = (card: Card) => this.cards = [...this.cards, card]
+
+	addMany = (cards : Card[]) => this.cards = [...this.cards, ...cards]
+
+	at = (index: number) => this.cards[index]
 	
 	first = (): Card => this.cards[0]
 
 	last = (): Card => this.cards[this.cards.length - 1]
-	
+
 	takeLast = (): Card => this.cards.pop()!
 
 	takeFirst = (): Card => {
-		let ret: Card
-		ret = this.cards[0]!
+		let ret: Card;
+		ret = this.cards[0]!;
 
+		return ret;
+	}
+
+	takeStackFrom = (from: number): Card[] => {
+		let ret: Card[] = this.cards.slice(from);
+		this.cards = this.cards.slice(0, from)
 		return ret;
 	}
 

@@ -21,10 +21,13 @@ engine.addMoveCheckRule({
 
 
 engine.addZone("Z1");
+engine.addCard("Z1", { suit: "D", num : 6 })
 engine.addZone("Z2");
-engine.addCard("Z1", { suit: "D", num: 4 });
+engine.addCard("Z2", { suit: "C", num: 11 });
 engine.addCard("Z2", { suit: "S", num: 5 });
-engine.moveCard({zone: "Z1", by: "REL_POS", at: "FIRST"}, "Z2");
+engine.addCard("Z2", { suit: "D", num: 4 });
+// engine.moveCard({zone: "Z1", by: "REL_POS", at: "FIRST"}, "Z2");
+engine.moveStack("Z2", 1, "Z1");
 
 let zarr : {[key: string]: Card[]} = {}
 
