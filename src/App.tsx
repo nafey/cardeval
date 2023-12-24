@@ -1,15 +1,37 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import { CardEngine, Card, Context } from './CardEngine.js';
+import { Card, Context } from "./engine/Interfaces";
+import { CardEngine } from './engine/CardEngine.js';
 import './App.css'
 
 
-let engine : CardEngine = new CardEngine()
-engine.addZone("Z1")
-engine.addZone("Z2")
-engine.addCard("Z1",{suit: "D",num: 4})
-engine.addCard("Z2",{suit: "S", num: 5})
+let engine: CardEngine = new CardEngine()
+
+engine.addRule({
+	ruleType: "MOVE_CHECK",
+	ruleCode: (card: Card, fromZone: string, toZone: string, context: Context) => {
+		if (!(fromZone in ["Z1", "Z2"])) return true;
+
+		let top = context.getTopCard(toZone)
+		let redSuit = ["D", "H"]
+		let blackSuit = ["S", "C"]
+		console.log(card)
+		console.log(top)
+		console.log("redSuit top " + redSuit.includes(top.suit))
+		console.log("redSuit card " + redSuit.includes(card.suit))
+
+		if ((redSuit.includes(top.suit) && redSuit.includes(card.suit)) || (blackSuit.includes(top.suit) && blackSuit.includes(card.suit))) return false;
+		else return true;
+	}
+});
+
+engine.addZone("Z1");
+engine.addZone("Z2");
+engine.addCard("Z1", { suit: "D", num: 4 });
+engine.addCard("Z2", { suit: "S", num: 5 });
+engine.moveCard({zone: "Z1", by: "REL_POS", at: "FIRST"}, "Z2");
+
 
 
 
@@ -31,13 +53,13 @@ engine.addCard("Z2",{suit: "S", num: 5})
 //                 else return true;
 //             }
 //         }
-        
+
 //     },
 //     {
 //         action: "ADD_ZONE",
 //         zone: "z1"
 //     },
-	
+
 //     {
 //         action: "ADD_ZONE",
 //         zone: "z2"
