@@ -1,3 +1,5 @@
+import Zone from "./Zone";
+
 export interface Card {
     [key: string]: any;
 }
@@ -16,7 +18,7 @@ export interface CardChoice {
 export interface State {
 	rules : Rule[],
 	zones: {
-		[key:string]: Card[]
+		[key:string]: Zone
 	}
 }
 

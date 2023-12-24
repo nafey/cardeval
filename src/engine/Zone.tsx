@@ -12,10 +12,14 @@ export default class Zone {
 		this.name = name;
 	}
 
-	last = (): Card => this.cards[this.cards.length - 1]
+	size = () : number => this.cards.length
 
+	add = (card: Card) => this.cards = [...this.cards, card]
+	
 	first = (): Card => this.cards[0]
 
+	last = (): Card => this.cards[this.cards.length - 1]
+	
 	takeLast = (): Card => this.cards.pop()!
 
 	takeFirst = (): Card => {
