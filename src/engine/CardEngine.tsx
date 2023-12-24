@@ -1,9 +1,9 @@
-import { State, Card, Rule, CardChoice, Context } from "./Interfaces";
+import { State, Card, CardChoice, Context, MoveCheckRule } from "./Interfaces";
 import Zone from "./Zone";
 
 export class CardEngine {
 	state: State = {
-		rules : [],
+		moveCheckRules : [],
 		zones: {}
 	}
     
@@ -20,13 +20,13 @@ export class CardEngine {
         return c;
     }
 
-    addRule = (r: Rule) => {
-        this.state.rules.push(r)
+    addMoveCheckRule = (r: MoveCheckRule) => {
+        this.state.moveCheckRules.push(r)
     }
-    
-    getApplicableRules = (ruleType: string) => {
-        return this.state.rules.filter((rule: Rule) => rule.ruleType === ruleType)
-    }
+
+	getMoveCheckRules = () : MoveCheckRule[] => {
+		return this.state.moveCheckRules;
+	}
 
     addZone = (z: string) => {
         let newZone : Zone = new Zone(z)
@@ -72,11 +72,11 @@ export class CardEngine {
 
 	moveCard = (cardChoice: CardChoice, zoneChoice: string) => {
 		let c: Card = this.getChosenCard(cardChoice)
-		let moveRules : Rule[] = this.getApplicableRules("MOVE_CHECK")
+		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
 		let clean : boolean = true
 
-		moveRules.forEach((mr : Rule) => {
-            let verdict : boolean = mr.ruleCode(c, cardChoice.zone, zoneChoice, this.getContext())
+		moveRules.forEach((mr : MoveCheckRule) => {
+            let verdict : boolean = mr.rule(c, this.getZone(cardChoice.zone), this.getZone(zoneChoice), this.getContext())
             if (!verdict ) clean = false
         })
 

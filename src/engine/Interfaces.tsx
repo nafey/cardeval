@@ -4,10 +4,9 @@ export interface Card {
     [key: string]: any;
 }
 
-export interface Rule {
-    ruleType: string
-    ruleCode: (...args: any[]) => boolean
-}
+export interface MoveCheckRule {
+	rule : (card: Card, fromZone: Zone, toZone: Zone, context : Context) => boolean
+} 
 
 export interface CardChoice {
     zone: string,
@@ -16,7 +15,7 @@ export interface CardChoice {
 }
 
 export interface State {
-	rules : Rule[],
+	moveCheckRules : MoveCheckRule[],
 	zones: {
 		[key:string]: Zone
 	}
