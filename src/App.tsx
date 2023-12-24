@@ -9,6 +9,8 @@ let engine: CardEngine = new CardEngine()
 
 engine.addMoveCheckRule({
 	rule: (card: Card, _fromZone: Zone, toZone: Zone, _context: Context) => {
+		if (toZone.size() < 1) return true;
+
 		let last = toZone.last()
 
 		let redSuit = ["D", "H"]
@@ -20,22 +22,20 @@ engine.addMoveCheckRule({
 });
 
 
-engine.addZone("Z1");
+engine.addZones(["Z1", "Z2", "Z3"]);
 engine.addCard("Z1", { suit: "D", num : 6 })
-engine.addZone("Z2");
+
 engine.addCard("Z2", { suit: "C", num: 11 });
 engine.addCard("Z2", { suit: "S", num: 5 });
 engine.addCard("Z2", { suit: "D", num: 4 });
-// engine.moveCard({zone: "Z1", by: "REL_POS", at: "FIRST"}, "Z2");
-engine.moveCards("Z2", 1, "Z1", 1);
+
 
 let zarr : {[key: string]: Card[]} = {}
 
 let keys = Object.keys(engine.state.zones);
 keys.forEach((v) =>{
 	zarr[v] = engine.state.zones[v].cards
-})
-
+});
 
 function App() {
 

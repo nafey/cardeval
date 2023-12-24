@@ -44,7 +44,8 @@ export default class Zone {
 
 		let ret: Card[] = this.cards.slice(from, from + 1);		
 		let before: Card[] = this.cards.slice(0, from);
-		let after: Card[] = this.cards.slice(to );
+		let after: Card[] = this.cards.slice(to);
+
 		this.cards = [...before, ...after];
 
 		return ret;

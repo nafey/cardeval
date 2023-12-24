@@ -33,6 +33,10 @@ export class CardEngine {
         this.setZone(z, newZone)
     }
 
+	addZones = (zones : string[]) => {
+		zones.forEach((z) => this.addZone(z))
+	}
+
     getZone = (z: string) : Zone => {
         return this.state.zones[z] 
     }
@@ -48,36 +52,9 @@ export class CardEngine {
         this.getZone(z).add(card)
     }
 
-
-	// moveCard = (cardChoice: CardChoice, zoneChoice: string) => {
-	// 	let c: Card = this.getChosenCard(cardChoice)
-	// 	let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
-	// 	let legal : boolean = true
-
-	// 	moveRules.forEach((mr : MoveCheckRule) => {
-    //         let verdict : boolean = mr.rule(c, this.getZone(cardChoice.zone), this.getZone(zoneChoice), this.getContext())
-    //         if (!verdict ) legal = false
-    //     })
-
-    //     if (!legal) {
-	// 		console.log("You cannot move that card to the chosen location")
-	// 		return;
-	// 	}
-
-
-    //     let criteria : CardChoice = cardChoice;
-    //     if (criteria.by === "REL_POS") {
-            
-    //         let zoneOfCardToMove : Zone = this.getZone(criteria.zone)
-    //         let zoneToMoveTo: Zone = this.getZone(zoneChoice)
-    //         if (criteria.at === "FIRST") {
-    //             let cMove : Card = zoneOfCardToMove.takeLast() as Card
-    //             zoneToMoveTo.add(cMove)
-    //         }
-    //     }
-	// }
-
-	
+	addCards = (z: string, cards: Card[]) => {
+		cards.forEach((c) => this.addCard(z, c));
+	}
 
 	moveCards = (fromZone: string, atPos: number, toZone: string, count: number = -1) => {
 		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
@@ -99,11 +76,20 @@ export class CardEngine {
 	}
 
 	moveCard = (fromZone: string, atPos: number, toZone: string) => {
-
+		return this.moveCards(fromZone, atPos, toZone, 1);
 	}
 
 	moveCardRel = (fromZone: string, relPos: string, toZone: string) => {
-
+		if (relPos === "FIRST") {
+			return this.moveCard(fromZone, 0, toZone);
+		}
+		else if (relPos === "LAST") {
+			let size = this.getZone(fromZone).size();
+			return this.moveCard(fromZone, size - 1, toZone);
+		}
+		else {
+			console.log("Relative Position not recognized")
+		}
 	}
     
     print = (z = "") => {
