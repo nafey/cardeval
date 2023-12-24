@@ -1,4 +1,4 @@
-import { State, Card, CardChoice, Context, MoveCheckRule } from "./Interfaces";
+import { State, Card, Context, MoveCheckRule } from "./Interfaces";
 import Zone from "./Zone";
 
 export class CardEngine {
@@ -48,57 +48,38 @@ export class CardEngine {
         this.getZone(z).add(card)
     }
 
-	getChosenCard = (cardChoice: CardChoice) : Card => {
-		if (!cardChoice) return {};
 
-        let by : string = cardChoice.by
-        let z : string = cardChoice.zone
-        let at : string | number = cardChoice.at
+	// moveCard = (cardChoice: CardChoice, zoneChoice: string) => {
+	// 	let c: Card = this.getChosenCard(cardChoice)
+	// 	let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
+	// 	let legal : boolean = true
 
-        let zone : Zone = this.getZone(z)
-        if (!zone.size() ) throw Error ("Choosing Card in Empty Zone")
+	// 	moveRules.forEach((mr : MoveCheckRule) => {
+    //         let verdict : boolean = mr.rule(c, this.getZone(cardChoice.zone), this.getZone(zoneChoice), this.getContext())
+    //         if (!verdict ) legal = false
+    //     })
 
-        if (by === "REL_POS"){
-            if (at === "LAST") {
-                return zone.last()
-            }
-            else if (at === "FIRST") {
-                return zone.first()
-            }
-        }
-
-        throw Error("No Chosen Card")
-    }
-
-	moveCard = (cardChoice: CardChoice, zoneChoice: string) => {
-		let c: Card = this.getChosenCard(cardChoice)
-		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
-		let legal : boolean = true
-
-		moveRules.forEach((mr : MoveCheckRule) => {
-            let verdict : boolean = mr.rule(c, this.getZone(cardChoice.zone), this.getZone(zoneChoice), this.getContext())
-            if (!verdict ) legal = false
-        })
-
-        if (!legal) {
-			console.log("You cannot move that card to the chosen location")
-			return;
-		}
+    //     if (!legal) {
+	// 		console.log("You cannot move that card to the chosen location")
+	// 		return;
+	// 	}
 
 
-        let criteria : CardChoice = cardChoice;
-        if (criteria.by === "REL_POS") {
+    //     let criteria : CardChoice = cardChoice;
+    //     if (criteria.by === "REL_POS") {
             
-            let zoneOfCardToMove : Zone = this.getZone(criteria.zone)
-            let zoneToMoveTo: Zone = this.getZone(zoneChoice)
-            if (criteria.at === "FIRST") {
-                let cMove : Card = zoneOfCardToMove.takeLast() as Card
-                zoneToMoveTo.add(cMove)
-            }
-        }
-	}
+    //         let zoneOfCardToMove : Zone = this.getZone(criteria.zone)
+    //         let zoneToMoveTo: Zone = this.getZone(zoneChoice)
+    //         if (criteria.at === "FIRST") {
+    //             let cMove : Card = zoneOfCardToMove.takeLast() as Card
+    //             zoneToMoveTo.add(cMove)
+    //         }
+    //     }
+	// }
 
-	moveStack = (fromZone: string, atPos: number, toZone: string) => {
+	
+
+	moveCards = (fromZone: string, atPos: number, toZone: string, count: number = -1) => {
 		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
 		let c = this.getZone(fromZone).at(atPos)
 		let legal : boolean = true
@@ -113,8 +94,16 @@ export class CardEngine {
 			return;
 		}
 
-		let carr = this.getZone(fromZone).takeStackFrom(atPos)
+		let carr = this.getZone(fromZone).takeCards(atPos, count) // TODO: move to takeStackFrom(atPos, count)
 		this.getZone(toZone).addMany(carr)
+	}
+
+	moveCard = (fromZone: string, atPos: number, toZone: string) => {
+
+	}
+
+	moveCardRel = (fromZone: string, relPos: string, toZone: string) => {
+
 	}
     
     print = (z = "") => {

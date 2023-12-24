@@ -33,9 +33,20 @@ export default class Zone {
 		return ret;
 	}
 
-	takeStackFrom = (from: number): Card[] => {
-		let ret: Card[] = this.cards.slice(from);
-		this.cards = this.cards.slice(0, from)
+	takeCards = (from: number, _count: number): Card[] => {
+		let to = 0
+		if (_count === -1) {
+			to = this.cards.length;
+		}
+		else {
+			to = (from + _count);
+		}
+
+		let ret: Card[] = this.cards.slice(from, from + 1);		
+		let before: Card[] = this.cards.slice(0, from);
+		let after: Card[] = this.cards.slice(to );
+		this.cards = [...before, ...after];
+
 		return ret;
 	}
 

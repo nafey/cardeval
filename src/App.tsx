@@ -27,12 +27,12 @@ engine.addCard("Z2", { suit: "C", num: 11 });
 engine.addCard("Z2", { suit: "S", num: 5 });
 engine.addCard("Z2", { suit: "D", num: 4 });
 // engine.moveCard({zone: "Z1", by: "REL_POS", at: "FIRST"}, "Z2");
-engine.moveStack("Z2", 1, "Z1");
+engine.moveCards("Z2", 1, "Z1", 1);
 
 let zarr : {[key: string]: Card[]} = {}
 
 let keys = Object.keys(engine.state.zones);
-keys.forEach((v, i, f) =>{
+keys.forEach((v) =>{
 	zarr[v] = engine.state.zones[v].cards
 })
 
@@ -41,7 +41,7 @@ function App() {
 
 	return (
 		<>
-			<ReactJson src={zarr} theme={"monokai"} enableClipboard={false} displayDataTypes={false} />
+			<ReactJson src={zarr} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}/>
 		</>
 	)
 }
