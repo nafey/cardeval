@@ -3,9 +3,10 @@ import { CardEngine } from './engine/CardEngine.js';
 import './App.css'
 import Zone from "./engine/Zone.js";
 import ReactJson from 'react-json-view'
+import { useState } from "react";
 
 
-let engine: CardEngine = new CardEngine()
+let engine: CardEngine = new CardEngine();
 
 engine.addMoveCheckRule({
 	rule: (card: Card, _fromZone: Zone, toZone: Zone, _context: Context) => {
@@ -22,26 +23,51 @@ engine.addMoveCheckRule({
 });
 
 
-engine.addZones(["Z1", "Z2", "Z3"]);
-engine.addCard("Z1", { suit: "D", num : 6 })
-
-engine.addCard("Z2", { suit: "C", num: 11 });
-engine.addCard("Z2", { suit: "S", num: 5 });
-engine.addCard("Z2", { suit: "D", num: 4 });
+engine.addZones(["T1", "T2", "Z3"]);
+engine.addCard("T1", { suit: "D", num : 6 });
 
 
-let zarr : {[key: string]: Card[]} = {}
+engine.addCard("T2", { suit: "C", num: 11 });
+engine.addCard("T2", { suit: "S", num: 5 });
+engine.addCard("T2", { suit: "D", num: 4 });
 
-let keys = Object.keys(engine.state.zones);
-keys.forEach((v) =>{
-	zarr[v] = engine.state.zones[v].cards
-});
+
+
 
 function App() {
+	let [command, setCommand] = useState<string>("");
+	const commandInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setCommand(event.target.value);
+	};
+
+
+	
+
+
+	let zarr : {[key: string]: Card[]} = {}
+
+	let keys = Object.keys(engine.state.zones);
+	keys.forEach((v) =>{
+		zarr[v] = engine.state.zones[v].cards
+	});
+
+	
 
 	return (
 		<>
-			<ReactJson src={zarr} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}/>
+			<ReactJson src={zarr["T1"]} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}/>
+			<div>
+				<input 
+					value={command}
+					onChange={commandInput}
+				>
+				</input>
+				<button
+					onClick={() => alert("Hello")}
+				>
+					
+				</button>
+			</div>
 		</>
 	)
 }
