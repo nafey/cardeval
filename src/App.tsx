@@ -1,4 +1,4 @@
-import { Card, Context } from "./engine/Interfaces";
+import { Card, Context, State } from "./engine/Interfaces";
 import { CardEngine } from './engine/CardEngine.js';
 import './App.css'
 import Zone from "./engine/Zone.js";
@@ -23,7 +23,7 @@ engine.addMoveCheckRule({
 });
 
 
-engine.addZones(["T1", "T2", "Z3"]);
+engine.addZones(["T1", "T2", "T3"]);
 engine.addCard("T1", { suit: "D", num : 6 });
 
 
@@ -40,22 +40,23 @@ function App() {
 		setCommand(event.target.value);
 	};
 
+	let [gameState, setGameState] = useState<State>(engine.state)
 
-	
+
 
 
 	let zarr : {[key: string]: Card[]} = {}
 
-	let keys = Object.keys(engine.state.zones);
+	let keys = Object.keys(gameState.zones);
 	keys.forEach((v) =>{
-		zarr[v] = engine.state.zones[v].cards
+		zarr[v] = gameState.zones[v].cards
 	});
 
 	
 
 	return (
 		<>
-			<ReactJson src={zarr["T1"]} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}/>
+			<ReactJson src={zarr} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}/>
 			<div>
 				<input 
 					value={command}
@@ -63,9 +64,12 @@ function App() {
 				>
 				</input>
 				<button
-					onClick={() => alert("Hello")}
+					onClick={() => {
+						engine.moveCards("T2", 1, "T3");
+						setGameState(engine.state)
+					}}
 				>
-					
+					Submit
 				</button>
 			</div>
 		</>
