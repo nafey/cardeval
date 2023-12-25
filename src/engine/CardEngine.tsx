@@ -1,25 +1,18 @@
-import { State, Card, Context, MoveCheckRule } from "./Interfaces";
+import { State, Card, MoveCheckRule } from "./Interfaces";
+import Player from "./Player";
 import Zone from "./Zone";
 
 export class CardEngine {
 	state: State = {
 		moveCheckRules : [],
-		zones: {}
+		zones: {},
+		players: {}
+	}
+
+	constructor (playerName: string = "DEFAULT") {
+		this.state.players[playerName] = new Player(playerName, this);
 	}
     
-    getContext = (): Context => {
-        let c = {
-            getLastCard : (z:string): Card => {
-                let zone = this.getZone(z);
-                let card = zone.last()
-                
-                return card;
-            }
-        }
-                 
-        return c;
-    }
-
     addMoveCheckRule = (r: MoveCheckRule) => {
         this.state.moveCheckRules.push(r)
     }
@@ -28,13 +21,24 @@ export class CardEngine {
 		return this.state.moveCheckRules;
 	}
 
-    addZone = (z: string) => {
+	addPlayer = (name: string) => {
+		this.state.players[name] = new Player(name, this);
+	}
+
+    addZone = (z: string, playerName? : string) => {
         let newZone : Zone = new Zone(z)
+		if (playerName) {
+			newZone.owner = playerName;
+		}
+		else {
+			newZone.owner = this.getPlayer().name;
+		}
+
         this.setZone(z, newZone)
     }
 
 	addZones = (zones : string[]) => {
-		zones.forEach((z) => this.addZone(z))
+		zones.forEach((z) => this.addZone(z));
 	}
 
     getZone = (z: string) : Zone => {
@@ -48,7 +52,12 @@ export class CardEngine {
         }
     }
 
+
+
     addCard = (z : string, card: Card) => {
+		if (!("visible" in card)){
+			card.visible = true;
+		}
         this.getZone(z).add(card)
     }
 
@@ -59,12 +68,10 @@ export class CardEngine {
 	moveCards = (fromZone: string, atPos: number, toZone: string, count: number = -1) => {
 		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
 		let c = this.getZone(fromZone).at(atPos)
-		console.log(">>>>>>>>>> Here")
-		console.log(c)
 		let legal : boolean = true
 
 		moveRules.forEach((mr : MoveCheckRule) => {
-            let verdict : boolean = mr.rule(c, this.getZone(fromZone), this.getZone(toZone), this.getContext())
+            let verdict : boolean = mr.rule(c, this.getZone(fromZone), this.getZone(toZone))
             if (!verdict ) legal = false
         })
 
@@ -102,6 +109,15 @@ export class CardEngine {
             console.log(this.state)
         }
     }
+
+	getPlayer = (playerName? : string) => {
+		if (playerName) {
+			return this.state.players[playerName]
+		}
+		else {
+			return this.state.players[Object.keys(this.state.players)[0]]
+		}
+	}
 
 }
 

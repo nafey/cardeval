@@ -1,26 +1,28 @@
+import Player from "./Player";
 import Zone from "./Zone";
 
 export interface Card {
+	visible?: boolean,
     [key: string]: any;
 }
 
 export interface MoveCheckRule {
-	rule : (card: Card, fromZone: Zone, toZone: Zone, context : Context) => boolean
+	rule : (card: Card, fromZone: Zone, toZone: Zone) => boolean
 } 
-
-// export interface CardChoice {
-//     zone: string,
-//     by: string,
-//     at: string | number
-// }
 
 export interface State {
 	moveCheckRules : MoveCheckRule[],
 	zones: {
 		[key:string]: Zone
+	},
+	players: {
+		[key:string]: Player
 	}
 }
 
-export interface Context {
-	[key:string]: any
+export interface View {
+	[key:string]: Card[]
+
 }
+
+

@@ -5,8 +5,9 @@ let compareCards = (a: Card, b: Card) => {
 }
 
 export default class Zone {
-	name: string = ""
-	cards: Card[] = []
+	name: string = "";
+	cards: Card[] = [];
+	owner : string = "";
 
 	constructor(name: string) {
 		this.name = name;

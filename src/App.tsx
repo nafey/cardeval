@@ -1,4 +1,4 @@
-import { Card, Context, State } from "./engine/Interfaces";
+import { Card, State } from "./engine/Interfaces";
 import { CardEngine } from './engine/CardEngine.js';
 import './App.css'
 import Zone from "./engine/Zone.js";
@@ -9,7 +9,7 @@ import { useState } from "react";
 let engine: CardEngine = new CardEngine();
 
 engine.addMoveCheckRule({
-	rule: (card: Card, _fromZone: Zone, toZone: Zone, _context: Context) => {
+	rule: (card: Card, _fromZone: Zone, toZone: Zone) => {
 		if (toZone.size() < 1) return true;
 
 		let last = toZone.last()
@@ -27,10 +27,11 @@ engine.addZones(["T1", "T2", "T3"]);
 engine.addCard("T1", { suit: "D", num : 6 });
 
 
-engine.addCard("T2", { suit: "C", num: 11 });
+engine.addCard("T2", { suit: "C", num: 11, visible: false });
 engine.addCard("T2", { suit: "S", num: 5 });
 engine.addCard("T2", { suit: "D", num: 4 });
 
+console.log(engine.getPlayer().getView())
 
 
 function App() {
@@ -55,22 +56,10 @@ function App() {
 
 	return (
 		<>
-			<ReactJson 
-				key="jsonT1"
-				src={gameState?.zones["T1"].cards} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
-				onEdit={(e: any)=> {console.log(e)}}
+			<ReactJson
+				src={gameState?.zones} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
 			/>
 
-			<ReactJson 
-				key="jsonT2"
-				src={gameState?.zones["T2"].cards} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
-				onEdit={(e: any)=> {console.log(e)}}
-			/>
-			<ReactJson 
-				key="jsonT3"
-				src={gameState?.zones["T3"].cards} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
-				onEdit={(e: any)=> {console.log(e)}}
-			/>
 			<div>
 				<input 
 					value={command}
