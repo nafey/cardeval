@@ -33,7 +33,6 @@ engine.addCard("T2", { suit: "D", num: 4 });
 
 
 
-
 function App() {
 	let [command, setCommand] = useState<string>("");
 	const commandInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +55,22 @@ function App() {
 
 	return (
 		<>
-			<ReactJson src={zarr} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}/>
+			<ReactJson 
+				key="jsonT1"
+				src={gameState?.zones["T1"].cards} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
+				onEdit={(e: any)=> {console.log(e)}}
+			/>
+
+			<ReactJson 
+				key="jsonT2"
+				src={gameState?.zones["T2"].cards} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
+				onEdit={(e: any)=> {console.log(e)}}
+			/>
+			<ReactJson 
+				key="jsonT3"
+				src={gameState?.zones["T3"].cards} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
+				onEdit={(e: any)=> {console.log(e)}}
+			/>
 			<div>
 				<input 
 					value={command}
@@ -64,9 +78,10 @@ function App() {
 				>
 				</input>
 				<button
+					key="btn"
 					onClick={() => {
-						engine.moveCards("T2", 1, "T3");
-						setGameState(engine.state)
+						engine.moveCardRel("T1", "FIRST", "T3");
+						setGameState({...engine.state})
 					}}
 				>
 					Submit

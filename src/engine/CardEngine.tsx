@@ -59,6 +59,8 @@ export class CardEngine {
 	moveCards = (fromZone: string, atPos: number, toZone: string, count: number = -1) => {
 		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
 		let c = this.getZone(fromZone).at(atPos)
+		console.log(">>>>>>>>>> Here")
+		console.log(c)
 		let legal : boolean = true
 
 		moveRules.forEach((mr : MoveCheckRule) => {
