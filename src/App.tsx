@@ -1,10 +1,9 @@
-import { Card, State } from "./engine/Interfaces";
+import { Card } from "./engine/Interfaces";
 import { CardEngine } from './engine/CardEngine.js';
 import './App.css'
 import Zone from "./engine/Zone.js";
 import ReactJson from 'react-json-view'
 import { useState } from "react";
-
 
 let engine: CardEngine = new CardEngine();
 
@@ -22,16 +21,32 @@ engine.addMoveCheckRule({
 	}
 });
 
-
-engine.addZones(["T1", "T2", "T3"]);
+engine.addZones(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]);
 engine.addCard("T1", { suit: "D", num : 6 });
-
 
 engine.addCard("T2", { suit: "C", num: 11, visible: false });
 engine.addCard("T2", { suit: "S", num: 5 });
 engine.addCard("T2", { suit: "D", num: 4 });
 
-console.log(engine.getPlayer().getView())
+// let moveValidator = (m: ActionMessage) => {
+// 	let actionName = m.action;
+// 	let ret = {
+// 		valid: false,
+// 	}
+
+// 	let validFroms : string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "W"];
+// 	let validTos: string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS"];
+
+// 	let fromZone : string = m.fromZone as string;
+// 	let toZone : string = m.toZone as string;
+
+// 	if (!validFroms.includes(fromZone)) return {...ret, error: "Invalid From Zone"};
+// 	if (!validTos.includes(toZone)) return {...ret, error: "Invalid To Zone"};
+
+
+// 	return ret;
+
+// }
 
 
 function App() {
@@ -40,26 +55,13 @@ function App() {
 		setCommand(event.target.value);
 	};
 
-	let [gameState, setGameState] = useState<State>(engine.state)
-
-
-
-
-	let zarr : {[key: string]: Card[]} = {}
-
-	let keys = Object.keys(gameState.zones);
-	keys.forEach((v) =>{
-		zarr[v] = gameState.zones[v].cards
-	});
-
-	
+	let [view, setView] = useState<Record<string, Card[]>>(engine.getPlayer().getView())
 
 	return (
 		<>
 			<ReactJson
-				src={gameState?.zones} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
+				src={view} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
 			/>
-
 			<div>
 				<input 
 					value={command}
@@ -70,7 +72,7 @@ function App() {
 					key="btn"
 					onClick={() => {
 						engine.moveCardRel("T1", "FIRST", "T3");
-						setGameState({...engine.state})
+						setView(engine.getPlayer().getView())
 					}}
 				>
 					Submit

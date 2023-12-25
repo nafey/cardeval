@@ -1,17 +1,19 @@
 import { CardEngine } from "./CardEngine";
-import { View, Card} from "./Interfaces";
+import { Card, Action} from "./Interfaces";
+
 
 export default class Player {
 	name: string = ""
-	_e: CardEngine 
+	_e: CardEngine;
+	actions: Record<string, Action> = {}
 
 	constructor(n: string, engine: CardEngine) {
 		this.name = n;
 		this._e = engine;
 	}
 
-	getView = () : View => {
-		let v : View = {}
+	getView = () : Record<string, Card[]> => {
+		let v : Record<string, Card[]> = {}
 		let keys : string[] = Object.keys(this._e.state.zones)
 
 		for (let i = 0; i < keys.length; i++) {
@@ -19,7 +21,6 @@ export default class Player {
 			
 			v[k] = this.getZone(k);
 		}
-
 
 		return v;
 	}
@@ -49,12 +50,13 @@ export default class Player {
 		return ret;
 	}
 
+	// addAction = (
+	// 		actionName: string, 
+
+	// 	) => {
+		
+
+	// }
+
 	
-
-
-
-	
-
-	
-
 }

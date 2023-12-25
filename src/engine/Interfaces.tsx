@@ -1,3 +1,4 @@
+import { CardEngine } from "./CardEngine";
 import Player from "./Player";
 import Zone from "./Zone";
 
@@ -12,17 +13,22 @@ export interface MoveCheckRule {
 
 export interface State {
 	moveCheckRules : MoveCheckRule[],
-	zones: {
-		[key:string]: Zone
-	},
-	players: {
-		[key:string]: Player
-	}
+	zones: Record<string, Zone>,
+	players: Record<string, Player>
 }
 
-export interface View {
-	[key:string]: Card[]
 
+export interface ActionMessage {
+	action: string,
+	[key: string]: any;
+}
+
+export type Action = (m: ActionMessage, c: CardEngine, p: Player) => ActionResponse
+
+export interface ActionResponse {
+	valid: boolean,
+	error?: string,
+	[key:string]: any;
 }
 
 

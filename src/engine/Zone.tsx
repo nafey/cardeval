@@ -36,8 +36,6 @@ export default class Zone {
 
 	takeCards = (from: number, _count: number): Card[] => {
 
-		
-
 		let to = 0
 		if (_count === -1) {
 			to = this.cards.length;
@@ -46,9 +44,11 @@ export default class Zone {
 			to = (from + _count);
 		}
 
-		let ret: Card[] = this.cards.slice(from, from + 1);		
+		let ret: Card[] = this.cards.slice(from, to);		
 		let before: Card[] = this.cards.slice(0, from);
 		let after: Card[] = this.cards.slice(to);
+
+		console.log(after);
 
 		this.cards = [...before, ...after];
 
