@@ -1,4 +1,4 @@
-import { State, Card, MoveCheckRule, Action, ActionHandler } from "./Interfaces";
+import { State, Card, Action, ActionHandler } from "./Interfaces";
 import Player from "./Player";
 import Zone from "./Zone";
 
@@ -7,7 +7,6 @@ export class CardEngine {
 	actionHandlers : Record<string, ActionHandler> = {};
 	
 	state: State = {
-		moveCheckRules : [],
 		zones: {},
 		players: {}
 	}
@@ -37,14 +36,6 @@ export class CardEngine {
 
 	addHandler = (actionName : string, handler: ActionHandler) => {
 		this.actionHandlers[actionName] = handler;
-	}
-    
-    addMoveCheckRule = (r: MoveCheckRule) => {
-        this.state.moveCheckRules.push(r)
-    }
-
-	getMoveCheckRules = () : MoveCheckRule[] => {
-		return this.state.moveCheckRules;
 	}
 
 	addPlayer = (name: string) => {
@@ -82,7 +73,7 @@ export class CardEngine {
 		if (!("visible" in card)){
 			card.visible = true;
 		}
-        this.getZone(z).add(card)
+        this.getZone(z).add(card);
     }
 
 	addCards = (z: string, cards: Card[]) => {
@@ -90,49 +81,13 @@ export class CardEngine {
 	}
 
 	moveCards = (fromZone: string, atPos: number, toZone: string, count: number = -1) => {
-		let moveRules : MoveCheckRule[] = this.getMoveCheckRules()
-		let c = this.getZone(fromZone).at(atPos)
-		let legal : boolean = true
-
-		moveRules.forEach((mr : MoveCheckRule) => {
-            let verdict : boolean = mr.rule(c, this.getZone(fromZone), this.getZone(toZone))
-            if (!verdict ) legal = false
-        })
-
-        if (!legal) {
-			console.log("You cannot move that card to the chosen location")
-			return;
-		}
-
-		let carr = this.getZone(fromZone).takeCards(atPos, count) // TODO: move to takeStackFrom(atPos, count)
-		this.getZone(toZone).addMany(carr)
+		let carr = this.getZone(fromZone).takeCards(atPos, count);
+		this.getZone(toZone).addMany(carr);
 	}
 
 	moveCard = (fromZone: string, atPos: number, toZone: string) => {
 		return this.moveCards(fromZone, atPos, toZone, 1);
 	}
-
-	moveCardRel = (fromZone: string, relPos: string, toZone: string) => {
-		if (relPos === "FIRST") {
-			return this.moveCard(fromZone, 0, toZone);
-		}
-		else if (relPos === "LAST") {
-			let size = this.getZone(fromZone).size();
-			return this.moveCard(fromZone, size - 1, toZone);
-		}
-		else {
-			console.log("Relative Position not recognized")
-		}
-	}
-    
-    print = (z = "") => {
-        if (z) {
-            console.log(this.getZone(z))
-        }
-        else{
-            console.log(this.state)
-        }
-    }
 
 	getPlayer = (playerName? : string) => {
 		if (playerName) {

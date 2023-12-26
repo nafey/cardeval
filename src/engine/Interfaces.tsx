@@ -7,12 +7,7 @@ export interface Card {
     [key: string]: any;
 }
 
-export interface MoveCheckRule {
-	rule : (card: Card, fromZone: Zone, toZone: Zone) => boolean
-} 
-
 export interface State {
-	moveCheckRules : MoveCheckRule[],
 	zones: Record<string, Zone>,
 	players: Record<string, Player>
 }
@@ -24,4 +19,6 @@ export interface Action {
 }
 
 export type ActionHandler = (m: Action, c: CardEngine) => void
+
+
 

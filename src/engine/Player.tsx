@@ -2,6 +2,7 @@ import { CardEngine } from "./CardEngine";
 import { Card, ActionHandler} from "./Interfaces";
 
 
+
 export default class Player {
 	name: string = ""
 	_e: CardEngine;
@@ -12,8 +13,8 @@ export default class Player {
 		this._e = engine;
 	}
 
-	getView = () : Record<string, Card[]> => {
-		let v : Record<string, Card[]> = {}
+	getView = () : Record<string, string[]> => {
+		let v : Record<string, string[]> = {}
 		let keys : string[] = Object.keys(this._e.state.zones)
 
 		for (let i = 0; i < keys.length; i++) {
@@ -25,23 +26,23 @@ export default class Player {
 		return v;
 	}
 
-	getZone = (zoneName: string = "") : Card[] => {
-		let viewCard = (c: Card) : Card => {
+	getZone = (zoneName: string = "") : string[] => {
+		let viewCard = (c: Card) : string => {
 			let ret: Card = {}
 			if (!c.visible) {
-				return ret;
+				return "{ ... }";
 			}
 			ret = {...c}
 			for (const key in ret) {	
 				if (key === "visible") delete ret[key];
 			}
 	
-			return ret
+			return JSON.stringify(ret)
 		}
 
 
 		let z: Card[] = this._e.getZone(zoneName).cards;
-		let ret: Card[] = [];
+		let ret: string[] = [];
 
 		z.forEach((c: Card) => {
 			ret.push(viewCard(c));
@@ -49,14 +50,5 @@ export default class Player {
 
 		return ret;
 	}
-
-	// addAction = (
-	// 		actionName: string, 
-
-	// 	) => {
-		
-
-	// }
-
 	
 }
