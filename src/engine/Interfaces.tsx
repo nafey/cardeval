@@ -18,17 +18,10 @@ export interface State {
 }
 
 
-export interface ActionMessage {
-	action: string,
+export interface Action {
+	name: string,
 	[key: string]: any;
 }
 
-export type Action = (m: ActionMessage, c: CardEngine, p: Player) => ActionResponse
-
-export interface ActionResponse {
-	valid: boolean,
-	error?: string,
-	[key:string]: any;
-}
-
+export type ActionHandler = (m: Action, c: CardEngine) => void
 

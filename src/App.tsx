@@ -1,4 +1,4 @@
-import { Card } from "./engine/Interfaces";
+import { Action, Card } from "./engine/Interfaces";
 import { CardEngine } from './engine/CardEngine.js';
 import './App.css'
 import Zone from "./engine/Zone.js";
@@ -7,26 +7,26 @@ import { useState } from "react";
 
 let engine: CardEngine = new CardEngine();
 
-engine.addMoveCheckRule({
-	rule: (card: Card, _fromZone: Zone, toZone: Zone) => {
-		if (toZone.size() < 1) return true;
+// engine.addMoveCheckRule({
+// 	rule: (card: Card, _fromZone: Zone, toZone: Zone) => {
+// 		if (toZone.size() < 1) return true;
 
-		let last = toZone.last()
+// 		let last = toZone.last()
 
-		let redSuit = ["D", "H"]
-		let blackSuit = ["S", "C"]
+// 		let redSuit = ["D", "H"]
+// 		let blackSuit = ["S", "C"]
 
-		if ((redSuit.includes(last.suit) && redSuit.includes(card.suit)) || (blackSuit.includes(last.suit) && blackSuit.includes(card.suit))) return false;
-		else return true;
-	}
-});
+// 		if ((redSuit.includes(last.suit) && redSuit.includes(card.suit)) || (blackSuit.includes(last.suit) && blackSuit.includes(card.suit))) return false;
+// 		else return true;
+// 	}
+// });
 
-engine.addZones(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]);
-engine.addCard("T1", { suit: "D", num : 6 });
+// engine.addZones(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]);
+// engine.addCard("T1", { suit: "D", num : 6 });
 
-engine.addCard("T2", { suit: "C", num: 11, visible: false });
-engine.addCard("T2", { suit: "S", num: 5 });
-engine.addCard("T2", { suit: "D", num: 4 });
+// engine.addCard("T2", { suit: "C", num: 11, visible: false });
+// engine.addCard("T2", { suit: "S", num: 5 });
+// engine.addCard("T2", { suit: "D", num: 4 });
 
 // let moveValidator = (m: ActionMessage) => {
 // 	let actionName = m.action;
@@ -48,6 +48,23 @@ engine.addCard("T2", { suit: "D", num: 4 });
 
 // }
 
+const logHandler = (action : Action, e : CardEngine) => {
+	if (!action?.message) return;
+
+	console.log(action.message);
+}
+
+const log2Handler = (action: Action, e: CardEngine) => {
+	console.log("I will send a whaddup");
+	e.pushAction({
+		name: "LOG",
+		message: "Whaduup2"
+	});
+}
+
+engine.addHandler("LOG", logHandler);
+engine.addHandler("LOG2", log2Handler);
+engine.pushAction({name: "LOG2"});
 
 function App() {
 	let [command, setCommand] = useState<string>("");
@@ -59,9 +76,7 @@ function App() {
 
 	return (
 		<>
-			<ReactJson
-				src={view} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}
-			/>
+			<ReactJson src={view} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}/>
 			<div>
 				<input 
 					value={command}

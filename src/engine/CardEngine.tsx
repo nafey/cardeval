@@ -1,8 +1,11 @@
-import { State, Card, MoveCheckRule } from "./Interfaces";
+import { State, Card, MoveCheckRule, Action, ActionHandler } from "./Interfaces";
 import Player from "./Player";
 import Zone from "./Zone";
 
 export class CardEngine {
+	actions : Action[] = [];
+	actionHandlers : Record<string, ActionHandler> = {};
+	
 	state: State = {
 		moveCheckRules : [],
 		zones: {},
@@ -11,6 +14,29 @@ export class CardEngine {
 
 	constructor (playerName: string = "DEFAULT") {
 		this.state.players[playerName] = new Player(playerName, this);
+	}
+
+	pushAction = (action: Action) => {
+		this.actions.push(action);
+		this.nextAction();
+	}
+
+	nextAction = () => {
+		if (this.actions.length === 0) return
+
+		const a : Action = this.actions.pop()!;
+		this.eval(a);
+		this.nextAction();
+	}
+
+	eval = (action : Action) => {
+		const actionName = action.name;
+		const handler = this.actionHandlers[actionName];
+		handler(action, this);
+	}
+
+	addHandler = (actionName : string, handler: ActionHandler) => {
+		this.actionHandlers[actionName] = handler;
 	}
     
     addMoveCheckRule = (r: MoveCheckRule) => {
@@ -51,8 +77,6 @@ export class CardEngine {
             [z]: zone
         }
     }
-
-
 
     addCard = (z : string, card: Card) => {
 		if (!("visible" in card)){

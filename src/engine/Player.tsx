@@ -1,11 +1,11 @@
 import { CardEngine } from "./CardEngine";
-import { Card, Action} from "./Interfaces";
+import { Card, ActionHandler} from "./Interfaces";
 
 
 export default class Player {
 	name: string = ""
 	_e: CardEngine;
-	actions: Record<string, Action> = {}
+	actions: Record<string, ActionHandler> = {}
 
 	constructor(n: string, engine: CardEngine) {
 		this.name = n;
