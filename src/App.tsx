@@ -7,69 +7,88 @@ import { useState } from "react";
 
 let engine: CardEngine = new CardEngine();
 
-// engine.addMoveCheckRule({
-// 	rule: (card: Card, _fromZone: Zone, toZone: Zone) => {
-// 		if (toZone.size() < 1) return true;
 
-// 		let last = toZone.last()
+engine.addZones(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]);
+engine.addCard("T1", { suit: "D", num : 1, visible: false });
+engine.addCard("T1", { suit: "D", num : 6 });
 
-// 		let redSuit = ["D", "H"]
-// 		let blackSuit = ["S", "C"]
+engine.addCard("T2", { suit: "C", num: 11, visible: false });
+engine.addCard("T2", { suit: "S", num: 5 });
+engine.addCard("T2", { suit: "D", num: 4 });
 
-// 		if ((redSuit.includes(last.suit) && redSuit.includes(card.suit)) || (blackSuit.includes(last.suit) && blackSuit.includes(card.suit))) return false;
-// 		else return true;
-// 	}
-// });
-
-// engine.addZones(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]);
-// engine.addCard("T1", { suit: "D", num : 6 });
-
-// engine.addCard("T2", { suit: "C", num: 11, visible: false });
-// engine.addCard("T2", { suit: "S", num: 5 });
-// engine.addCard("T2", { suit: "D", num: 4 });
-
-// let moveValidator = (m: ActionMessage) => {
-// 	let actionName = m.action;
-// 	let ret = {
-// 		valid: false,
-// 	}
-
-// 	let validFroms : string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "W"];
-// 	let validTos: string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS"];
-
-// 	let fromZone : string = m.fromZone as string;
-// 	let toZone : string = m.toZone as string;
-
-// 	if (!validFroms.includes(fromZone)) return {...ret, error: "Invalid From Zone"};
-// 	if (!validTos.includes(toZone)) return {...ret, error: "Invalid To Zone"};
+engine.addCard("T3", {suit: "C", num: 7});
 
 
-// 	return ret;
-
-// }
-
-const logHandler = (action : Action, e : CardEngine) => {
-	if (!action?.message) return;
-
-	console.log(action.message);
+const flipHandler = (action: Action, e: CardEngine) => {
+	if (!action?.zoneName) return;
+	let zoneName = action.zoneName;
+	
+	const zone : Zone = e.getZone(zoneName);
+	if (zone.size() === 0) return;
+	if (!zone.last().visible) zone.flip(zone.size() - 1);
 }
 
-const log2Handler = (action: Action, e: CardEngine) => {
-	console.log("I will send a whaddup");
-	e.pushAction({
-		name: "LOG",
-		message: "Whaduup2"
-	});
+engine.addHandler("FLIP", flipHandler);
+
+const moveHandler = (action: Action, e: CardEngine) => {
+	const validFroms : string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "W"];
+	const validTos: string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS"];
+
+	const fromZoneName : string = action.fromZone as string;
+	const toZoneName : string = action.toZone as string;
+
+	if (!validFroms.includes(fromZoneName)) return;
+	if (!validTos.includes(toZoneName)) return;
+
+	const fromZone = e.getZone(fromZoneName);
+	const toZone = e.getZone(toZoneName);
+
+	if (fromZone.size() === 0) return;
+
+	let fromIndex : number = 0;
+	
+	for (let i = 0; i < fromZone.size(); i++) {
+		if (fromZone.cards[i].visible) {
+			fromIndex = i
+		}
+	}
+
+	let fromCard : Card = fromZone.cards[fromIndex];
+	
+	if (toZone.size() === 0) {
+		e.moveCards(fromZoneName, fromIndex, toZoneName);
+		return;
+	}
+	
+	let toCard : Card = toZone.last();
+
+	if (fromCard.num + 1 !== toCard.num) {
+		return;
+	}
+
+	let redSuit = ["D", "H"]
+	let blackSuit = ["S", "C"]
+
+	if ((redSuit.includes(fromCard.suit) && redSuit.includes(toCard.suit)) || (blackSuit.includes(fromCard.suit) && blackSuit.includes(toCard.suit))) return;
+
+	e.moveCards(fromZoneName, fromIndex, toZoneName);
+	e.pushAction({name: "FLIP", zoneName : fromZoneName})
 }
 
-engine.addHandler("LOG", logHandler);
-engine.addHandler("LOG2", log2Handler);
-engine.pushAction({name: "LOG2"});
+engine.addHandler("MOVE", moveHandler);
 
 function App() {
-	let [command, setCommand] = useState<string>("");
-	const commandInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setCommand(event.target.value);
+	let [fromZoneName, setFromZoneName] = useState<string>("");
+	let [toZoneName, setToZoneName] = useState<string>("");
+	
+
+
+	const fromZoneInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setFromZoneName(event.target.value);
+	};
+
+	const toZoneInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setToZoneName(event.target.value);
 	};
 
 	let [view, setView] = useState<Record<string, Card[]>>(engine.getPlayer().getView())
@@ -79,14 +98,20 @@ function App() {
 			<ReactJson src={view} theme={"monokai"} enableClipboard={false} displayDataTypes={false} displayObjectSize={false}/>
 			<div>
 				<input 
-					value={command}
-					onChange={commandInput}
+					key={1}
+					value={fromZoneName}
+					onChange={fromZoneInput}
 				>
 				</input>
+				<input
+					key={2}
+					value={toZoneName}
+					onChange={toZoneInput}
+				/>
 				<button
 					key="btn"
 					onClick={() => {
-						engine.moveCardRel("T1", "FIRST", "T3");
+						engine.pushAction({name: "MOVE", fromZone: fromZoneName, toZone: toZoneName});
 						setView(engine.getPlayer().getView())
 					}}
 				>
@@ -97,4 +122,4 @@ function App() {
 	)
 }
 
-export default App
+export default App;

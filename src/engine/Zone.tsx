@@ -25,6 +25,10 @@ export default class Zone {
 
 	last = (): Card => this.cards[this.cards.length - 1]
 
+	flip = (index: number)  => {
+		this.cards[index].visible = !this.cards[index].visible;
+	}
+
 	takeLast = (): Card => this.cards.pop()!
 
 	takeFirst = (): Card => {
@@ -48,10 +52,7 @@ export default class Zone {
 		let before: Card[] = this.cards.slice(0, from);
 		let after: Card[] = this.cards.slice(to);
 
-		console.log(after);
-
 		this.cards = [...before, ...after];
-
 		return ret;
 	}
 
