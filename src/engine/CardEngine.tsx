@@ -3,6 +3,7 @@ import Player from "./Player";
 import Zone from "./Zone";
 
 export class CardEngine {
+	
 	actions : Action[] = [];
 	actionHandlers : Record<string, ActionHandler> = {};
 	
@@ -29,9 +30,9 @@ export class CardEngine {
 	}
 
 	eval = (action : Action) => {
-		const actionName = action.name;
+		const actionName = action[0];
 		const handler = this.actionHandlers[actionName];
-		handler(action, this);
+		handler(action[1], this);
 	}
 
 	addHandler = (actionName : string, handler: ActionHandler) => {

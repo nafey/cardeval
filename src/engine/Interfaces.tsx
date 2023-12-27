@@ -12,13 +12,7 @@ export interface State {
 	players: Record<string, Player>
 }
 
-
-export interface Action {
-	name: string,
-	[key: string]: any;
-}
-
-export type ActionHandler = (m: Action, c: CardEngine) => void
+export type ActionHandler = (message:any, engine: CardEngine) => void
 
 
-
+export type Action = [string, any]

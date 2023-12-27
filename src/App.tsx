@@ -1,9 +1,9 @@
-import Solitaire from "./demo/Solitaire.js";
+import SolitaireView from "./demo/SolitaireView.js";
 
 function App() {
 	return (
 		<>
-			<Solitaire></Solitaire>
+			<SolitaireView></SolitaireView>
 		</>
 	)
 }
