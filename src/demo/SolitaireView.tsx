@@ -3,17 +3,18 @@ import { CardEngine } from '../engine/CardEngine.js';
 import ReactJson from 'react-json-view'
 import { useState } from "react";
 import SolitaireEngine from "./SolitaireEngine.js";
+import Card from "../engine/Card.js";
 
 let engine: CardEngine = SolitaireEngine();
 
-engine.addCard("T1", { suit: "D", num : 1, visible: false });
-engine.addCard("T1", { suit: "D", num : 6 });
+engine.addCard("T1", new Card(false, { suit: "D", num : 1 }));
+engine.addCard("T1", new Card(true, { suit: "D", num : 6 }));
 
-engine.addCard("T2", { suit: "C", num: 11, visible: false });
-engine.addCard("T2", { suit: "S", num: 5 });
-engine.addCard("T2", { suit: "D", num: 4 });
+engine.addCard("T2", new Card(false, { suit: "C", num: 11 }));
+engine.addCard("T2", new Card(true, { suit: "S", num: 5 }));
+engine.addCard("T2", new Card(true, { suit: "D", num: 4 }));
 
-engine.addCard("T3", {suit: "C", num: 7});
+engine.addCard("T3", new Card(true, {suit: "C", num: 7}));
 
 
 

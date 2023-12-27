@@ -13,20 +13,15 @@ const generateId = () : string => {
 export default class Card {
 	cardId: string = generateId()
 	visible: boolean = true;
-	vals: Record<string, any> = {}
-
-	get = (k: string) : any => this.vals[k];
-	set = (k: string, v: any) : any => this.vals[k] = v;
-
+	
 	constructor(visible: boolean = true, vals : Record<string, any> = {}) {
 		this.visible = visible;
 
 		Object.keys(vals).forEach((k: string) => {
 			if (k === "cardId" || k === "visible") return;
-			
-			this.vals[k] = vals[k];
-		})
+			this[k] = vals[k];
 
+		});
 	}
 
 	toString = () : string => {
@@ -38,6 +33,8 @@ export default class Card {
 
 		return str;
 	}
+
+	[key: string]: any;
 	
 	
 }

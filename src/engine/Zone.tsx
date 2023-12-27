@@ -1,4 +1,4 @@
-import { Card } from "./Interfaces";
+import Card from "./Card";
 
 let compareCards = (a: Card, b: Card) => {
 	return Object.entries(a).sort().toString() === Object.entries(b).sort().toString()

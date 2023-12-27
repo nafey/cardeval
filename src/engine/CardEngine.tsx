@@ -1,4 +1,5 @@
-import { State, Card, Action, ActionHandler } from "./Interfaces";
+import Card from "./Card";
+import { State, Action, ActionHandler } from "./Interfaces";
 import Player from "./Player";
 import Zone from "./Zone";
 
@@ -71,9 +72,6 @@ export class CardEngine {
     }
 
     addCard = (z : string, card: Card) => {
-		if (!("visible" in card)){
-			card.visible = true;
-		}
         this.getZone(z).add(card);
     }
 

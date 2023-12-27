@@ -1,5 +1,5 @@
+import Card from "../engine/Card";
 import { CardEngine } from "../engine/CardEngine";
-import { Card } from "../engine/Interfaces";
 import Zone from "../engine/Zone";
 
 interface FlipAction {
@@ -40,7 +40,10 @@ const SolitaireEngine = () : CardEngine => {
 		const fromZone = e.getZone(fromZoneName);
 		const toZone = e.getZone(toZoneName);
 
-		if (fromZone.size() === 0) return;
+		if (fromZone.size() === 0) {
+			return;
+		}
+
 
 		let fromIndex : number = 0;
 		
