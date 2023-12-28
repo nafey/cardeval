@@ -1,7 +1,7 @@
 import { test, expect } from "vitest";
-import SolitaireEngine from "./SolitaireEngine";
-import { CardEngine } from "../engine/CardEngine";
-import Card from "../engine/Card";
+import SolitaireEngine from "src/demo/solitaire/SolitaireEngine";
+import { CardEngine } from "src/engine/CardEngine";
+import Card from "src/engine/Card";
 
 let engine: CardEngine = SolitaireEngine();
 

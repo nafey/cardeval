@@ -1,8 +1,8 @@
 
-import { CardEngine } from '../engine/CardEngine.js';
+import { CardEngine } from "src/engine/CardEngine.js";
 import ReactJson from 'react-json-view'
 import { useState } from "react";
-import SolitaireEngine, {SolitaireCard} from "./SolitaireEngine.js";
+import SolitaireEngine, {SolitaireCard} from "src/demo/solitaire/SolitaireEngine";
 
 let engine: CardEngine = SolitaireEngine();
 

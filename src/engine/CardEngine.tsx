@@ -1,13 +1,12 @@
 import GameState from "./GameState";
 import { Action, ActionHandler } from "./Interfaces";
-import Player from "./Player";
 
 export class CardEngine {
 	
-	actions : Action[] = [];
-	actionHandlers : Record<string, ActionHandler> = {};
+	readonly actions : Action[] = [];
+	readonly actionHandlers : Record<string, ActionHandler> = {};
 	
-	state: GameState = new GameState();
+	readonly state: GameState = new GameState();
 
 	getState = () : GameState => this.state;
 
