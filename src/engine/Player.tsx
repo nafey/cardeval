@@ -1,5 +1,6 @@
 import Card from "./Card";
 import { CardEngine } from "./CardEngine";
+import GameState from "./GameState";
 import { ActionHandler} from "./Interfaces";
 
 const generateId = () : string => {
@@ -15,17 +16,17 @@ const generateId = () : string => {
 export default class Player {
 	playerId: string = generateId();
 	name: string = ""
-	_e: CardEngine;
+	_g: GameState;
 	actions: Record<string, ActionHandler> = {}
 
-	constructor(n: string, engine: CardEngine) {
+	constructor(n: string, state: GameState) {
 		this.name = n;
-		this._e = engine;
+		this._g = state;
 	}
 
 	getView = () : Record<string, string[]> => {
 		let v : Record<string, string[]> = {}
-		let keys : string[] = Object.keys(this._e.state.zones)
+		let keys : string[] = Object.keys(this._g.zones)
 
 		for (let i = 0; i < keys.length; i++) {
 			let k: string = keys[i];
@@ -47,7 +48,7 @@ export default class Player {
 		}
 
 
-		let z: Card[] = this._e.getZone(zoneName).cards;
+		let z: Card[] = this._g.getZone(zoneName).cards;
 		let ret: string[] = [];
 
 		z.forEach((c: Card) => {

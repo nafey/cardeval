@@ -6,14 +6,14 @@ import SolitaireEngine, {SolitaireCard} from "./SolitaireEngine.js";
 
 let engine: CardEngine = SolitaireEngine();
 
-engine.addCard("T1", new SolitaireCard(false, { suit: "D", num : 1 }));
-engine.addCard("T1", new SolitaireCard(true, { suit: "D", num : 6 }));
+engine.getState().addCard("T1", new SolitaireCard(false, { suit: "D", num : 1 }));
+engine.getState().addCard("T1", new SolitaireCard(true, { suit: "D", num : 6 }));
 
-engine.addCard("T2", new SolitaireCard(false, { suit: "C", num: 11 }));
-engine.addCard("T2", new SolitaireCard(true, { suit: "S", num: 5 }));
-engine.addCard("T2", new SolitaireCard(true, { suit: "D", num: 4 }));
+engine.getState().addCard("T2", new SolitaireCard(false, { suit: "C", num: 11 }));
+engine.getState().addCard("T2", new SolitaireCard(true, { suit: "S", num: 5 }));
+engine.getState().addCard("T2", new SolitaireCard(true, { suit: "D", num: 4 }));
 
-engine.addCard("T3", new SolitaireCard(true, {suit: "C", num: 7}));
+engine.getState().addCard("T3", new SolitaireCard(true, {suit: "C", num: 7}));
 
 
 function SolitaireView() {
@@ -30,7 +30,7 @@ function SolitaireView() {
 		setToZoneName(event.target.value);
 	};
 
-	let [view, setView] = useState<Record<string, string[]>>(engine.getPlayer().getView())
+	let [view, setView] = useState<Record<string, string[]>>(engine.getState().getPlayer().getView())
 
 	return (
 		<>
@@ -51,7 +51,7 @@ function SolitaireView() {
 					key="btn"
 					onClick={() => {
 						engine.pushAction(["MOVE", {fromZone: fromZoneName, toZone: toZoneName}]);
-						setView(engine.getPlayer().getView())
+						setView(engine.getState().getPlayer().getView())
 					}}
 				>
 					Submit

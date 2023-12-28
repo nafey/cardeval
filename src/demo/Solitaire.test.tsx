@@ -12,7 +12,7 @@ let engine: CardEngine = SolitaireEngine();
 // });
 
 test("Move one", () => {
-	engine.addCard("T1", new Card(true, { suit: "D", num : 1 }))
+	engine.getState().addCard("T1", new Card(true, { suit: "D", num : 1 }))
 	engine.pushAction([
 		"MOVE",
 		{
@@ -20,10 +20,10 @@ test("Move one", () => {
 			toZone: "T2"
 		}
 	]);
-	expect(engine.getZone("T2").size()).toEqual(1)
+	expect(engine.getState().getZone("T2").size()).toEqual(1)
 });
 
 test("Flip on move", () => {
-	engine.addCard("T1", new Card(true, { suit: "D", num : 1, visible: false }));
-	engine.addCard("T1", new Card(true, { suit: "D", num : 6 }));
+	engine.getState().addCard("T1", new Card(true, { suit: "D", num : 1, visible: false }));
+	engine.getState().addCard("T1", new Card(true, { suit: "D", num : 6 }));
 })

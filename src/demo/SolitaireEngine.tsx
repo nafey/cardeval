@@ -1,5 +1,6 @@
 import Card from "../engine/Card";
 import { CardEngine } from "../engine/CardEngine";
+import GameState from "../engine/GameState";
 import Zone from "../engine/Zone";
 
 interface FlipAction {
@@ -21,20 +22,20 @@ export class SolitaireCard extends Card {
 const SolitaireEngine = () : CardEngine => {
 
 	let engine : CardEngine = new CardEngine();
-	engine.addZones(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]);
+	engine.getState().addZones(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]);
 
-	const flipHandler = (action: FlipAction, e: CardEngine) => {
+	const flipHandler = (action: FlipAction, state: GameState) => {
 		if (!action?.zoneName) return;
 		let zoneName = action.zoneName;
 		
-		const zone : Zone = e.getZone(zoneName) ;
+		const zone : Zone = state.getZone(zoneName) ;
 		if (zone.size() === 0) return;
 		if (!zone.last().visible) zone.flip(zone.size() - 1);
 	}
 
 	engine.addHandler("FLIP", flipHandler);
 
-	const moveHandler = (action: MoveAction , e: CardEngine) => {	
+	const moveHandler = (action: MoveAction , state: GameState) => {	
 		const validFroms : string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "W"];
 		const validTos: string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS"];
 
@@ -44,8 +45,8 @@ const SolitaireEngine = () : CardEngine => {
 		if (!validFroms.includes(fromZoneName)) return;
 		if (!validTos.includes(toZoneName)) return;
 
-		const fromZone = e.getZone(fromZoneName);
-		const toZone = e.getZone(toZoneName);
+		const fromZone = state.getZone(fromZoneName);
+		const toZone = state.getZone(toZoneName);
 
 		if (fromZone.size() === 0) {
 			return;
@@ -64,7 +65,7 @@ const SolitaireEngine = () : CardEngine => {
 		let fromCard : Card = fromZone.cards[fromIndex];
 		
 		if (toZone.size() === 0) {
-			e.moveCards(fromZoneName, fromIndex, toZoneName);
+			state.moveCards(fromZoneName, fromIndex, toZoneName);
 			return;
 		}
 		
@@ -77,8 +78,8 @@ const SolitaireEngine = () : CardEngine => {
 
 		if ((redSuit.includes(fromCard.suit) && redSuit.includes(toCard.suit)) || (blackSuit.includes(fromCard.suit) && blackSuit.includes(toCard.suit))) return;
 
-		e.moveCards(fromZoneName, fromIndex, toZoneName);
-		e.pushAction(["FLIP", {zoneName : fromZoneName}])
+		state.moveCards(fromZoneName, fromIndex, toZoneName);
+		engine.pushAction(["FLIP", {zoneName : fromZoneName}])
 	}
 
 	engine.addHandler("MOVE", moveHandler);
