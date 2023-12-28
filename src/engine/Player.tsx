@@ -1,5 +1,6 @@
+import Card from "./Card";
 import { CardEngine } from "./CardEngine";
-import { Card, ActionHandler} from "./Interfaces";
+import { ActionHandler} from "./Interfaces";
 
 
 
@@ -28,16 +29,12 @@ export default class Player {
 
 	getZone = (zoneName: string = "") : string[] => {
 		let viewCard = (c: Card) : string => {
-			let ret: Card = {}
+			let ret: string = ""
 			if (!c.visible) {
-				return "{ ... }";
+				return "****";
 			}
-			ret = {...c}
-			for (const key in ret) {	
-				if (key === "visible") delete ret[key];
-			}
-	
-			return JSON.stringify(ret)
+			ret = c.toString();
+			return ret;
 		}
 
 

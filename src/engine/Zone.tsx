@@ -1,5 +1,16 @@
 import Card from "./Card";
 
+const generateId = () : string => {
+	let characters = "0123456789abcdef"
+	let str = characters[1 + Math.floor(Math.random() * 15)]
+	for(let i = 0; i < 20; i++){
+		str += characters[Math.floor(Math.random() * 16)]
+	}
+
+	return str;
+}
+
+
 let compareCards = (a: Card, b: Card) => {
 	return Object.entries(a).sort().toString() === Object.entries(b).sort().toString()
 }

@@ -27,14 +27,13 @@ export default class Card {
 	toString = () : string => {
 		let str = "";
 
-		Object.keys(this.vals).forEach((k: string) => {
-			str += k + ": " + this.vals[k] + " | ";
+		Object.keys(this).forEach((k: string) => {
+			if (["toString", "visible", "cardId"].includes(k)) return ;
+			str += k + ": " + this[k] + " | ";
 		})
 
 		return str;
 	}
 
 	[key: string]: any;
-	
-	
 }

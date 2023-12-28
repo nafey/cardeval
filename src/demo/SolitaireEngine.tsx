@@ -11,6 +11,13 @@ interface MoveAction {
 	toZone: string
 }
 
+export class SolitaireCard extends Card {
+	toString = () : string => {
+		return this.num + this.suit; 
+	}
+}
+
+
 const SolitaireEngine = () : CardEngine => {
 
 	let engine : CardEngine = new CardEngine();
