@@ -11,7 +11,7 @@ const generateId = () : string => {
 
 
 export default class Card {
-	cardId: string = generateId()
+	cardId: string = generateId();
 	visible: boolean = true;
 	
 	constructor(visible: boolean = true, vals : Record<string, any> = {}) {

@@ -16,6 +16,7 @@ let compareCards = (a: Card, b: Card) => {
 }
 
 export default class Zone {
+	zoneId : string = generateId();
 	name: string = "";
 	cards: Card[] = [];
 	owner : string = "";
@@ -24,17 +25,17 @@ export default class Zone {
 		this.name = name;
 	}
 
-	size = () : number => this.cards.length
+	size = () : number => this.cards.length;
 
-	add = (card: Card) => this.cards = [...this.cards, card]
+	add = (card: Card) => this.cards = [...this.cards, card];
 
-	addMany = (cards : Card[]) => this.cards = [...this.cards, ...cards]
+	addMany = (cards : Card[]) => this.cards = [...this.cards, ...cards];
 
-	at = (index: number) => this.cards[index]
+	at = (index: number) => this.cards[index];
 	
-	first = (): Card => this.cards[0]
+	first = (): Card => this.cards[0];
 
-	last = (): Card => this.cards[this.cards.length - 1]
+	last = (): Card => this.cards[this.cards.length - 1];
 
 	flip = (index: number)  => {
 		this.cards[index].visible = !this.cards[index].visible;
