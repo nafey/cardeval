@@ -41,13 +41,20 @@ export default class Zone {
 		this.cards[index].visible = !this.cards[index].visible;
 	}
 
-	takeLast = (): Card => this.cards.pop()!
+	takeLast = (): Card | undefined => this.cards.pop()
 
-	takeFirst = (): Card => {
+	takeFirst = (): Card | undefined => {
 		let ret: Card;
 		ret = this.cards[0]!;
 
 		return ret;
+	}
+
+	takeAt = (index: number) : Card | undefined => {
+		if (this.size() > index) {
+			return this.takeCards(index, 1)[0];
+		}
+		return undefined;
 	}
 
 	takeCards = (from: number, _count: number): Card[] => {
@@ -95,6 +102,33 @@ export default class Zone {
 
 		return idx;
 	}
+
+	getById = (cardId: string) : Card | undefined => {
+		for (let i = 0; i < this.cards.length; i++) {
+			if (cardId === this.cards[i].cardId) {
+				return this.cards[i];
+			}
+		}
+		return undefined;
+	}
+
+	getIndex(cardId: string) : number {
+		for (let i = 0; i < this.cards.length; i++) {
+			if (cardId === this.cards[i].cardId) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	removeById = (cardId: string) => {
+		let index = this.getIndex(cardId);
+		if (index >=0) {
+			this.takeAt(index);
+		}
+
+	}
+
 
 
 }

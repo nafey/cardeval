@@ -1,9 +1,9 @@
 import GameState from "./GameState";
-import { Action, ActionHandler } from "./Interfaces";
+import { ActionMessage, ActionHandler } from "./Interfaces";
 
 export class CardEngine {
 	
-	readonly actions : Action[] = [];
+	readonly actions : ActionMessage[] = [];
 	readonly actionHandlers : Record<string, ActionHandler> = {};
 	
 	readonly state: GameState = new GameState();
@@ -14,7 +14,7 @@ export class CardEngine {
 		this.actionHandlers[actionName] = handler;
 	}
 
-	pushAction = (action: Action) => {
+	pushAction = (action: ActionMessage) => {
 		this.actions.push(action);
 		this.nextAction();
 	}
@@ -22,12 +22,12 @@ export class CardEngine {
 	nextAction = () => {
 		if (this.actions.length === 0) return
 
-		const a : Action = this.actions.pop()!;
+		const a : ActionMessage = this.actions.pop()!;
 		this.eval(a);
 		this.nextAction();
 	}
 
-	eval = (action : Action) => {
+	eval = (action : ActionMessage) => {
 		const actionName = action[0];
 		const handler = this.actionHandlers[actionName];
 		handler(action[1], this.state);

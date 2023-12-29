@@ -36,6 +36,17 @@ export default class GameState  {
         return this.zones[z] 
     }
 
+	getZoneArray = () : Zone[] => {
+		let ret: Zone[] = [];	
+		let zoneNames : string[] = Object.keys(this.zones);
+
+		zoneNames.forEach((k: string) => {
+			ret.push(this.getZone(k));
+		});
+
+		return ret;
+	}
+
     setZone = (z: string, zone : Zone) => {
         this.zones = {
             ...this.zones,

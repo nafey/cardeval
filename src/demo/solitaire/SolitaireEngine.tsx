@@ -1,7 +1,7 @@
-import Card from "../../engine/Card";
-import { CardEngine } from "../../engine/CardEngine";
-import GameState from "../../engine/GameState";
-import Zone from "../../engine/Zone";
+import Card from "src/engine/Card";
+import { CardEngine } from "src/engine/CardEngine";
+import GameState from "src/engine/GameState";
+import Zone from "src/engine/Zone";
 
 interface FlipAction {
 	zoneName: string,
