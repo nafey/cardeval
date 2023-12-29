@@ -19,7 +19,7 @@ export default class Zone {
 	zoneId : string = generateId();
 	name: string = "";
 	cards: Card[] = [];
-	owner : string = "";
+	playerId : string | undefined; 
 
 	constructor(name: string) {
 		this.name = name;

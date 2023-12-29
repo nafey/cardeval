@@ -6,19 +6,18 @@ export default class State  {
 	
 	zones: Record<string, Zone> = {}
 
-	players: Record<string, Player> = {}
+	players: Player[] = []
 
-	addPlayer = (name: string) => {
-		this.players[name] = new Player(name, this);
+	addPlayer = (name: string = "") => {
+
+		let p = new Player(name, this);
+		this.players.push(p) 
 	}
 
-    addZone = (z: string, playerName? : string) => {
+    addZone = (z: string, playerId?: string) => {
         let newZone : Zone = new Zone(z)
-		if (playerName) {
-			newZone.owner = playerName;
-		}
-		else {
-			newZone.owner = this.getPlayer().name;
+		if (playerId) {
+			newZone.playerId = playerId;
 		}
 
         this.setZone(z, newZone)
@@ -28,6 +27,21 @@ export default class State  {
 		zones.forEach((z) => this.addZone(z));
 	}
 
+	getPlayerById = (playerId: string) : Player | undefined => {
+		let ret;
+		let idx = -1;
+		this.players.forEach((p:Player, i: number) => {
+			if (p.playerId === playerId ) { 
+				idx = i 
+			} 
+		})
+
+		if (idx) {
+			return this.players[idx]
+		}
+		return ret; 
+
+	}
     getZone = (z: string) : Zone => {
         return this.zones[z] 
     }
@@ -65,15 +79,6 @@ export default class State  {
 
 	moveCard = (fromZone: string, atPos: number, toZone: string) => {
 		return this.moveCards(fromZone, atPos, toZone, 1);
-	}
-
-	getPlayer = (playerName? : string) => {
-		if (playerName) {
-			return this.players[playerName]
-		}
-		else {
-			return this.players[Object.keys(this.players)[0]]
-		}
 	}
 
 }
