@@ -2,12 +2,8 @@ import Card from "./Card";
 import Player from "./Player";
 import Zone from "./Zone";
 
-export default class GameState  {
+export default class State  {
 	
-	constructor () {
-		this.players["DEFAULT"] = new Player("DEFAULT", this);
-	}
-
 	zones: Record<string, Zone> = {}
 
 	players: Record<string, Player> = {}

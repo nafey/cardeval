@@ -2,11 +2,11 @@ import ReactJson from "react-json-view";
 import HSEngine from "./HSEngine";
 import { useState } from "react";
 import { CardEngine } from "src/engine/CardEngine";
-import GameState from "src/engine/GameState";
+import State from "src/engine/State";
 import Card from "src/engine/Card";
 
 const engine : CardEngine = HSEngine();
-const state: GameState = engine.getState();
+const state: State = engine.getState();
 
 
 state.addCard("ME", new Card(true, {

@@ -1,6 +1,7 @@
 import Card from "./Card";
-import GameState from "./GameState";
+import State from "./State";
 import { ActionHandler} from "./Interfaces";
+import Zone from "./Zone";
 
 const generateId = () : string => {
 	let characters = "0123456789abcdef"
@@ -15,12 +16,20 @@ const generateId = () : string => {
 export default class Player {
 	playerId: string = generateId();
 	name: string = ""
-	_g: GameState;
-	actions: Record<string, ActionHandler> = {}
+	private _g: State;
+	private zones: Record<string, Zone> = {}
 
-	constructor(n: string, state: GameState) {
+	constructor(n: string, state: State) {
 		this.name = n;
 		this._g = state;
+	}
+
+	setZone = (zoneName: string, zone: Zone) => {
+		this.zones[zoneName] = zone
+	} 
+
+	getZone = (zoneName: string) : Zone => {
+		return this.zones[zoneName]
 	}
 
 	getView = () : Record<string, string[]> => {
@@ -30,13 +39,13 @@ export default class Player {
 		for (let i = 0; i < keys.length; i++) {
 			let k: string = keys[i];
 			
-			v[k] = this.getZone(k);
+			v[k] = this.getZoneView(k);
 		}
 
 		return v;
 	}
 
-	getZone = (zoneName: string = "") : string[] => {
+	getZoneView = (zoneName: string = "") : string[] => {
 		let viewCard = (c: Card) : string => {
 			let ret: string = ""
 			if (!c.visible) {

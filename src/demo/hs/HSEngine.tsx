@@ -1,16 +1,9 @@
 import Card from "src/engine/Card";
-import { CardEngine } from "src/engine/CardEngine"
-import GameState from "src/engine/GameState";
+import State from "src/engine/State";
 import Zone from "src/engine/Zone";
 
-interface AttackAction {
-	fromPos: number,
-	toPos: number
-}
-
-const HSEngine =  (): CardEngine => {
-	const engine : CardEngine = new CardEngine();
-	const state : GameState = engine.getState()
+const HSEngine = () => {
+	const state : State = new State();
 
 	state.addZones(["ME", "OPP", "HAND"]);		
 
@@ -34,11 +27,7 @@ const HSEngine =  (): CardEngine => {
 		})
 	}
 
-	const attackHandler = (action: AttackAction, _state: GameState) => {
-
-		const fromPos: number = action.fromPos;
-		const toPos: number = action.toPos; 
-
+	const attack = (fromPos: number, toPos: number) => {
 
 		let attacker : Card = ME.cards[fromPos] 
 		let defender : Card = OPP.cards[toPos];
@@ -48,8 +37,6 @@ const HSEngine =  (): CardEngine => {
 
 		removeDead();
 	}
-	engine.addHandler("ATTACK", attackHandler);
-	return engine;
 }
 
 export default HSEngine;

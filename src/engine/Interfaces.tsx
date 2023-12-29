@@ -1,5 +1,5 @@
-import GameState from "./GameState";
+import State from "./State";
 
 
-export type ActionHandler = (message:any, state: GameState) => void
+export type ActionHandler = (message:any, state: State) => void
 export type ActionMessage = [string, any]

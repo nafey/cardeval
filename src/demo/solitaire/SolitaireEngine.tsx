@@ -1,6 +1,6 @@
 import Card from "src/engine/Card";
 import { CardEngine } from "src/engine/CardEngine";
-import GameState from "src/engine/GameState";
+import State from "src/engine/State";
 import Zone from "src/engine/Zone";
 
 interface FlipAction {
@@ -24,7 +24,7 @@ const SolitaireEngine = () : CardEngine => {
 	let engine : CardEngine = new CardEngine();
 	engine.getState().addZones(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]);
 
-	const flipHandler = (action: FlipAction, state: GameState) => {
+	const flipHandler = (action: FlipAction, state: State) => {
 		if (!action?.zoneName) return;
 		let zoneName = action.zoneName;
 		
@@ -35,7 +35,7 @@ const SolitaireEngine = () : CardEngine => {
 
 	engine.addHandler("FLIP", flipHandler);
 
-	const moveHandler = (action: MoveAction , state: GameState) => {	
+	const moveHandler = (action: MoveAction , state: State) => {	
 		const validFroms : string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "W"];
 		const validTos: string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS"];
 
