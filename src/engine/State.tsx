@@ -34,7 +34,7 @@ export default class State  {
 			} 
 		})
 
-		if (idx) {
+		if (idx > -1) {
 			return this.players[idx]
 		}
 		return ret; 

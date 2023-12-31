@@ -5,9 +5,22 @@
         "health": 3
     },
     "MUR_RDR": {
-
         "name": "Murloc Raider",
         "attack" : 2,
         "health" : 1
+    },
+    "BOAR" : {
+        "name" : "Boar",
+        "attack" : 1,
+        "health" : 1
+    },
+    "RZR" : {
+       "name" : "Razorfen Hunter",
+       "attack" : 2,
+       "health" : 3,
+       "bcry" : {
+            "type" : "SUMMON",
+            "card" : "BOAR"
+       } 
     }
 }

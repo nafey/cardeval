@@ -3,6 +3,13 @@ import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
 
+export class HSCard extends Card {
+	toString = () : string => {
+		if (!this.visible) return "****";
+
+		return this.name + " " + this.attack + " " + this.health + " ";	
+	}
+} 
 class HSEngine {
 	private state : State = new State();
 	active : number = 0;
@@ -11,7 +18,6 @@ class HSEngine {
 		// state.addZones(["ME", "OPP", "HAND"]);		
 		this.state.newPlayer();
 		this.state.newPlayer();
-
 		this.state.getPlayers().forEach((p:Player) => {
 			p.setZone("BF", this.state.newZone());
 			p.setZone("HAND", this.state.newZone());
@@ -38,11 +44,39 @@ class HSEngine {
 		you["HAND"] = this.getOtherPlayer().getZone("HAND").getView(); 
 
 		let v : Record<string, Record<string, string[]>> = {}
-		v["ME"] = me;
 		v["YOU"] = you;
+		v["ME"] = me;
 
 		return v;
 	} 
+
+	summon = (playerId : string, card : Card) => {
+		let p : Player = this.state.getPlayerById(playerId)!;
+		if (!p) return;
+
+		let bf : Zone = p.getZone("BF");
+
+		bf.addCard(card);
+	}
+
+	play = (playerId: string, cardId : string) => {
+		let p : Player = this.state.getPlayerById(playerId)!;
+		if (!p) {
+			console.log("Play: Player not found") 
+			return;
+		}
+
+		let hand: Zone = p.getZone("HAND");
+
+		let idx : number = hand.getIndex(cardId);
+		if (idx < 0) {
+			console.log("Card not found");
+			return;
+		}
+		let card : Card = hand.takeAt(idx)!;
+
+		this.summon(playerId, card);
+	}
 	
 	removeDead = () => {
 		this.state.getZones().forEach((z: Zone) => {
