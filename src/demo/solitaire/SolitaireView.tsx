@@ -1,20 +1,18 @@
-
-import { CardEngine } from "src/engine/CardEngine.js";
 import ReactJson from 'react-json-view'
 import { useState } from "react";
 import SolitaireEngine, {SolitaireCard} from "src/demo/solitaire/SolitaireEngine";
+import Player from 'src/engine/Player';
 
-let engine: CardEngine = SolitaireEngine();
+let engine : SolitaireEngine = new SolitaireEngine();
 
-engine.getState().addCard("T1", new SolitaireCard(false, { suit: "D", num : 1 }));
-engine.getState().addCard("T1", new SolitaireCard(true, { suit: "D", num : 6 }));
+let p : Player = engine.getPlayer()
 
-engine.getState().addCard("T2", new SolitaireCard(false, { suit: "C", num: 11 }));
-engine.getState().addCard("T2", new SolitaireCard(true, { suit: "S", num: 5 }));
-engine.getState().addCard("T2", new SolitaireCard(true, { suit: "D", num: 4 }));
-
-engine.getState().addCard("T3", new SolitaireCard(true, {suit: "C", num: 7}));
-
+p.getZone("T1").addCard(new SolitaireCard(false, { suit: "D", num : 1 }));
+p.getZone("T1").addCard(new SolitaireCard(true, { suit: "D", num : 6 }));
+p.getZone("T2").addCard(new SolitaireCard(false, { suit: "C", num : 11 }));
+p.getZone("T2").addCard(new SolitaireCard(true, { suit: "S", num : 5 }));
+p.getZone("T2").addCard(new SolitaireCard(true, { suit: "D", num : 4 }));
+p.getZone("T3").addCard(new SolitaireCard(true, { suit: "D", num : 7 }));
 
 function SolitaireView() {
 	let [fromZoneName, setFromZoneName] = useState<string>("");
@@ -30,7 +28,7 @@ function SolitaireView() {
 		setToZoneName(event.target.value);
 	};
 
-	let [view, setView] = useState<Record<string, string[]>>(engine.getState().getPlayer().getView())
+	let [view, setView] = useState<Record<string, string[]>>(engine.getState().getView())
 
 	return (
 		<>
@@ -50,8 +48,8 @@ function SolitaireView() {
 				<button
 					key="btn"
 					onClick={() => {
-						engine.pushAction(["MOVE", {fromZone: fromZoneName, toZone: toZoneName}]);
-						setView(engine.getState().getPlayer().getView())
+						engine.moveHandler(fromZoneName, toZoneName);
+						setView(engine.getState().getView())
 					}}
 				>
 					Submit

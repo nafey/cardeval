@@ -4,31 +4,29 @@ import Zone from "./Zone";
 
 export default class State  {
 	
-	zones: Record<string, Zone> = {}
+	private zones: Zone[] = [] 
 
-	players: Player[] = []
+	private players: Player[] = []
 
-	addPlayer = (name: string = "") => {
 
-		let p = new Player(name, this);
-		this.players.push(p) 
+	newPlayer = () : Player => {
+		let p : Player = new Player();
+		this.players.push(p);
+		return p;
 	}
 
-    addZone = (z: string, playerId?: string) => {
-        let newZone : Zone = new Zone(z)
-		if (playerId) {
-			newZone.playerId = playerId;
-		}
-
-        this.setZone(z, newZone)
+    newZone = () : Zone => {
+    	let z : Zone = new Zone();
+    	this.zones.push(z);
+    	return z;		
     }
 
-	addZones = (zones : string[]) => {
-		zones.forEach((z) => this.addZone(z));
-	}
+    getPlayers = () : Player[] => {
+    	return this.players;
+    }
 
 	getPlayerById = (playerId: string) : Player | undefined => {
-		let ret;
+		let ret : Player | undefined;
 		let idx = -1;
 		this.players.forEach((p:Player, i: number) => {
 			if (p.playerId === playerId ) { 
@@ -42,43 +40,62 @@ export default class State  {
 		return ret; 
 
 	}
-    getZone = (z: string) : Zone => {
-        return this.zones[z] 
-    }
 
-	getZoneArray = () : Zone[] => {
-		let ret: Zone[] = [];	
-		let zoneNames : string[] = Object.keys(this.zones);
-
-		zoneNames.forEach((k: string) => {
-			ret.push(this.getZone(k));
-		});
-
-		return ret;
+	getZones = () => {
+		return this.zones;
 	}
 
-    setZone = (z: string, zone : Zone) => {
-        this.zones = {
-            ...this.zones,
-            [z]: zone
-        }
-    }
 
-    addCard = (z : string, card: Card) => {
-        this.getZone(z).add(card);
+	getZoneById = (zoneId: string) : Zone | undefined => {
+
+		let ret : Zone | undefined;
+		let idx = -1;
+		this.zones.forEach((z: Zone, i: number) => {
+			if (z.zoneId === zoneId) { 
+				idx = i 
+			} 
+		})
+
+		if (idx >= 0) {
+			return this.zones[idx]
+		}
+		return ret; 
+	}
+
+    addCard = (zoneId : string, card: Card) => {
+		let z : Zone = this.getZoneById(zoneId)!
+        z.addCard(card);
     }
 
 	addCards = (z: string, cards: Card[]) => {
 		cards.forEach((c) => this.addCard(z, c));
 	}
 
-	moveCards = (fromZone: string, atPos: number, toZone: string, count: number = -1) => {
-		let carr = this.getZone(fromZone).takeCards(atPos, count);
-		this.getZone(toZone).addMany(carr);
+	moveCards = (fromZoneId: string, cardId: string, toZoneId: string, count: number = -1) => {
+		let from : Zone = this.getZoneById(fromZoneId)!;
+		let to : Zone = this.getZoneById(toZoneId)!;
+
+		let idx : number = from.getIndex(cardId); 
+		if (idx === -1) return;
+
+		let carr : Card[] = from.takeCards(idx, count);
+		to.addMany(carr);
 	}
 
-	moveCard = (fromZone: string, atPos: number, toZone: string) => {
-		return this.moveCards(fromZone, atPos, toZone, 1);
+	moveCard = (fromZone: string, cardId: string, toZone: string) => {
+		return this.moveCards(fromZone, cardId, toZone, 1);
 	}
 
-}
+
+	getView = () : Record<string, string[]> => {
+		let v : Record<string, string[]> = {}
+
+		for (let i = 0; i < this.zones.length; i++) {
+			let zone: Zone = this.zones[i];
+			
+			v[zone.zoneId] = zone.getZoneView();
+		}
+
+		return v;
+	}
+ }

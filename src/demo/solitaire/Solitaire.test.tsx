@@ -1,9 +1,9 @@
 import { test, expect } from "vitest";
 import SolitaireEngine from "src/demo/solitaire/SolitaireEngine";
-import { CardEngine } from "src/engine/CardEngine";
 import Card from "src/engine/Card";
+import Player from "src/engine/Player";
 
-let engine: CardEngine = SolitaireEngine();
+let engine: SolitaireEngine = new SolitaireEngine();
 
 
 // test("Add Card", () => {
@@ -12,18 +12,18 @@ let engine: CardEngine = SolitaireEngine();
 // });
 
 test("Move one", () => {
-	engine.getState().addCard("T1", new Card(true, { suit: "D", num : 1 }))
-	engine.pushAction([
-		"MOVE",
-		{
-			fromZone: "T1",
-			toZone: "T2"
-		}
-	]);
-	expect(engine.getState().getZone("T2").size()).toEqual(1)
+	let p : Player = engine.getPlayer();
+	// engine.getState().addCard("T1", new Card(true, { suit: "D", num : 1 }))
+	p.getZone("T1").addCard(new Card(true, {suit: "D", num: 1} ))
+	// engine.pushAction([
+	// 	"MOVE",
+	// 	{
+	// 		fromZone: "T1",
+	// 		toZone: "T2"
+	// 	}
+	// ]);
+	engine.moveHandler("T1", "T2")
+	expect(p.getZone("T2").size()).toEqual(1)
+	
 });
 
-test("Flip on move", () => {
-	engine.getState().addCard("T1", new Card(true, { suit: "D", num : 1, visible: false }));
-	engine.getState().addCard("T1", new Card(true, { suit: "D", num : 6 }));
-})

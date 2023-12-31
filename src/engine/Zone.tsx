@@ -17,17 +17,13 @@ let compareCards = (a: Card, b: Card) => {
 
 export default class Zone {
 	zoneId : string = generateId();
-	name: string = "";
 	cards: Card[] = [];
 	playerId : string | undefined; 
 
-	constructor(name: string) {
-		this.name = name;
-	}
 
 	size = () : number => this.cards.length;
 
-	add = (card: Card) => this.cards = [...this.cards, card];
+	addCard = (card: Card) => this.cards = [...this.cards, card];
 
 	addMany = (cards : Card[]) => this.cards = [...this.cards, ...cards];
 
@@ -103,6 +99,28 @@ export default class Zone {
 		return idx;
 	}
 
+	getZoneView  = () : string [] => {
+
+		let viewCard = (c: Card) : string => {
+			let ret: string = ""
+			if (!c.visible) {
+				return "****";
+			}
+			ret = c.toString();
+			return ret;
+		}
+
+
+		let ret: string[] = [];
+
+		this.cards.forEach((c: Card) => {
+			ret.push(viewCard(c));
+		});
+
+		return ret;
+	}
+
+	
 	getById = (cardId: string) : Card | undefined => {
 		for (let i = 0; i < this.cards.length; i++) {
 			if (cardId === this.cards[i].cardId) {

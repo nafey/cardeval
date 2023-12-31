@@ -1,5 +1,5 @@
-import State from "./State";
+// import State from "./State";
 
 
-export type ActionHandler = (message:any, state: State) => void
-export type ActionMessage = [string, any]
+// export type ActionHandler = (message:any, state: State) => void
+// export type ActionMessage = [string, any]

@@ -1,19 +1,38 @@
 import Card from "src/engine/Card";
+import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
 
-const HSEngine = () => {
-	const state : State = new State();
+class HSEngine {
+	private state : State = new State();
+	active : number = 0;
 
-	state.addZones(["ME", "OPP", "HAND"]);		
+	constructor() {
+		// state.addZones(["ME", "OPP", "HAND"]);		
+		this.state.newPlayer();
+		this.state.newPlayer();
 
-	const ME: Zone = state.getZone("ME");
-	const OPP: Zone = state.getZone("OPP");
-	const HAND: Zone = state.getZone("HAND");
+		this.state.getPlayers().forEach((p:Player) => {
+			p.setZone("BF", this.state.newZone());
+			p.setZone("HAND", this.state.newZone());
+		})
 
-	const removeDead = () => {
+	}
 
-		state.getZoneArray().forEach((z: Zone) => {
+	getActivePlayer = () : Player => {
+		return this.state.getPlayers()[this.active];
+	}
+
+	getOtherPlayer = () : Player => {
+		return this.state.getPlayers()[1 - this.active];
+	}
+
+	getView = () : Record<string, string[]> => {
+		return this.state.getView();
+	} 
+	
+	removeDead = () => {
+		this.state.getZones().forEach((z: Zone) => {
 			let deadIds :string[] = []	
 			z.cards.forEach((card) => {
 				if (card.health <= 0) {
@@ -27,15 +46,18 @@ const HSEngine = () => {
 		})
 	}
 
-	const attack = (fromPos: number, toPos: number) => {
+	attack = (fromPos: number, toPos: number) => {
 
-		let attacker : Card = ME.cards[fromPos] 
-		let defender : Card = OPP.cards[toPos];
+		let p : Player = this.getActivePlayer();
+		let o : Player = this.getOtherPlayer();
+
+		let attacker : Card = p.getZone("BF").cards[fromPos] 
+		let defender : Card = o.getZone("BF").cards[toPos];
 
 		defender.health -= attacker.attack;
 		attacker.health -= defender.attack;	
 
-		removeDead();
+		this.removeDead();
 	}
 }
 
