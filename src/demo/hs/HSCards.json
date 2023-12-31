@@ -1,0 +1,13 @@
+{
+    "CROC": {
+        "name": "River Croc",
+        "attack": 2,
+        "health": 3
+    },
+    "MUR_RDR": {
+
+        "name": "Murloc Raider",
+        "attack" : 2,
+        "health" : 1
+    }
+}
