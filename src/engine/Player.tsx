@@ -12,14 +12,24 @@ const generateId = () : string => {
 
 export default class Player {
 	playerId: string = generateId();
-	private zones: Record<string, Zone> = {}
+	private name: string = "";
+	private zones: Record<string, Zone> = {};
 
+	constructor (n: string = "") {
+		this.name = n;
+	}
+
+	getName = () : string => {
+		return this.name;
+	}
 
 	setZone = (zoneName: string, zone: Zone) => {
-		this.zones[zoneName] = zone
+		zone.playerId = this.playerId;
+		this.zones[zoneName] = zone;
 	} 
 
 	getZone = (zoneName: string) : Zone => {
 		return this.zones[zoneName]
 	}
+
 }

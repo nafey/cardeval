@@ -54,7 +54,6 @@ export default class Zone {
 	}
 
 	takeCards = (from: number, _count: number): Card[] => {
-
 		let to = 0
 		if (_count === -1) {
 			to = this.cards.length;
@@ -99,8 +98,7 @@ export default class Zone {
 		return idx;
 	}
 
-	getZoneView  = () : string [] => {
-
+	getView  = () : string [] => {
 		let viewCard = (c: Card) : string => {
 			let ret: string = ""
 			if (!c.visible) {
@@ -109,7 +107,6 @@ export default class Zone {
 			ret = c.toString();
 			return ret;
 		}
-
 
 		let ret: string[] = [];
 

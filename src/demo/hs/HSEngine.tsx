@@ -27,8 +27,21 @@ class HSEngine {
 		return this.state.getPlayers()[1 - this.active];
 	}
 
-	getView = () : Record<string, string[]> => {
-		return this.state.getView();
+	getView = () : Record<string, Record<string, string[]>> => {
+		// return this.state.getView();
+
+		let me : Record<string, string[]> = {}
+		me["BF"] = this.getActivePlayer().getZone("BF").getView(); 
+		me["HAND"] = this.getActivePlayer().getZone("HAND").getView(); 
+		let you : Record<string, string[]> = {}
+		you["BF"] = this.getOtherPlayer().getZone("BF").getView(); 
+		you["HAND"] = this.getOtherPlayer().getZone("HAND").getView(); 
+
+		let v : Record<string, Record<string, string[]>> = {}
+		v["ME"] = me;
+		v["YOU"] = you;
+
+		return v;
 	} 
 	
 	removeDead = () => {

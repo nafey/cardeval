@@ -86,16 +86,20 @@ export default class State  {
 		return this.moveCards(fromZone, cardId, toZone, 1);
 	}
 
-
-	getView = () : Record<string, string[]> => {
-		let v : Record<string, string[]> = {}
-
-		for (let i = 0; i < this.zones.length; i++) {
-			let zone: Zone = this.zones[i];
+	// getView = () : Record<string, string[]> => {
+	// 	let v : Record<string, string[]> = {};
+	// 	for (let i = 0; i < this.zones.length; i++) {
+	// 		let zone: Zone = this.zones[i];
+	// 		if (zone.size() < 1) continue;
 			
-			v[zone.zoneId] = zone.getZoneView();
-		}
+	// 		let k : string = zone.zoneId;
+	// 		if (zone.playerId) {
+	// 			let p = this.getPlayerById(zone.playerId);
+	// 			let zname = 	
+	// 		}
+	// 		v[zone.zoneId] = zone.getZoneView();
+	// 	}
 
-		return v;
-	}
+	// 	return v;
+	// }
  }

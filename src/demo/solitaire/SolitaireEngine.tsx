@@ -23,12 +23,22 @@ class SolitaireEngine  {
 		})
 	}
 
-	getState = () => {
+	getState = () : State => {
 		return this.state;
 	}
 
-	getPlayer = () => {
+	getPlayer = () : Player => {
 		return this.state.getPlayers()[0];
+	}
+
+	getView = ()  : Record<string, string[]> => {
+		let v : Record<string, string[]> = {};
+
+		(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]).forEach((z: string) => {
+			v[z] = this.getPlayer().getZone(z).getView();
+		});
+
+		return v;
 	}
 
 	flipHandler = (zoneName: string) => {		
