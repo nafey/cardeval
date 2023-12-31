@@ -20,7 +20,7 @@
        "health" : 3,
        "bcry" : {
             "type" : "SUMMON",
-            "card" : "BOAR"
+            "code" : "BOAR"
        } 
     }
 }

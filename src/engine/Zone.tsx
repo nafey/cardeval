@@ -128,9 +128,7 @@ export default class Zone {
 	}
 
 	getIndex(cardId: string) : number {
-		console.log("cardId >>>>>>>>> " + cardId);
 		for (let i = 0; i < this.cards.length; i++) {
-			console.log("i cardID" + this.cards[i].cardId);
 			if (cardId === this.cards[i].cardId) {
 				return i;
 			}

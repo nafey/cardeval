@@ -2,6 +2,7 @@ import Card from "src/engine/Card";
 import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
+import HSCards from "src/demo/hs/HSCards.json"; 
 
 export class HSCard extends Card {
 	toString = () : string => {
@@ -50,12 +51,20 @@ class HSEngine {
 		return v;
 	} 
 
+	battleCry = (playerId: string, card: Card) => {
+		if (!card?.bcry) return;
+
+		if (card.bcry.type === "SUMMON") {
+			let code : Card = card.bcry.code;
+			this.summon(playerId, new HSCard(true, HSCards[code]));	
+		}
+	}
+
 	summon = (playerId : string, card : Card) => {
 		let p : Player = this.state.getPlayerById(playerId)!;
 		if (!p) return;
 
 		let bf : Zone = p.getZone("BF");
-
 		bf.addCard(card);
 	}
 
@@ -76,6 +85,7 @@ class HSEngine {
 		let card : Card = hand.takeAt(idx)!;
 
 		this.summon(playerId, card);
+		this.battleCry(playerId, card);
 	}
 	
 	removeDead = () => {
