@@ -22,5 +22,10 @@
             "type" : "SUMMON",
             "code" : "BOAR"
        } 
+    },
+    "RPTR" : {
+        "name" : "Bloodfen Raptor",
+        "attack": 3,
+        "health": 2
     }
 }

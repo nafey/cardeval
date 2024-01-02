@@ -10,6 +10,7 @@ const engine : HSEngine = new HSEngine();
 
 let o : Player = engine.getOtherPlayer();
 o.getZone("BF").addCard( new HSCard(true, HSCards.MUR_RDR));
+o.getZone("BF").addCard(new HSCard(true, HSCards.RPTR));
 
 let p : Player = engine.getActivePlayer();
 p.getZone("BF").addCard( new HSCard(true, HSCards.CROC));
