@@ -31,8 +31,8 @@ class HSEngine {
 		this.state.getPlayers().forEach((p:Player) => {
 			p.setZone("BF", this.state.newZone());
 			p.setZone("HAND", this.state.newZone());
-		})
-
+			p.setZone("DECK", this.state.newZone());
+		});
 	}
 
 	getActivePlayer = () : Player => {
@@ -60,19 +60,62 @@ class HSEngine {
 		return v;
 	} 
 
-	removeDead = () => {
-		this.state.getZones().forEach((z: Zone) => {
-			let deadIds :string[] = []	
-			z.cards.forEach((card) => {
-				if (card.health <= 0) {
-					deadIds.push(card.cardId);
-				}
-			});
+	getBFCard = (playerId : string, cardId : string) : Card | undefined => {
+		let p : Player = this.state.getPlayerById(playerId)!;
+		if (!p) return;
+		
+		let c : Card = p.getZone("BF").getById(cardId)!;
+		if (!c) return;
 
-			deadIds.forEach((cardId: string) => {
-				z.removeById(cardId);
-			});
-		})
+		return c;
+	}
+
+	draw = (playerId : string) => {
+
+		let p : Player = this.state.getPlayerById(playerId)!;
+		if (!p) return;
+		if (p.getZone("DECK").size() < 1) return;
+
+		let c : Card = p.getZone("DECK").takeLast()!;
+		if (!c) return;
+
+		p.getZone("HAND").addCard(c);
+	}
+
+	deathRattle = (playerId : string, death : any) => {
+		if (death.type === "DRAW") {
+			let val : number = death.val;
+			for (let i = 0; i < val; i++) {
+				this.draw(playerId);
+			}			
+		}
+	}
+
+	removeDeadForPlayer = (playerId : string) => {
+		let p : Player = this.state.getPlayerById(playerId)!;
+		if (!p) return;
+
+		let deadIds : string [] = [];
+		p.getZone("BF").cards.forEach ((card) => {
+			if (card.health <= 0) {
+				deadIds.push(card.cardId);
+			}
+		});	
+
+		deadIds.forEach((cardId : string) => {
+			let c : Card = p.getZone("BF").getById(cardId)!;
+			if (!c) return;
+
+			p.getZone("BF").removeById(cardId);
+			if (c?.death) {
+				this.deathRattle(playerId, c.death);
+			}
+		});
+	}
+
+	removeDead = () => {
+		this.removeDeadForPlayer(this.getActivePlayer().playerId);
+		this.removeDeadForPlayer(this.getOtherPlayer().playerId);
 	}
 
 	damageCard = (playerId: string , cardId: string, val: number) => {

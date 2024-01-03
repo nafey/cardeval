@@ -9,8 +9,9 @@ const engine : HSEngine = new HSEngine();
 const cardsList : any = HSCards();
 
 let o : Player = engine.getOtherPlayer();
-o.getZone("BF").addCard( new HSCard(true, cardsList.MUR_RDR));
+o.getZone("BF").addCard( new HSCard(true, cardsList.LOOT));
 o.getZone("BF").addCard(new HSCard(true, cardsList.RPTR));
+o.getZone("DECK").addCard(new HSCard(true, cardsList.MURRDR));
 
 let p : Player = engine.getActivePlayer();
 p.getZone("BF").addCard( new HSCard(true, cardsList.CROC));
@@ -25,6 +26,7 @@ function HSView () {
 		// engine.attack(0, 1)
 		// engine.play(p.playerId, p.getZone("HAND").cards[0].cardId);
 		engine.play(p.playerId, p.getZone("HAND").cards[1].cardId, {"targetType" : "MIN", "playerId" : engine.getOtherPlayer().playerId, "cardId" : o.getZone("BF").cards[0].cardId});
+		// engine.draw(o.playerId);
 		setView(engine.getView());
 	}
 	

@@ -6,7 +6,7 @@ let cards : Record<string, any> = {
             "attack": 2,
             "health": 3
         },
-        "MUR_RDR": {
+        "MURRDR": {
             "name": "Murloc Raider",
             "attack" : 2,
             "health" : 1
@@ -34,13 +34,23 @@ let cards : Record<string, any> = {
             "name" : "Ironforge Dwarf",
             "attack" : 2,
             "health" : 2,
-            "target" : "ANY",
+            "targetType" : "ANY",
             "bcry" : {
                 "type" : "DAMAGE",
                 "val" : 1
             }
+        },
+        "LOOT" : {
+            "name" : "Loot Hoarder",
+            "attack" : 2,
+            "health" : 1,
+            "death" : {
+                "type" : "DRAW",
+                "val" : 1
+            }
         }
     }
+
 
     return cards;
 }
