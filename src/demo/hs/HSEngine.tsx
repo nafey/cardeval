@@ -92,7 +92,6 @@ class HSEngine {
 	}
 
 	draw = (playerId : string) => {
-
 		let p : Player = this.state.getPlayerById(playerId)!;
 		if (!p) return;
 		if (p.zones.DECK.size() < 1) return;
