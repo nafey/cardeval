@@ -8,9 +8,9 @@ let engine: SolitaireEngine = new SolitaireEngine();
 
 test("Move one", () => {
 	let p : Player = engine.getPlayer();
-	p.getZone("T1").addCard(new Card({suit: "D", num: 1} ))
+	p.zones.T1.addCard(new Card({suit: "D", num: 1} ))
 	engine.moveHandler("T1", "T2")
-	expect(p.getZone("T2").size()).toEqual(1)
+	expect(p.zones.T2.size()).toEqual(1)
 	
 });
 

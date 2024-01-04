@@ -19,7 +19,7 @@ class SolitaireEngine  {
 		let p : Player = this.state.newPlayer();
 		(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]).forEach((s: string) => {
 			let z = this.state.newZone() 
-			p.setZone(s, z);
+			p.addZone(s, z);
 		})
 	}
 
@@ -35,7 +35,7 @@ class SolitaireEngine  {
 		let v : Record<string, string[]> = {};
 
 		(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]).forEach((z: string) => {
-			v[z] = this.getPlayer().getZone(z).getView();
+			v[z] = this.getPlayer().zones[z].getView();
 		});
 
 		return v;
@@ -44,7 +44,7 @@ class SolitaireEngine  {
 	flipHandler = (zoneName: string) => {		
 		console.log("flipHandler")
 		let p : Player = this.getPlayer();
-		const zone : Zone = p.getZone(zoneName) ;
+		const zone : Zone = p.zones[zoneName] ;
 		if (zone.size() === 0) return;
 		if (!zone.last().visible) zone.flip(zone.size() - 1);
 	}
@@ -58,8 +58,8 @@ class SolitaireEngine  {
 		if (!validFroms.includes(fromZoneName)) return;
 		if (!validTos.includes(toZoneName)) return;
 
-		const fromZone = p.getZone(fromZoneName);
-		const toZone = p.getZone(toZoneName);
+		const fromZone = p.zones[fromZoneName];
+		const toZone = p.zones[toZoneName];
 
 		if (fromZone.size() === 0) {
 			return;

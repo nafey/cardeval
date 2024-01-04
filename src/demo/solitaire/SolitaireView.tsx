@@ -7,12 +7,12 @@ let engine : SolitaireEngine = new SolitaireEngine();
 
 let p : Player = engine.getPlayer()
 
-p.getZone("T1").addCard(new SolitaireCard({ suit: "D", num : 1 }, false));
-p.getZone("T1").addCard(new SolitaireCard({ suit: "D", num : 6 }, true));
-p.getZone("T2").addCard(new SolitaireCard({ suit: "C", num : 11 }, false));
-p.getZone("T2").addCard(new SolitaireCard({ suit: "S", num : 5 }, true));
-p.getZone("T2").addCard(new SolitaireCard({ suit: "D", num : 4 }, true));
-p.getZone("T3").addCard(new SolitaireCard({ suit: "D", num : 7 }, true));
+p.zones.T1.addCard(new SolitaireCard({ suit: "D", num : 1 }, false));
+p.zones.T1.addCard(new SolitaireCard({ suit: "D", num : 6 }, true));
+p.zones.T2.addCard(new SolitaireCard({ suit: "C", num : 11 }, false));
+p.zones.T2.addCard(new SolitaireCard({ suit: "S", num : 5 }, true));
+p.zones.T2.addCard(new SolitaireCard({ suit: "D", num : 4 }, true));
+p.zones.T3.addCard(new SolitaireCard({ suit: "D", num : 7 }, true));
 
 function SolitaireView() {
 	let [fromZoneName, setFromZoneName] = useState<string>("");

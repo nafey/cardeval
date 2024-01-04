@@ -9,21 +9,20 @@ const engine : HSEngine = new HSEngine();
 const cardsList : any = HSCards();
 
 let o : Player = engine.getOtherPlayer();
-o.getZone("BF").addCard( new HSCard(cardsList.LOOT));
-o.getZone("BF").addCard(new HSCard(cardsList.RPTR));
-o.getZone("DECK").addCard(new HSCard(cardsList.MRDR));
+o.zones.BF.addCard(new HSCard(cardsList.LOOT));
+o.zones.BF.addCard(new HSCard(cardsList.RPTR));
+o.zones.DECK.addCard(new HSCard(cardsList.MRDR));
 
 let p : Player = engine.getActivePlayer();
-p.getZone("BF").addCard( new HSCard(cardsList.CROC));
-p.getZone("HAND").addCard(new HSCard(cardsList.RZRH));
-p.getZone("HAND").addCard(new HSCard(cardsList.IRON));
-
+p.zones.BF.addCard(new HSCard(cardsList.CROC));
+p.zones.HAND.addCard(new HSCard(cardsList.RZRH));
+p.zones.HAND.addCard(new HSCard(cardsList.IRON));
 
 function HSView () {
 
 	let [view, setView] = useState<Record<string, Record<string, string[]>>>(engine.getView())
 	let onClick = () => {
-		engine.attack(0, 0)	;
+		engine.attack(0, 0);
 		// engine.play(p.playerId, p.getZone("HAND").cards[0].cardId);
 		// engine.play(p.playerId, p.getZone("HAND").cards[1].cardId, {"targetType" : "MIN", "playerId" : engine.getOtherPlayer().playerId, "cardId" : o.getZone("BF").cards[0].cardId});
 		// engine.draw(o.playerId);

@@ -25,14 +25,22 @@ class HSEngine {
 	active : number = 0;
 
 	constructor() {
-		// state.addZones(["ME", "OPP", "HAND"]);		
-		this.state.newPlayer();
-		this.state.newPlayer();
+		let p1 : Player = this.state.newPlayer();
+		let p2 : Player = this.state.newPlayer();
+
 		this.state.getPlayers().forEach((p:Player) => {
-			p.setZone("BF", this.state.newZone());
-			p.setZone("HAND", this.state.newZone());
-			p.setZone("DECK", this.state.newZone());
+			p.addZone("BF", this.state.newZone());
+			p.addZone("HAND", this.state.newZone());
+			p.addZone("DECK", this.state.newZone());
 		});
+
+		p1.zones.OPP_BF = p2.zones.BF; 
+		p1.zones.OPP_HAND = p2.zones.HAND; 
+		p1.zones.OPP_DECK = p2.zones.DECK; 
+
+		p2.zones.OPP_BF = p1.zones.BF; 
+		p2.zones.OPP_HAND = p1.zones.HAND; 
+		p2.zones.OPP_DECK = p1.zones.DECK; 
 	}
 
 	getActivePlayer = () : Player => {
@@ -43,15 +51,35 @@ class HSEngine {
 		return this.state.getPlayers()[1 - this.active];
 	}
 
+
+	getZoneView  = (zone : Zone) : string [] => {
+		let viewCard = (c: Card) : string => {
+			let ret: string = ""
+			if (!c.visible) {
+				return "****";
+			}
+			ret = c.toString();
+			return ret;
+		}
+
+		let ret: string[] = [];
+
+		zone.cards.forEach((c: Card) => {
+			ret.push(viewCard(c));
+		});
+
+		return ret;
+	}
+
 	getView = () : Record<string, Record<string, string[]>> => {
 		// return this.state.getView();
 
 		let me : Record<string, string[]> = {}
-		me["BF"] = this.getActivePlayer().getZone("BF").getView(); 
-		me["HAND"] = this.getActivePlayer().getZone("HAND").getView(); 
+		me["BF"] = this.getZoneView(this.getActivePlayer().zones.BF); 
+		me["HAND"] = this.getZoneView(this.getActivePlayer().zones.HAND); 
 		let you : Record<string, string[]> = {}
-		you["BF"] = this.getOtherPlayer().getZone("BF").getView(); 
-		you["HAND"] = this.getOtherPlayer().getZone("HAND").getView(); 
+		you["BF"] = this.getZoneView(this.getOtherPlayer().zones.BF); 
+		you["HAND"] = this.getZoneView(this.getOtherPlayer().zones.HAND); 
 
 		let v : Record<string, Record<string, string[]>> = {}
 		v["YOU"] = you;
@@ -64,7 +92,7 @@ class HSEngine {
 		let p : Player = this.state.getPlayerById(playerId)!;
 		if (!p) return;
 		
-		let c : Card = p.getZone("BF").getById(cardId)!;
+		let c : Card = p.zones.BF.getById(cardId)!;
 		if (!c) return;
 
 		return c;
@@ -74,12 +102,12 @@ class HSEngine {
 
 		let p : Player = this.state.getPlayerById(playerId)!;
 		if (!p) return;
-		if (p.getZone("DECK").size() < 1) return;
+		if (p.zones.DECK.size() < 1) return;
 
-		let c : Card = p.getZone("DECK").takeLast()!;
+		let c : Card = p.zones.DECK.takeLast()!;
 		if (!c) return;
 
-		p.getZone("HAND").addCard(c);
+		p.zones.HAND.addCard(c);
 	}
 
 	deathRattle = (playerId : string, death : any) => {
@@ -96,17 +124,17 @@ class HSEngine {
 		if (!p) return;
 
 		let deadIds : string [] = [];
-		p.getZone("BF").cards.forEach ((card) => {
+		p.zones.BF.cards.forEach ((card) => {
 			if (card.health <= 0) {
 				deadIds.push(card.cardId);
 			}
 		});	
 
 		deadIds.forEach((cardId : string) => {
-			let c : Card = p.getZone("BF").getById(cardId)!;
+			let c : Card = p.zones.BF.getById(cardId)!;
 			if (!c) return;
 
-			p.getZone("BF").removeById(cardId);
+			p.zones.BF.removeById(cardId);
 			if (c?.death) {
 				this.deathRattle(playerId, c.death);
 			}
@@ -119,7 +147,7 @@ class HSEngine {
 	}
 
 	damageCard = (playerId: string , cardId: string, val: number) => {
-		let card : Card = this.state.getPlayerById(playerId)?.getZone("BF").getById(cardId)!;
+		let card : Card = this.state.getPlayerById(playerId)?.zones.BF.getById(cardId)!;
 		if (!card) return;
 
 		card.health -= val;
@@ -141,7 +169,7 @@ class HSEngine {
 		let p : Player = this.state.getPlayerById(playerId)!;
 		if (!p) return;
 
-		let bf : Zone = p.getZone("BF");
+		let bf : Zone = p.zones.BF;
 		bf.addCard(card);
 	}
 
@@ -150,7 +178,7 @@ class HSEngine {
 
 		if (card.bcry.type === "SUMMON") {
 			let code : string = card.bcry.code;
-			this.summon(playerId, new HSCard(true, cardList[code]));	
+			this.summon(playerId, new HSCard(cardList[code]));	
 		}
 		else if (card.bcry.type === "DAMAGE") {
 			if (!target) return;		
@@ -168,7 +196,7 @@ class HSEngine {
 			return;
 		}
 
-		let hand: Zone = p.getZone("HAND");
+		let hand: Zone = p.zones.HAND;
 
 		let idx : number = hand.getIndex(cardId);
 		if (idx < 0) {
@@ -187,8 +215,8 @@ class HSEngine {
 		let p : Player = this.getActivePlayer();
 		let o : Player = this.getOtherPlayer();
 
-		let attacker : Card = p.getZone("BF").cards[fromPos] 
-		let defender : Card = o.getZone("BF").cards[toPos];
+		let attacker : Card = p.zones.BF.cards[fromPos] 
+		let defender : Card = o.zones.BF.cards[toPos];
 
 		this.damageCard(o.playerId, defender.cardId, attacker.attack);
 		this.damageCard(p.playerId, attacker.cardId, defender.attack);
