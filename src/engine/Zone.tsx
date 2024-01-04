@@ -82,20 +82,11 @@ export default class Zone {
 		return found;
 	}
 
-	findCardIndex = (card: Card): number => {
-		if (!this.hasCard(card)) return -1;
-
-		let idx = 0;
+	findCard = (cardId: string): Card | undefined => {
 		for (let i = 0; i < this.cards.length; i++) {
-			let citem = this.cards[i];
-
-			if (compareCards(citem, card)) {
-				idx = i;
-				break;
-			}
+			let citem : Card = this.cards[i];
+			if (citem.cardId === cardId) return citem;
 		}
-
-		return idx;
 	}
 
 	getView  = () : string [] => {
@@ -127,7 +118,7 @@ export default class Zone {
 		return undefined;
 	}
 
-	getIndex(cardId: string) : number {
+	getIndex = (cardId: string) : number => {
 		for (let i = 0; i < this.cards.length; i++) {
 			if (cardId === this.cards[i].cardId) {
 				return i;
@@ -141,9 +132,5 @@ export default class Zone {
 		if (index >=0) {
 			this.takeAt(index);
 		}
-
 	}
-
-
-
 }

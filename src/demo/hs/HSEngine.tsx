@@ -14,12 +14,6 @@ export class HSCard extends Card {
 	}
 } 
 
-export interface HSTarget {
-	targetType? : string,
-	playerId? : string,
-	cardId? : string
-}
-
 class HSEngine {
 	private state : State = new State();
 	active : number = 0;
@@ -50,7 +44,6 @@ class HSEngine {
 	getOtherPlayer = () : Player => {
 		return this.state.getPlayers()[1 - this.active];
 	}
-
 
 	getZoneView  = (zone : Zone) : string [] => {
 		let viewCard = (c: Card) : string => {
@@ -146,23 +139,20 @@ class HSEngine {
 		this.removeDeadForPlayer(this.getOtherPlayer().playerId);
 	}
 
-	damageCard = (playerId: string , cardId: string, val: number) => {
-		let card : Card = this.state.getPlayerById(playerId)?.zones.BF.getById(cardId)!;
+	damageCard = (cardId: string, val: number) => {
+		let card : Card = this.state.findCard(cardId)!;
 		if (!card) return;
 
 		card.health -= val;
 		this.removeDead();
 	}
 
-	damageTarget = (target: HSTarget, val: number) => {
-		if (target.targetType === "MIN") {
-			if (!target.playerId) return;
+	damageTarget = (playerId: string, targetZoneName: string, targetIndex: number, val: number) => {
+		let p : Player = this.state.getPlayerById(playerId)!; 
+		let card : Card = p.zones[targetZoneName].cards[targetIndex];
+		if (!card) return;
 
-			let playerId : string = target.playerId!;
-			let cardId : string = target.cardId!;
-
-			this.damageCard(playerId, cardId, val);
-		}
+		this.damageCard(card.cardId, val);
 	}
 
 	summon = (playerId : string, card : Card) => {
@@ -173,7 +163,7 @@ class HSEngine {
 		bf.addCard(card);
 	}
 
-	battleCry = (playerId: string, card: Card, target : HSTarget = {})=> {
+	battleCry = (playerId: string, card: Card, targetZoneName?: string, targetIndex?: number)=> {
 		if (!card?.bcry) return;
 
 		if (card.bcry.type === "SUMMON") {
@@ -181,15 +171,15 @@ class HSEngine {
 			this.summon(playerId, new HSCard(cardList[code]));	
 		}
 		else if (card.bcry.type === "DAMAGE") {
-			if (!target) return;		
-			this.damageTarget(target, card.bcry.val);
+			if (!targetZoneName || targetIndex! < 0) return;		
+			this.damageTarget(playerId, targetZoneName!, targetIndex!, card.bcry.val);
 		}
 		else {
 
 		}
 	}
 
-	play = (playerId: string, cardId : string, target: HSTarget = {}) => {
+	play = (playerId: string, cardId : string, targetZoneName?: string, targetIndex?: number) => {
 		let p : Player = this.state.getPlayerById(playerId)!;
 		if (!p) {
 			console.log("Play: Player not found") 
@@ -203,10 +193,10 @@ class HSEngine {
 			console.log("Card not found");
 			return;
 		}
-		let card : Card = hand.takeAt(idx)!;
 
+		let card : Card = hand.takeAt(idx)!;
 		this.summon(playerId, card);
-		this.battleCry(playerId, card, target);
+		this.battleCry(playerId, card, targetZoneName, targetIndex);
 	}
 	
 	
@@ -218,12 +208,13 @@ class HSEngine {
 		let attacker : Card = p.zones.BF.cards[fromPos] 
 		let defender : Card = o.zones.BF.cards[toPos];
 
-		this.damageCard(o.playerId, defender.cardId, attacker.attack);
-		this.damageCard(p.playerId, attacker.cardId, defender.attack);
+		this.damageCard(defender.cardId, attacker.attack);
+		this.damageCard(attacker.cardId, defender.attack);
 		// attacker.health -= defender.attack;	
 
 		this.removeDead();
 	}
+
 }
 
 export default HSEngine;

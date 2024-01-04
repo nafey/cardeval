@@ -55,7 +55,8 @@ test ("Battlecry", () => {
 	o.zones.BF.addCard(new HSCard(cardsList.LOOT));
 	o.zones.DECK.addCard(new HSCard(cardsList.RZRH));
 
-	engine.play(p.playerId, p.zones.HAND.cards[0].cardId, {"targetType" : "MIN", "playerId" : engine.getOtherPlayer().playerId, "cardId" : o.zones.BF.cards[0].cardId});
+	engine.play(p.playerId, p.zones.HAND.cards[0].cardId, "OPP_BF", 0);
+	// engine.play(p.playerId, )
 	expect(o.zones.HAND.size()).toEqual(1)
 
 });
