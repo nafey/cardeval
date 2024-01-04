@@ -161,7 +161,7 @@ class HSEngine {
 		}
 	}
 
-	play = (playerId: string, cardId : string, target: HSTarget) => {
+	play = (playerId: string, cardId : string, target: HSTarget = {}) => {
 		let p : Player = this.state.getPlayerById(playerId)!;
 		if (!p) {
 			console.log("Play: Player not found") 
@@ -192,7 +192,6 @@ class HSEngine {
 
 		this.damageCard(o.playerId, defender.cardId, attacker.attack);
 		this.damageCard(p.playerId, attacker.cardId, defender.attack);
-		// defender.health -= attacker.attack;
 		// attacker.health -= defender.attack;	
 
 		this.removeDead();

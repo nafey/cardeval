@@ -12,9 +12,9 @@ const generateId = () : string => {
 
 export default class Card {
 	cardId: string = generateId();
-	visible: boolean = true;
+	visible?: boolean = true;
 	
-	constructor(visible: boolean = true, vals : Record<string, any> = {}) {
+	constructor(vals : Record<string, any> = {}, visible: boolean = true) {
 		this.visible = visible;
 
 		Object.keys(vals).forEach((k: string) => {
