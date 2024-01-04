@@ -67,13 +67,13 @@ class SolitaireEngine  {
 
 		let fromIndex : number = 0
 		for (let i = 0; i < fromZone.size(); i++) {
-			if (fromZone.cards[i].visible) {
+			if (fromZone.at(i).visible) {
 				fromIndex = i
 				break;
 			}
 		}
 
-		let fromCard : Card = fromZone.cards[fromIndex];
+		let fromCard : Card = fromZone.at(fromIndex);
 		
 		if (toZone.size() === 0) {
 			this.state.moveCards(fromZone.zoneId, fromCard.cardId, toZone.zoneId);

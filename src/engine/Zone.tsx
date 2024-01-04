@@ -17,21 +17,49 @@ let compareCards = (a: Card, b: Card) => {
 
 export default class Zone {
 	zoneId : string = generateId();
-	cards: Card[] = [];
+	private cards: Card[] = [];
 	playerId : string | undefined; 
-
+	limit : number = 0;
+	haveLimit : boolean = false;
 
 	size = () : number => this.cards.length;
 
-	addCard = (card: Card) => this.cards = [...this.cards, card];
+	addCard = (card: Card) => {
+		if (this.haveLimit) {
+			if (this.cards.length < this.limit) {
+				this.cards.push(card);
+			}
+		}
+		else {
+			this.cards.push(card); 
+		}
+	}
 
-	addMany = (cards : Card[]) => this.cards = [...this.cards, ...cards];
+	addMany = (cards : Card[]) => {
+		if (this.haveLimit) {
+			if (this.cards.length + cards.length <= this.limit) {
+				this.cards.concat(cards);
+			} 
+		}
+		else {
+			this.cards.concat(cards);
+		}
+	}
+
+	setLimit = (l : number) => {
+		if (!this.haveLimit) this.haveLimit = true;
+		this.limit = l;
+	}
 
 	at = (index: number) => this.cards[index];
 	
 	first = (): Card => this.cards[0];
 
 	last = (): Card => this.cards[this.cards.length - 1];
+
+	forEach = (fn : (c : Card) => any) => {
+		this.cards.forEach(fn);	
+	}
 
 	flip = (index: number)  => {
 		this.cards[index].visible = !this.cards[index].visible;
