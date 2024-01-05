@@ -42,7 +42,6 @@ class SolitaireEngine  {
 	}
 
 	flipHandler = (zoneName: string) => {		
-		console.log("flipHandler")
 		let p : Player = this.getPlayer();
 		const zone : Zone = p.zones[zoneName] ;
 		if (zone.size() === 0) return;
@@ -57,7 +56,6 @@ class SolitaireEngine  {
 
 		if (!validFroms.includes(fromZoneName)) return;
 		if (!validTos.includes(toZoneName)) return;
-
 		const fromZone = p.zones[fromZoneName];
 		const toZone = p.zones[toZoneName];
 

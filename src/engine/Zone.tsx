@@ -38,12 +38,21 @@ export default class Zone {
 	addMany = (cards : Card[]) => {
 		if (this.haveLimit) {
 			if (this.cards.length + cards.length <= this.limit) {
-				this.cards.concat(cards);
+				cards.forEach((c : Card) => {
+					this.addCard(c);
+				});
 			} 
+			else {
+				console.error("TODO: Unimplemented case");
+				// cards.slice(0,	 )	
+			}
 		}
 		else {
-			this.cards.concat(cards);
+			cards.forEach((c : Card) => {
+				this.addCard(c);
+			});
 		}
+
 	}
 
 	setLimit = (l : number) => {

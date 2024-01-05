@@ -8,6 +8,7 @@ export default class State  {
 
 	private players: Player[] = []
 
+	private activePlayer : number = 0;
 
 	newPlayer = () : Player => {
 		let p : Player = new Player();
@@ -19,6 +20,18 @@ export default class State  {
     	let z : Zone = new Zone();
     	this.zones.push(z);
     	return z;		
+    }
+
+    getActivePlayer = () : Player => {
+    	return this.players[this.activePlayer];
+    }
+
+    getNextPlayer = () : Player => {
+    	return this.players[(this.activePlayer + 1) % this.players.length];
+    }
+
+    nextPlayerTurn = () => {
+    	this.activePlayer = (this.activePlayer + 1) % this.players.length;
     }
 
     getPlayers = () : Player[] => {
@@ -90,8 +103,8 @@ export default class State  {
 	findZone = (cardId : string) : Zone | undefined => {
 		for (let i = 0; i < this.zones.length; i++) {
 			let z : Zone = this.zones[i];
-			for (let j = 0; j < z.cards.length; j++) {
-				let c : Card = z.cards[j];
+			for (let j = 0; j < z.size(); j++) {
+				let c : Card = z.at(j);
 				if (c.cardId === cardId) {
 					return z;
 				}
