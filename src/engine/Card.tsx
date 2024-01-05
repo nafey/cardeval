@@ -45,7 +45,6 @@ export default class Card {
 	}
 
 	match = (selector : Record<string, any>) : boolean => {
-		console.debug(selector);
 		let keys : string[] = Object.keys(selector);
 
 		for (let i = 0; i < keys.length; i++) {
@@ -57,6 +56,15 @@ export default class Card {
 		}	
 
 		return true;
+	}
+
+	modify = (updater : Record<string, any>) => {
+		let keys : string[] = Object.keys(updater);
+
+		for (let i = 0; i < keys.length; i++) {
+			let k = keys[i];
+			this[k] = updater[k]
+		}
 	}
 
 	[key: string]: any;

@@ -140,6 +140,14 @@ export default class Zone {
 		return selected;
 	}
 
+	modifyCards = (selector : Record<string, any>, updater : Record<string, any>) => {
+		this.cards.forEach((c: Card) => {
+			if (c.match(selector)) {
+				c.modify(updater);
+			}
+		})		
+	}
+
 	getView  = () : string [] => {
 		let viewCard = (c: Card) : string => {
 			let ret: string = ""

@@ -2,7 +2,7 @@ import { test, expect } from "vitest";
 import  HSEngine, {HSCard} from "./HSEngine";
 import HSCards from "./HSCards";
 
-// const consoleDebug : any = console.debug;
+const consoleDebug : any = console.debug;
 console.debug = () => {};
 // console.info = () => {};
 
@@ -102,5 +102,16 @@ test ("End Turn", () => {
 	expect(engine.getActivePlayer().zones.BF.size()).toEqual(0);
 });
 
+test ("Start Turn Effects", () => {
+	console.debug = consoleDebug;
+	let engine : HSEngine = new HSEngine(); 
+	let p = engine.getActivePlayer();
+	p.zones.HAND.addCard(new HSCard(cardsList.CROC));
+	engine.play(p.playerId, p.zones.HAND.first().cardId);
+
+	engine.endTurn();
+	engine.endTurn();
+	expect(p.zones.BF.first().sick).toBe(false);
+});
 
 // console.debug = consoleDebug;

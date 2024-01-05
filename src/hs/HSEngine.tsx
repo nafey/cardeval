@@ -185,12 +185,18 @@ class HSEngine {
 		this.damageCard(card.cardId, val);
 	}
 
+	turnStart = () => {
+		logParams("turnStart", [], []);
+		let p : Player = this.getActivePlayer();
+
+		p.zones.BF.modifyCards({sick: true}, {sick: false});
+	}
+
 	summon = (playerId : string, card : Card) => {
 		logParams("summon", ["playerId", "card"], [playerId, card]);
 		let p : Player = this.state.getPlayerById(playerId);
-
-		let bf : Zone = p.zones.BF;
-		bf.addCard(card);
+		card.sick = true;
+		p.zones.BF.addCard(card);
 	}
 
 	battleCry = (playerId: string, card: Card, targetZoneName?: string, targetIndex?: number)=> {
@@ -220,7 +226,6 @@ class HSEngine {
 
 		let p : Player = this.state.getPlayerById(playerId);
 		let hand: Zone = p.zones.HAND;
-
 		let idx : number = hand.getIndex(cardId);
 
 		let card : Card = hand.takeAt(idx);
@@ -264,6 +269,7 @@ class HSEngine {
 	endTurn = () => {
 		logParams("endTurn", [], []);
 		this.state.nextPlayerTurn();
+		this.turnStart();	
 	}
 }
 
