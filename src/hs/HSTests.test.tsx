@@ -36,6 +36,17 @@ test ("Attack", () => {
 	expect(o.zones.BF.size()).toEqual(0);
 });
 
+test ("Taunt", () => {
+	let engine : HSEngine = new HSEngine(); 
+	let p = engine.getActivePlayer();
+	p.zones.BF.addCard(new HSCard(cardsList.CROC));
+
+	let o = engine.getOtherPlayer();
+	o.zones.BF.addCard(new HSCard(cardsList.MRDR));
+	o.zones.BF.addCard(new HSCard(cardsList.GLDF));
+	expect(() => engine.attack(0, 0)).toThrowError("taunt");
+});
+
 test ("Deathrattle", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();

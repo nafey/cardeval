@@ -53,5 +53,12 @@
 			"type" : "DRAW",
 			"val" : 1
 		}
+	},
+	{
+		"code" : "GLDF",
+		"name" : "Goldshire Footman",
+		"attack" : 1,
+		"health" : 2,
+		"taunt" : true
 	}
 ]

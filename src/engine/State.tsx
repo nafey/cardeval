@@ -50,7 +50,7 @@ export default class State  {
 			return this.players[idx]
 		}
 
-		throw "Not found playerId in state";
+		throw new Error("Not found playerId in state");
 	}
 
 	getZones = () => {
@@ -70,7 +70,7 @@ export default class State  {
 			return this.zones[idx]
 		}
 
-		throw "Not found zoneId";
+		throw new Error("Not found zoneId");
 	}
 
     addCard = (zoneId : string, card: Card) => {
@@ -96,7 +96,6 @@ export default class State  {
 	moveCard = (fromZone: string, cardId: string, toZone: string) => {
 		return this.moveCards(fromZone, cardId, toZone, 1);
 	}
-
 	
 	findZone = (cardId : string) : Zone => {
 		for (let i = 0; i < this.zones.length; i++) {
@@ -108,7 +107,7 @@ export default class State  {
 				}
 			}
 		}
-		throw "Not found given cardId in any zone";	
+		throw new Error("Not found given cardId in any zone");	
 	}	
 
 	findCard = (cardId : string) : Card => {

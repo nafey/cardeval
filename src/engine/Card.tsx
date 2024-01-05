@@ -10,6 +10,15 @@ const generateId = () : string => {
 }
 
 
+function objEqual(obj1 : any, obj2 : any) {
+    var a = JSON.stringify(obj1), b = JSON.stringify(obj2);
+    if (!a) a = '';
+    if (!b) b = '';
+    return (a.split('').sort().join('') == b.split('').sort().join(''));
+}
+
+
+
 export default class Card {
 	cardId: string = generateId();
 	visible?: boolean = true;
@@ -33,6 +42,21 @@ export default class Card {
 		})
 
 		return str;
+	}
+
+	match = (selector : Record<string, any>) : boolean => {
+		console.debug(selector);
+		let keys : string[] = Object.keys(selector);
+
+		for (let i = 0; i < keys.length; i++) {
+			let k = keys[i];
+			if (!(k in this)) return false;
+			else {
+				if (!objEqual(this[k],selector[k])) return false;
+			}
+		}	
+
+		return true;
 	}
 
 	[key: string]: any;

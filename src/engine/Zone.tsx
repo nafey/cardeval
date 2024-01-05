@@ -10,7 +10,6 @@ const generateId = () : string => {
 	return str;
 }
 
-
 let compareCards = (a: Card, b: Card) => {
 	return Object.entries(a).sort().toString() === Object.entries(b).sort().toString()
 }
@@ -46,7 +45,7 @@ export default class Zone {
 				});
 			} 
 			else {
-				throw "TODO: Unimplemented add many use case";
+				throw new Error("TODO: Unimplemented add many use case");
 			}
 		}
 		else {
@@ -77,13 +76,13 @@ export default class Zone {
 	}
 
 	takeLast = (): Card => { 
-		if (this.size() === 0) throw "No Card in Zone";
+		if (this.size() === 0) throw new Error("No Card in Zone");
 		let card : Card = this.cards.pop()!;
 		return card
 	}
 
 	takeFirst = (): Card => {
-		if (this.size() === 0) throw "No Card in Zone";
+		if (this.size() === 0) throw new Error("No Card in Zone");
 		return this.cards[0];
 	}
 
@@ -91,7 +90,7 @@ export default class Zone {
 		if (this.size() > index) {
 			return this.takeCards(index, 1)[0];
 		}
-		throw "Index greater than size of Zone";
+		throw new Error("Index greater than size of Zone");
 	}
 
 	takeCards = (from: number, _count: number): Card[] => {
@@ -128,6 +127,19 @@ export default class Zone {
 		return this.cards[i];
 	}
 
+	selectCards = (selector : Record<string, any>) : Card[] => {
+		let selected : Card[] = [];
+		for (let i = 0; i < this.cards.length; i++) {
+			let c : Card = this.cards[i];
+
+			if (c.match(selector)) {
+				selected.push(c);
+			}
+		}
+
+		return selected;
+	}
+
 	getView  = () : string [] => {
 		let viewCard = (c: Card) : string => {
 			let ret: string = ""
@@ -154,7 +166,7 @@ export default class Zone {
 				return this.cards[i];
 			}
 		}
-		throw "Not found cardId in zone";
+		throw new Error("Not found cardId in zone");
 	}
 
 	getIndex = (cardId: string) : number => {
@@ -163,7 +175,7 @@ export default class Zone {
 				return i;
 			}
 		}
-		throw "Not found index for cardId in zone";
+		throw new Error("Not found index for cardId in zone");
 	}
 
 

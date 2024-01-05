@@ -101,8 +101,6 @@ class HSEngine {
 	}
 
 	getView = () : Record<string, Record<string, string[]>> => {
-		// return this.state.getView();
-
 		let me : Record<string, string[]> = {}
 		me["BF"] = this.getZoneView(this.getActivePlayer().zones.BF); 
 		me["HAND"] = this.getZoneView(this.getActivePlayer().zones.HAND); 
@@ -122,16 +120,6 @@ class HSEngine {
 		let p : Player = this.state.getPlayerById(playerId);
 		p.vals.health -= val;
 	}
-
-	// getBFCard = (playerId : string, cardId : string) : Card | undefined => {
-	// 	let p : Player = this.state.getPlayerById(playerId)!;
-	// 	if (!p) return;
-		
-	// 	let c : Card = p.zones.BF.getById(cardId)!;
-	// 	if (!c) return;
-
-	// 	return c;
-	// }
 
 	draw = (playerId : string) => {
 		logParams("draw", ["playerId"], [playerId]);
@@ -209,7 +197,7 @@ class HSEngine {
 		logParams("battleCry", ["playerId", "card", "targetZoneName", "targetIndex"], [playerId, card, targetZoneName, targetIndex]);
 
 		if (!card?.bcry) {
-			throw "No battleCry on card";
+			throw new Error("No battleCry on card");
 		}
 
 		if (card.bcry.type === "SUMMON") {
@@ -218,7 +206,7 @@ class HSEngine {
 		}
 		else if (card.bcry.type === "DAMAGE") {
 			if (!targetZoneName || targetIndex! < 0) {
-				throw "Missing target Information";
+				throw new Error("Missing target Information");
 			}
 			this.damageTarget(playerId, targetZoneName, targetIndex!, card.bcry.val);
 		}
@@ -259,6 +247,13 @@ class HSEngine {
 
 		let attacker : Card = p.zones.BF.at(fromPos); 
 		let defender : Card = o.zones.BF.at(toPos);
+
+		if (!defender?.taunt) {
+			console.debug("Not a taunt");
+			if (o.zones.BF.selectCards({taunt : true}).length > 0) {
+				throw new Error("Need to target taunt minions");	
+			}
+		} 
 
 		this.damageCard(defender.cardId, attacker.attack);
 		this.damageCard(attacker.cardId, defender.attack);
