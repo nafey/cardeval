@@ -2,7 +2,8 @@ import { test, expect } from "vitest";
 import  HSEngine, {HSCard} from "./HSEngine";
 import HSCards from "./HSCards";
 
-// console.debug = () => {};
+// const consoleDebug : any = console.debug;
+console.debug = () => {};
 // console.info = () => {};
 
 const cardsList : any = HSCards();
@@ -58,7 +59,6 @@ test ("Battlecry", () => {
 	o.zones.DECK.addCard(new HSCard(cardsList.RZRH));
 
 	engine.play(p.playerId, p.zones.HAND.first().cardId, "OPP_BF", 0);
-	// engine.play(p.playerId, )
 	expect(o.zones.HAND.size()).toEqual(1)
 });
 
@@ -74,7 +74,7 @@ test ("Attack Player", () => {
 test ("Hand Limit", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	for (let i = 0; i < 18; i++) {
+	for (let i = 0; i < 11; i++) {
 		p.zones.HAND.addCard(new HSCard(cardsList.CROC));
 	}
 
@@ -91,3 +91,5 @@ test ("End Turn", () => {
 	expect(engine.getActivePlayer().zones.BF.size()).toEqual(0);
 });
 
+
+// console.debug = consoleDebug;

@@ -38,8 +38,7 @@ export default class State  {
     	return this.players;
     }
 
-	getPlayerById = (playerId: string) : Player | undefined => {
-		let ret : Player | undefined;
+	getPlayerById = (playerId: string) : Player => {
 		let idx = -1;
 		this.players.forEach((p:Player, i: number) => {
 			if (p.playerId === playerId ) { 
@@ -50,8 +49,8 @@ export default class State  {
 		if (idx > -1) {
 			return this.players[idx]
 		}
-		return ret; 
 
+		throw "Not found playerId in state";
 	}
 
 	getZones = () => {
@@ -59,9 +58,7 @@ export default class State  {
 	}
 
 
-	getZoneById = (zoneId: string) : Zone | undefined => {
-
-		let ret : Zone | undefined;
+	getZoneById = (zoneId: string) : Zone => {
 		let idx = -1;
 		this.zones.forEach((z: Zone, i: number) => {
 			if (z.zoneId === zoneId) { 
@@ -72,7 +69,8 @@ export default class State  {
 		if (idx >= 0) {
 			return this.zones[idx]
 		}
-		return ret; 
+
+		throw "Not found zoneId";
 	}
 
     addCard = (zoneId : string, card: Card) => {
@@ -85,8 +83,8 @@ export default class State  {
 	}
 
 	moveCards = (fromZoneId: string, cardId: string, toZoneId: string, count: number = -1) => {
-		let from : Zone = this.getZoneById(fromZoneId)!;
-		let to : Zone = this.getZoneById(toZoneId)!;
+		let from : Zone = this.getZoneById(fromZoneId);
+		let to : Zone = this.getZoneById(toZoneId);
 
 		let idx : number = from.getIndex(cardId); 
 		if (idx === -1) return;
@@ -100,7 +98,7 @@ export default class State  {
 	}
 
 	
-	findZone = (cardId : string) : Zone | undefined => {
+	findZone = (cardId : string) : Zone => {
 		for (let i = 0; i < this.zones.length; i++) {
 			let z : Zone = this.zones[i];
 			for (let j = 0; j < z.size(); j++) {
@@ -109,13 +107,12 @@ export default class State  {
 					return z;
 				}
 			}
-		}	
+		}
+		throw "Not found given cardId in any zone";	
 	}	
 
-	findCard = (cardId : string) : Card | undefined => {
-		let z: Zone = this.findZone(cardId)!;	
-		if (!z) return;
-
-		return z.findCard(cardId)!;
+	findCard = (cardId : string) : Card => {
+		let z: Zone = this.findZone(cardId);	
+		return z.findCard(cardId);
 	}
 }

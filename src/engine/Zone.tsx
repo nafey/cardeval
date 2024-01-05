@@ -29,6 +29,9 @@ export default class Zone {
 			if (this.cards.length < this.limit) {
 				this.cards.push(card);
 			}
+			else {
+				console.debug("Card not add to zone " + card);
+			}
 		}
 		else {
 			this.cards.push(card); 
@@ -43,8 +46,7 @@ export default class Zone {
 				});
 			} 
 			else {
-				console.error("TODO: Unimplemented case");
-				// cards.slice(0,	 )	
+				throw "TODO: Unimplemented add many use case";
 			}
 		}
 		else {
@@ -74,20 +76,22 @@ export default class Zone {
 		this.cards[index].visible = !this.cards[index].visible;
 	}
 
-	takeLast = (): Card | undefined => this.cards.pop()
-
-	takeFirst = (): Card | undefined => {
-		let ret: Card;
-		ret = this.cards[0]!;
-
-		return ret;
+	takeLast = (): Card => { 
+		if (this.size() === 0) throw "No Card in Zone";
+		let card : Card = this.cards.pop()!;
+		return card
 	}
 
-	takeAt = (index: number) : Card | undefined => {
+	takeFirst = (): Card => {
+		if (this.size() === 0) throw "No Card in Zone";
+		return this.cards[0];
+	}
+
+	takeAt = (index: number) : Card => {
 		if (this.size() > index) {
 			return this.takeCards(index, 1)[0];
 		}
-		return undefined;
+		throw "Index greater than size of Zone";
 	}
 
 	takeCards = (from: number, _count: number): Card[] => {
@@ -119,11 +123,9 @@ export default class Zone {
 		return found;
 	}
 
-	findCard = (cardId: string): Card | undefined => {
-		for (let i = 0; i < this.cards.length; i++) {
-			let citem : Card = this.cards[i];
-			if (citem.cardId === cardId) return citem;
-		}
+	findCard = (cardId: string): Card => {
+		let i = this.getIndex(cardId);
+		return this.cards[i];
 	}
 
 	getView  = () : string [] => {
@@ -146,13 +148,13 @@ export default class Zone {
 	}
 
 	
-	getById = (cardId: string) : Card | undefined => {
+	getById = (cardId: string) : Card => {
 		for (let i = 0; i < this.cards.length; i++) {
 			if (cardId === this.cards[i].cardId) {
 				return this.cards[i];
 			}
 		}
-		return undefined;
+		throw "Not found cardId in zone";
 	}
 
 	getIndex = (cardId: string) : number => {
@@ -161,8 +163,9 @@ export default class Zone {
 				return i;
 			}
 		}
-		return -1;
+		throw "Not found index for cardId in zone";
 	}
+
 
 	removeById = (cardId: string) => {
 		let index = this.getIndex(cardId);
