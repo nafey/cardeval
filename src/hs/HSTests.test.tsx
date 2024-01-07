@@ -2,7 +2,7 @@ import { test, expect } from "vitest";
 import  HSEngine, {HSCard} from "./HSEngine";
 import HSCards from "./HSCards";
 
-const consoleDebug : any = console.debug;
+// const consoleDebug : any = console.debug;
 console.debug = () => {};
 // console.info = () => {};
 
@@ -103,7 +103,6 @@ test ("End Turn", () => {
 });
 
 test ("Start Turn Effects", () => {
-	console.debug = consoleDebug;
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
 	p.zones.HAND.addCard(new HSCard(cardsList.CROC));
@@ -113,5 +112,26 @@ test ("Start Turn Effects", () => {
 	engine.endTurn();
 	expect(p.zones.BF.first().sick).toBe(false);
 });
+
+test ("Summoning Sickness", () => {
+	let engine : HSEngine = new HSEngine(); 
+	let p = engine.getActivePlayer();
+	p.zones.HAND.addCard(new HSCard(cardsList.CROC));
+	p.zones.HAND.addCard(new HSCard(cardsList.RZRH));
+
+	let o = engine.getOtherPlayer();
+	o.zones.HAND.addCard(new HSCard(cardsList.MRDR));
+
+	engine.play(p.playerId, p.zones.HAND.first().cardId);
+	engine.endTurn();
+	engine.play(o.playerId, o.zones.HAND.first().cardId);
+	engine.endTurn();
+	engine.play(p.playerId, p.zones.HAND.first().cardId);
+
+	expect(() => engine.attack(1, 0)).toThrowError("sick");
+	engine.attack(0, 0);
+	expect(o.zones.BF.size()).toBe(0);
+});
+
 
 // console.debug = consoleDebug;

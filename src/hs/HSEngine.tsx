@@ -58,7 +58,10 @@ class HSEngine {
 			p.addZone("DECK", this.state.newZone());
 
 			p.vals.health = 30;
-			p.vals.maxHealth = 30;	
+			p.vals.maxHealth = 30;
+
+			p.vals.mana = 0;
+			p.vals.maxMana = 0;	
 
 			p.zones.BF.setLimit(7);
 			p.zones.HAND.setLimit(10);
@@ -251,6 +254,10 @@ class HSEngine {
 		let o : Player = this.getOtherPlayer();
 
 		let attacker : Card = p.zones.BF.at(fromPos); 
+		if (attacker.sick) {
+			throw new Error("Can not attack with sick minions");
+		}
+
 		let defender : Card = o.zones.BF.at(toPos);
 
 		if (!defender?.taunt) {
