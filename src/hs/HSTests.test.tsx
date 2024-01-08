@@ -1,12 +1,11 @@
 import { test, expect } from "vitest";
 import  HSEngine, {HSCard} from "./HSEngine";
-import HSCards from "./HSCards";
+import HSCards, {ListCard} from "./HSCards";
 
-// const consoleDebug : any = console.debug;
+const consoleDebug : any = console.debug;
 console.debug = () => {};
-// console.info = () => {};
 
-const cardsList : any = HSCards();
+const cardsList : ListCard[] = HSCards();
 
 test ("Init", () => {
 	let engine : HSEngine = new HSEngine(); 
@@ -134,7 +133,8 @@ test ("Summoning Sickness", () => {
 });
 
 
-// Implement : https://www.youtube.com/watch?v=Bd9A4RyGXW4
+// Implement: https://www.youtube.com/watch?v=Bd9A4RyGXW4
+// Sequence: https://www.youtube.com/watch?v=Ln0BisR_SfY
 test ("Event Test", () => {
 	// console.debug = consoleDebug
 	let engine : HSEngine = new HSEngine(); 

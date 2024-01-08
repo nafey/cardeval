@@ -38,7 +38,6 @@
 		"name" : "Ironforge Rifleman",
 		"attack" : 2,
 		"health" : 2,
-		"targetType" : "ANY",
 		"bcry" : {
 			"effect" : "DAMAGE",
 			"to" : "TARGET",

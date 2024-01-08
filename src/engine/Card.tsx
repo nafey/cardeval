@@ -17,8 +17,6 @@ function objEqual(obj1 : any, obj2 : any) {
     return (a.split('').sort().join('') == b.split('').sort().join(''));
 }
 
-
-
 export default class Card {
 	cardId: string = generateId();
 	zoneId?: string = "";
