@@ -135,7 +135,7 @@ class HSEngine {
 
 	deathRattle = (playerId : string, death : any) => {
 		logParams("deathRattle", ["playerId", "death"], [playerId, JSON.stringify(death)]);
-		if (death.type === "DRAW") {
+		if (death.effect === "DRAW") {
 			let val : number = death.val;
 			for (let i = 0; i < val; i++) {
 				this.draw(playerId);
@@ -209,19 +209,23 @@ class HSEngine {
 		p.zones.BF.addCard(card);
 	}
 
-	// triggerEffect = (effect: string, effectObj : any) => {
-	// 	if (effect === "SUMMON") {
-	// 		let code : string = effectObj.code;
-	// 		this.summon(playerId, new HSCard(cardList[code]));	
-	// 	}
-	// 	else if (card.bcry.type === "DAMAGE") {
-	// 		if (!targetZoneName || targetIndex! < 0) {
-	// 			throw new Error("Missing target Information");
-	// 		}
-	// 		this.damageTarget(playerId, targetZoneName, targetIndex!, card.bcry.val);
-	// 	}
+	triggerEffect = (card: Card, effectObj : any, targetZoneName?: string, targetIndex?: number) => {
+		logParams("triggerEffect", ["card", "effectObj", "targetZoneName", "targetIndex"], [card, effectObj, targetZoneName, targetIndex]);
+		let playerId : string = card.playerId!;
+		if (!playerId) throw new Error("No player Id for Card");	
 
-	// }
+		if (effectObj === "SUMMON") {
+			let code : string = card.bcry.code;
+			this.summon(playerId, new HSCard(cardList[code]));	
+		}
+		else if (card.bcry.effect === "DAMAGE") {
+			if (!targetZoneName || targetIndex! < 0) {
+				throw new Error("Missing target Information");
+			}
+			this.damageTarget(playerId, targetZoneName, targetIndex!, card.bcry.val);
+		}
+
+	}
 
 	battleCry = (playerId: string, card: Card, targetZoneName?: string, targetIndex?: number)=> {
 		logParams("battleCry", ["playerId", "card", "targetZoneName", "targetIndex"], [playerId, card, targetZoneName, targetIndex]);
@@ -230,19 +234,7 @@ class HSEngine {
 			throw new Error("No battleCry on card");
 		}
 
-		if (card.bcry.type === "SUMMON") {
-			let code : string = card.bcry.code;
-			this.summon(playerId, new HSCard(cardList[code]));	
-		}
-		else if (card.bcry.type === "DAMAGE") {
-			if (!targetZoneName || targetIndex! < 0) {
-				throw new Error("Missing target Information");
-			}
-			this.damageTarget(playerId, targetZoneName, targetIndex!, card.bcry.val);
-		}
-		else {
-
-		}
+		this.triggerEffect(card, card.bcry, targetZoneName, targetIndex);
 	}
 
 	play = (playerId: string, cardId : string, targetZoneName?: string, targetIndex?: number) => {

@@ -23,7 +23,7 @@
 	   "attack" : 2,
 	   "health" : 3,
 	   "bcry" : {
-			"type" : "SUMMON",
+			"effect" : "SUMMON",
 			"code" : "BOAR"
 	   } 
 	},
@@ -40,7 +40,7 @@
 		"health" : 2,
 		"targetType" : "ANY",
 		"bcry" : {
-			"type" : "DAMAGE",
+			"effect" : "DAMAGE",
 			"to" : "TARGET",
 			"val" : 1
 		}
@@ -51,7 +51,7 @@
 		"attack" : 2,
 		"health" : 1,
 		"death" : {
-			"type" : "DRAW",
+			"effect" : "DRAW",
 			"val" : 1
 		}
 	},
@@ -70,7 +70,7 @@
 		"on" : {
 			"trigger" : "SUMMON",
 			"do" : {
-				"type" : "DAMAGE",
+				"effect" : "DAMAGE",
 				"to" : "RANDOM_ENEMY",
 				"val" : 1
 			}
@@ -84,7 +84,7 @@
 		"on" : {
 			"trigger" : "SELF_DAMAGE",
 			"do" : {
-				"type" : "SUMMON",
+				"effect" : "SUMMON",
 				"code" : "IMPI"
 			}
 		}
