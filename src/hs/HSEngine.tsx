@@ -170,11 +170,18 @@ class HSEngine {
 		this.removeDeadForPlayer(this.getOtherPlayer().playerId);
 	}
 
+	onDamage = () => {
+
+	}
+
 	damageCard = (cardId: string, val: number) => {
 		logParams("damageCard", ["cardId", "val"], [cardId, val]);
 		let card : Card = this.state.findCard(cardId);
 
 		card.health -= val;
+		if (card?.on?.trigger === "SELF_DAMAGE") {
+
+		}	
 		if (card.health <= 0) {
 			this.removeDead();
 		}
@@ -201,6 +208,20 @@ class HSEngine {
 		card.sick = true;
 		p.zones.BF.addCard(card);
 	}
+
+	// triggerEffect = (effect: string, effectObj : any) => {
+	// 	if (effect === "SUMMON") {
+	// 		let code : string = effectObj.code;
+	// 		this.summon(playerId, new HSCard(cardList[code]));	
+	// 	}
+	// 	else if (card.bcry.type === "DAMAGE") {
+	// 		if (!targetZoneName || targetIndex! < 0) {
+	// 			throw new Error("Missing target Information");
+	// 		}
+	// 		this.damageTarget(playerId, targetZoneName, targetIndex!, card.bcry.val);
+	// 	}
+
+	// }
 
 	battleCry = (playerId: string, card: Card, targetZoneName?: string, targetIndex?: number)=> {
 		logParams("battleCry", ["playerId", "card", "targetZoneName", "targetIndex"], [playerId, card, targetZoneName, targetIndex]);

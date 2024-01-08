@@ -134,4 +134,16 @@ test ("Summoning Sickness", () => {
 });
 
 
+// Implement : https://www.youtube.com/watch?v=Bd9A4RyGXW4
+test ("Event Test", () => {
+	let engine : HSEngine = new HSEngine(); 
+	let p = engine.getActivePlayer();
+	p.zones.BF.addCard(new HSCard(cardsList.IMPB));
+
+	let o = engine.getOtherPlayer();
+	o.zones.HAND.addCard(new HSCard(cardsList.IRON));
+	engine.play(o.playerId, o.zones.HAND.first().cardId, "OPP_BF", 0);	
+	expect(p.zones.BF.size()).toBe(2);
+});
+
 // console.debug = consoleDebug;

@@ -17,23 +17,29 @@ let compareCards = (a: Card, b: Card) => {
 export default class Zone {
 	zoneId : string = generateId();
 	private cards: Card[] = [];
-	playerId : string | undefined; 
+	playerId? : string = ""; 
 	limit : number = 0;
 	haveLimit : boolean = false;
 
 	size = () : number => this.cards.length;
 
+	push = (card : Card) => {
+		card.zoneId = this.zoneId;
+		card.playerId = this.playerId;
+		this.cards.push(card);
+	}
+
 	addCard = (card: Card) => {
 		if (this.haveLimit) {
 			if (this.cards.length < this.limit) {
-				this.cards.push(card);
+				this.push(card);
 			}
 			else {
 				console.debug("Card not add to zone " + card);
 			}
 		}
 		else {
-			this.cards.push(card); 
+			this.push(card); 
 		}
 	}
 
@@ -77,13 +83,12 @@ export default class Zone {
 
 	takeLast = (): Card => { 
 		if (this.size() === 0) throw new Error("No Card in Zone");
-		let card : Card = this.cards.pop()!;
-		return card
+		return this.takeAt(this.cards.length - 1);
 	}
 
 	takeFirst = (): Card => {
 		if (this.size() === 0) throw new Error("No Card in Zone");
-		return this.cards[0];
+		return this.takeAt(0); 
 	}
 
 	takeAt = (index: number) : Card => {
@@ -105,6 +110,10 @@ export default class Zone {
 		let ret: Card[] = this.cards.slice(from, to);		
 		let before: Card[] = this.cards.slice(0, from);
 		let after: Card[] = this.cards.slice(to);
+
+		for (let i = 0; i < ret.length; i++) {
+			ret[i].zoneId = "";		
+		}
 
 		this.cards = [...before, ...after];
 		return ret;

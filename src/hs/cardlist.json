@@ -35,12 +35,13 @@
 	},
 	{
 		"code" : "IRON",
-		"name" : "Ironforge Dwarf",
+		"name" : "Ironforge Rifleman",
 		"attack" : 2,
 		"health" : 2,
 		"targetType" : "ANY",
 		"bcry" : {
 			"type" : "DAMAGE",
+			"to" : "TARGET",
 			"val" : 1
 		}
 	},
@@ -60,5 +61,38 @@
 		"attack" : 1,
 		"health" : 2,
 		"taunt" : true
+	},
+	{
+		"code" : "KNFJ",
+		"name" : "Knife Juggler",
+		"attack" : 3,
+		"health" : 2,
+		"on" : {
+			"trigger" : "SUMMON",
+			"do" : {
+				"type" : "DAMAGE",
+				"to" : "RANDOM_ENEMY",
+				"val" : 1
+			}
+		}
+	},
+	{
+		"code" : "IMPB",
+		"name" : "Imp Gang Boss",
+		"attack" : 2,
+		"health" : 4,
+		"on" : {
+			"trigger" : "SELF_DAMAGE",
+			"do" : {
+				"type" : "SUMMON",
+				"code" : "IMPI"
+			}
+		}
+	},
+	{
+		"code" : "IMPI",
+		"name" : "Imp",
+		"attack" : 1,
+		"health" : 1
 	}
 ]

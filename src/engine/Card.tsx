@@ -21,6 +21,8 @@ function objEqual(obj1 : any, obj2 : any) {
 
 export default class Card {
 	cardId: string = generateId();
+	zoneId?: string = "";
+	playerId?: string = "";
 	visible?: boolean = true;
 	
 	constructor(vals : Record<string, any> = {}, visible: boolean = true) {
