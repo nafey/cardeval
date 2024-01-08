@@ -180,7 +180,7 @@ class HSEngine {
 
 		card.health -= val;
 		if (card?.on?.trigger === "SELF_DAMAGE") {
-
+			this.triggerEffect(card, card.on.do)
 		}	
 		if (card.health <= 0) {
 			this.removeDead();
@@ -213,12 +213,15 @@ class HSEngine {
 		logParams("triggerEffect", ["card", "effectObj", "targetZoneName", "targetIndex"], [card, effectObj, targetZoneName, targetIndex]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
+		
+		let effect : string = effectObj.effect;
+		if (!effect) throw new Error("Effect is missing");
 
-		if (effectObj === "SUMMON") {
-			let code : string = card.bcry.code;
+		if (effect === "SUMMON") {
+			let code : string = effectObj.code;
 			this.summon(playerId, new HSCard(cardList[code]));	
 		}
-		else if (card.bcry.effect === "DAMAGE") {
+		else if (effect === "DAMAGE") {
 			if (!targetZoneName || targetIndex! < 0) {
 				throw new Error("Missing target Information");
 			}

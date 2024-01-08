@@ -136,6 +136,7 @@ test ("Summoning Sickness", () => {
 
 // Implement : https://www.youtube.com/watch?v=Bd9A4RyGXW4
 test ("Event Test", () => {
+	// console.debug = consoleDebug
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
 	p.zones.BF.addCard(new HSCard(cardsList.IMPB));
