@@ -29,7 +29,7 @@ export default class Zone {
 		this.cards.push(card);
 	}
 
-	addCard = (card: Card) => {
+	addCard = (card: Card) : Card => {
 		if (this.haveLimit) {
 			if (this.cards.length < this.limit) {
 				this.push(card);
@@ -41,6 +41,8 @@ export default class Zone {
 		else {
 			this.push(card); 
 		}
+
+		return card;
 	}
 
 	addMany = (cards : Card[]) => {
@@ -91,6 +93,11 @@ export default class Zone {
 		return this.takeAt(0); 
 	}
 
+	take = (cardId : string) : Card => {
+		let idx = this.getIndex(cardId);
+		return this.takeAt(idx);
+	}
+
 	takeAt = (index: number) : Card => {
 		if (this.size() > index) {
 			return this.takeCards(index, 1)[0];
@@ -135,6 +142,7 @@ export default class Zone {
 		let i = this.getIndex(cardId);
 		return this.cards[i];
 	}
+
 
 	selectCards = (selector : Record<string, any>) : Card[] => {
 		let selected : Card[] = [];

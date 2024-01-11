@@ -21,8 +21,9 @@ test ("Init", () => {
 test ("Play One", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	p.zones.HAND.addCard(new HSCard(cardsList.LOOT))
-	engine.play(p.playerId, p.zones.HAND.first().cardId); 
+	let c: Card = p.zones.HAND.addCard(new HSCard(cardsList.LOOT))
+
+	engine.play(c, {type : "OPP_BF", card : p.zones.HAND.first()})
 	expect(p.zones.BF.size()).toEqual(1)
 });
 
@@ -66,13 +67,13 @@ test ("Deathrattle", () => {
 test ("Battlecry", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	p.zones.HAND.addCard(new HSCard(cardsList.IRON));
+	let iron : Card = p.zones.HAND.addCard(new HSCard(cardsList.IRON));
 
 	let o = engine.getOtherPlayer();
-	o.zones.BF.addCard(new HSCard(cardsList.LOOT));
+	let loot : Card = o.zones.BF.addCard(new HSCard(cardsList.LOOT));
 	o.zones.DECK.addCard(new HSCard(cardsList.RZRH));
 
-	engine.play(p.playerId, p.zones.HAND.first().cardId, "OPP_BF", 0);
+	engine.play(iron, {type: "OPP_BF", card : loot});
 	expect(o.zones.HAND.size()).toEqual(1)
 });
 
@@ -139,7 +140,7 @@ test ("Summoning Sickness", () => {
 
 // Implement: https://www.youtube.com/watch?v=Bd9A4RyGXW4
 // Sequence: https://www.youtube.com/watch?v=Ln0BisR_SfY
-test ("Event Test", () => {
+test ("Imp Boss Test", () => {
 	// console.debug = consoleDebug
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();

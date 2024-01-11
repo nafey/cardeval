@@ -14,6 +14,7 @@ export default class Player {
 	playerId: string = generateId();
 	name: string = "";
 	zones: Record<string, Zone> = {};
+	players : Record<string, Player> = {};
 	vals: Record<string, number> = {};
 
 	constructor (n: string = "") {
@@ -24,5 +25,5 @@ export default class Player {
 		zone.playerId = this.playerId;
 		this.zones[zoneName] = zone;
 	} 
-
+	
 }

@@ -1,6 +1,6 @@
 import cardsList from "src/hs/cardlist.json" with { type: "json"};
 
-interface Effect {
+export interface Effect {
     effect : string,
     code? : string,
     to? : string,
@@ -35,18 +35,4 @@ export class HSCardList {
 
         return cards;
     }
-}
-
-export default function HSCards () {
-    let list : ListCard[] = cardsList;
-
-    let cards : Record<string, ListCard> = {};
-    for (let i = 0; i < list.length; i++) {
-        let c = list[i];
-        cards[c.code] = list[i]; 
-    }
-
-
-
-    return cards;
 }

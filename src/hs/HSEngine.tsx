@@ -2,9 +2,9 @@ import Card from "src/engine/Card";
 import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
-import HSCards from "src/hs/HSCards"; 
+import {Effect, HSCardList} from "src/hs/HSCards"; 
 
-const cardList : Record<string, any> = HSCards();
+const cardList : Record<string, any> = (new HSCardList()).getList();
 
 export class HSCard extends Card {
 	toString = () : string => {
@@ -43,6 +43,12 @@ let logParams = (funcName: string, paramNames: string[], vals: any[]) => {
 	}
 
 	logAll(args);
+
+}
+
+interface PlayerTarget {
+	type : string,
+	card : Card 
 }
 
 class HSEngine {
@@ -66,6 +72,9 @@ class HSEngine {
 			p.zones.BF.setLimit(7);
 			p.zones.HAND.setLimit(10);
 		});
+
+		p1.players.OPP = p2;
+		p2.players.OPP = p1;
 
 		p1.zones.OPP_BF = p2.zones.BF; 
 		p1.zones.OPP_HAND = p2.zones.HAND; 
@@ -118,11 +127,6 @@ class HSEngine {
 		return v;
 	} 
 
-	damagePlayer = (playerId: string, val : number) => {
-		logParams("damagePlayer", ["playerId", "val"], [playerId, val]);
-		let p : Player = this.state.getPlayerById(playerId);
-		p.vals.health -= val;
-	}
 
 	draw = (playerId : string) => {
 		logParams("draw", ["playerId"], [playerId]);
@@ -174,6 +178,13 @@ class HSEngine {
 
 	}
 
+	damagePlayer = (playerId: string, val : number) => {
+		logParams("damagePlayer", ["playerId", "val"], [playerId, val]);
+		let p : Player = this.state.getPlayerById(playerId);
+		p.vals.health -= val;
+	}
+
+
 	damageCard = (cardId: string, val: number) => {
 		logParams("damageCard", ["cardId", "val"], [cardId, val]);
 		let card : Card = this.state.findCard(cardId);
@@ -195,6 +206,33 @@ class HSEngine {
 		this.damageCard(card.cardId, val);
 	}
 
+
+	doDamage = (invoker: Card, damageEffect : Effect, playerTarget? : PlayerTarget) => {
+		let p : Player = this.state.getPlayerById(invoker.playerId!);	
+		let o : Player = p.players.OPP;
+
+		if (damageEffect.to === "RANDOM_ENEMY") {
+			let minsCount : number = o.zones.BF.size();
+
+			let targetIdx : number = Math.floor(Math.random() * (minsCount + 1));			
+			if (targetIdx === minsCount) {
+				this.damagePlayer(o.playerId, damageEffect.val!);
+			}
+			else {
+				let c : Card = o.zones.BF.at(targetIdx);
+				this.damageCard(c.cardId, damageEffect.val!);
+			}
+		}
+		else if (damageEffect.to === "TARGET") {
+			let type : string = playerTarget?.type!;
+
+			if (type === "OPP_BF") {
+				let card : Card = playerTarget?.card!;			
+				this.damageCard(card.cardId, damageEffect.val!);
+			}	
+		}
+	}
+
 	turnStart = () => {
 		logParams("turnStart", [], []);
 		let p : Player = this.getActivePlayer();
@@ -209,8 +247,8 @@ class HSEngine {
 		p.zones.BF.addCard(card);
 	}
 
-	triggerEffect = (card: Card, effectObj : any, targetZoneName?: string, targetIndex?: number) => {
-		logParams("triggerEffect", ["card", "effectObj", "targetZoneName", "targetIndex"], [card, effectObj, targetZoneName, targetIndex]);
+	triggerEffect = (card: Card, effectObj : any, playerTarget?: PlayerTarget) => {
+		logParams("triggerEffect", ["card", "effectObj", "targetType"], [card, effectObj, playerTarget?.type]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
 		
@@ -222,36 +260,32 @@ class HSEngine {
 			this.summon(playerId, new HSCard(cardList[code]));	
 		}
 		else if (effect === "DAMAGE") {
-			if (!targetZoneName || targetIndex! < 0) {
-				throw new Error("Missing target Information");
-			}
-			this.damageTarget(playerId, targetZoneName, targetIndex!, card.bcry.val);
+			this.doDamage(card, effectObj, playerTarget);
 		}
 
 	}
 
-	battleCry = (playerId: string, card: Card, targetZoneName?: string, targetIndex?: number)=> {
-		logParams("battleCry", ["playerId", "card", "targetZoneName", "targetIndex"], [playerId, card, targetZoneName, targetIndex]);
+	battleCry = (card: Card, playerTarget : PlayerTarget)=> {
+		logParams("battleCry", ["cardName"], [card.name]);
 
 		if (!card?.bcry) {
 			throw new Error("No battleCry on card");
 		}
 
-		this.triggerEffect(card, card.bcry, targetZoneName, targetIndex);
+		this.triggerEffect(card, card.bcry, playerTarget);
 	}
 
-	play = (playerId: string, cardId : string, targetZoneName?: string, targetIndex?: number) => {
-		logParams("play", ["playerId", "cardId", "targetZoneName", "targetIndex"], [playerId, cardId, targetZoneName, targetIndex]);
-
+	play = (card : Card, playerTarget?: PlayerTarget) => {
+		logParams("play", ["CardName"], [card.name]);
+		let playerId : string = card.playerId!;
 		let p : Player = this.state.getPlayerById(playerId);
 		let hand: Zone = p.zones.HAND;
-		let idx : number = hand.getIndex(cardId);
 
-		let card : Card = hand.takeAt(idx);
+		hand.take(card.cardId);
 		this.summon(playerId, card);
 
 		if (card?.bcry) {
-			this.battleCry(playerId, card, targetZoneName, targetIndex);
+			this.battleCry(card, playerTarget!);
 		}
 	}
 	
@@ -273,8 +307,6 @@ class HSEngine {
 		if (attacker.sick) {
 			throw new Error("Can not attack with sick minions");
 		}
-
-		// console.log(attacker);
 
 		let defender : Card = o.zones.BF.at(toPos);
 
