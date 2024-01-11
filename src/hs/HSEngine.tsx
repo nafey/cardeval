@@ -274,10 +274,11 @@ class HSEngine {
 			throw new Error("Can not attack with sick minions");
 		}
 
+		// console.log(attacker);
+
 		let defender : Card = o.zones.BF.at(toPos);
 
 		if (!defender?.taunt) {
-			console.debug("Not a taunt");
 			if (o.zones.BF.selectCards({taunt : true}).length > 0) {
 				throw new Error("Need to target taunt minions");	
 			}

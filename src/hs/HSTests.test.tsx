@@ -1,11 +1,15 @@
 import { test, expect } from "vitest";
 import  HSEngine, {HSCard} from "./HSEngine";
-import HSCards, {ListCard} from "./HSCards";
+import {ListCard, HSCardList} from "./HSCards";
 
-const consoleDebug : any = console.debug;
+// const consoleDebug : any = console.debug;
 console.debug = () => {};
 
-const cardsList : ListCard[] = HSCards();
+// console.log = () => {};
+
+// const cardsList : ListCard[] = HSCards();
+
+let cardsList : Record<string, ListCard> = (new HSCardList()).getList();
 
 test ("Init", () => {
 	let engine : HSEngine = new HSEngine(); 
