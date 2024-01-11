@@ -109,8 +109,8 @@ test ("End Turn", () => {
 test ("Start Turn Effects", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	p.zones.HAND.addCard(new HSCard(cardsList.CROC));
-	engine.play(p.playerId, p.zones.HAND.first().cardId);
+	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
+	engine.play(croc);
 
 	engine.endTurn();
 	engine.endTurn();
@@ -119,18 +119,18 @@ test ("Start Turn Effects", () => {
 
 test ("Summoning Sickness", () => {
 	let engine : HSEngine = new HSEngine(); 
-	let p = engine.getActivePlayer();
-	p.zones.HAND.addCard(new HSCard(cardsList.CROC));
-	p.zones.HAND.addCard(new HSCard(cardsList.RZRH));
+	let p : Player = engine.getActivePlayer();
+	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
+	let rzrh : Card = p.zones.HAND.addCard(engine.createCard("RZRH"));
 
 	let o = engine.getOtherPlayer();
-	o.zones.HAND.addCard(new HSCard(cardsList.MRDR));
+	let mrdr : Card = o.zones.HAND.addCard(engine.createCard("MRDR"));
 
-	engine.play(p.playerId, p.zones.HAND.first().cardId);
+	engine.play(croc);
 	engine.endTurn();
-	engine.play(o.playerId, o.zones.HAND.first().cardId);
+	engine.play(mrdr);
 	engine.endTurn();
-	engine.play(p.playerId, p.zones.HAND.first().cardId);
+	engine.play(rzrh);
 
 	expect(() => engine.attack(1, 0)).toThrowError("sick");
 	engine.attack(0, 0);
@@ -144,11 +144,13 @@ test ("Imp Boss Test", () => {
 	// console.debug = consoleDebug
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	p.zones.BF.addCard(new HSCard(cardsList.IMPB));
+	let impb : Card = p.zones.BF.addCard(engine.createCard("IMPB"));
 
 	let o = engine.getOtherPlayer();
-	o.zones.HAND.addCard(new HSCard(cardsList.IRON));
-	engine.play(o.playerId, o.zones.HAND.first().cardId, "OPP_BF", 0);	
+	let iron : Card = o.zones.HAND.addCard(engine.createCard("IRON"));
+	
+	engine.endTurn();
+	engine.play(iron, {type : "OPP_BF", card: impb});	
 	expect(p.zones.BF.size()).toBe(2);
 });
 

@@ -73,6 +73,9 @@ class HSEngine {
 			p.zones.HAND.setLimit(10);
 		});
 
+		p1.name = "P1";
+		p2.name = "P2";
+
 		p1.players.OPP = p2;
 		p2.players.OPP = p1;
 
@@ -130,11 +133,11 @@ class HSEngine {
 
 	draw = (playerId : string) => {
 		logParams("draw", ["playerId"], [playerId]);
-		let p : Player = this.state.getPlayerById(playerId);
-		if (p.zones.DECK.size() < 1) return;
+		let player : Player = this.state.getPlayerById(playerId);
+		if (player.zones.DECK.size() < 1) return;
 
-		let c : Card = p.zones.DECK.takeLast();
-		p.zones.HAND.addCard(c);
+		let c : Card = player.zones.DECK.takeLast();
+		player.zones.HAND.addCard(c);
 	}
 
 	deathRattle = (playerId : string, death : any) => {
@@ -247,6 +250,14 @@ class HSEngine {
 		p.zones.BF.addCard(card);
 	}
 
+	createCard = (code : string) : Card => {
+		logParams("createCard", ["code"], [code]);
+		let c : Card = new Card(cardList[code]);
+		if (!c) throw new Error("Missing code in Card List " + code);
+
+		return c;
+	}
+
 	triggerEffect = (card: Card, effectObj : any, playerTarget?: PlayerTarget) => {
 		logParams("triggerEffect", ["card", "effectObj", "targetType"], [card, effectObj, playerTarget?.type]);
 		let playerId : string = card.playerId!;
@@ -257,7 +268,7 @@ class HSEngine {
 
 		if (effect === "SUMMON") {
 			let code : string = effectObj.code;
-			this.summon(playerId, new HSCard(cardList[code]));	
+			this.summon(playerId, this.createCard(code));	
 		}
 		else if (effect === "DAMAGE") {
 			this.doDamage(card, effectObj, playerTarget);
@@ -279,6 +290,7 @@ class HSEngine {
 		logParams("play", ["CardName"], [card.name]);
 		let playerId : string = card.playerId!;
 		let p : Player = this.state.getPlayerById(playerId);
+		if (playerId !== this.getActivePlayer().playerId) throw new Error ("Inactive player attempting to play card");
 		let hand: Zone = p.zones.HAND;
 
 		hand.take(card.cardId);
