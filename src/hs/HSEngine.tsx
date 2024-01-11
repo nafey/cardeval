@@ -6,14 +6,6 @@ import {Effect, HSCardList} from "src/hs/HSCards";
 
 const cardList : Record<string, any> = (new HSCardList()).getList();
 
-export class HSCard extends Card {
-	toString = () : string => {
-		if (!this.visible) return "****";
-
-		return this.name + " " + this.attack + " " + this.health + " ";	
-	}
-}
-
 let log = (msg: string) => {
 	console.debug(msg);
 }
