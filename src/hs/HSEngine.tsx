@@ -165,16 +165,14 @@ class HSEngine {
 		this.removeDeadForPlayer(this.getOtherPlayer());
 	}
 
-	damagePlayer = (playerId: string, val : number) => {
-		logParams("damagePlayer", ["playerId", "val"], [playerId, val]);
-		let p : Player = this.state.getPlayerById(playerId);
-		p.vals.health -= val;
+	damagePlayer = (player : Player, val : number) => {
+		logParams("damagePlayer");
+		player.vals.health -= val;
 	}
 
 
-	damageCard = (cardId: string, val: number) => {
-		logParams("damageCard", ["cardId", "val"], [cardId, val]);
-		let card : Card = this.state.findCard(cardId);
+	damageCard = (card: Card, val : number) => {
+		logParams("damageCard", ["name", "val"], [card.name, val]);
 
 		card.health -= val;
 		if (card?.on?.trigger === "SELF_DAMAGE") {
@@ -185,17 +183,9 @@ class HSEngine {
 		}
 	}
 
-	damageTarget = (playerId: string, targetZoneName: string, targetIndex: number, val: number) => {
-		logParams("damageTarget", ["playerId", "targetZoneName", "targetIndex", "val"], [playerId, targetZoneName, targetIndex, val]);
-		let p : Player = this.state.getPlayerById(playerId); 
-		let card : Card = p.zones[targetZoneName].at(targetIndex);
 
-		this.damageCard(card.cardId, val);
-	}
-
-
-	doDamage = (invoker: Card, damageEffect : Effect, playerTarget? : PlayerTarget) => {
-		let p : Player = this.state.getPlayerById(invoker.playerId!);	
+	doDamage = (card: Card, damageEffect : Effect, playerTarget? : PlayerTarget) => {
+		let p : Player = this.state.getPlayerById(card.playerId!);	
 		let o : Player = p.players.OPP;
 
 		if (damageEffect.to === "RANDOM_ENEMY") {
@@ -203,11 +193,11 @@ class HSEngine {
 
 			let targetIdx : number = Math.floor(Math.random() * (minsCount + 1));			
 			if (targetIdx === minsCount) {
-				this.damagePlayer(o.playerId, damageEffect.val!);
+				this.damagePlayer(o, damageEffect.val!);
 			}
 			else {
 				let c : Card = o.zones.BF.at(targetIdx);
-				this.damageCard(c.cardId, damageEffect.val!);
+				this.damageCard(c, damageEffect.val!);
 			}
 		}
 		else if (damageEffect.to === "TARGET") {
@@ -215,7 +205,7 @@ class HSEngine {
 
 			if (type === "OPP_BF") {
 				let card : Card = playerTarget?.card!;			
-				this.damageCard(card.cardId, damageEffect.val!);
+				this.damageCard(card, damageEffect.val!);
 			}	
 		}
 	}
@@ -294,7 +284,7 @@ class HSEngine {
 		let o : Player = this.getOtherPlayer();	
 
 		let attacker : Card = p.zones.BF.at(fromPos); 
-		this.damagePlayer(o.playerId, attacker.attack);
+		this.damagePlayer(o, attacker.attack);
 	}
 	
 	attack = (fromPos: number, toPos: number) => {
@@ -315,8 +305,8 @@ class HSEngine {
 			}
 		} 
 
-		this.damageCard(defender.cardId, attacker.attack);
-		this.damageCard(attacker.cardId, defender.attack);
+		this.damageCard(defender, attacker.attack);
+		this.damageCard(attacker, defender.attack);
 
 		this.removeDead();
 	}
