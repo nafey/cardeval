@@ -1,7 +1,7 @@
 import { test, expect } from "vitest";
 import  HSEngine, {} from "./HSEngine";
-import {ListCard, HSCardList} from "./HSCards";
 import Player from "src/engine/Player";
+import Card from "src/engine/Card";
 
 // const consoleDebug : any = console.debug;
 console.debug = () => {};
@@ -10,12 +10,12 @@ console.debug = () => {};
 
 // const cardsList : ListCard[] = HSCards();
 
-let cardsList : Record<string, ListCard> = (new HSCardList()).getList();
+// let cardsList : Record<string, ListCard> = (new HSCardList()).getList();
 
 test ("Init", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
-	let loot : Card = p.zones.HAND.addCard(engine.createCard("LOOT"));
+	p.zones.HAND.addCard(engine.createCard("LOOT"));
 	expect(p.zones.HAND.size()).toEqual(1)
 });
 
@@ -32,10 +32,10 @@ test ("Play One", () => {
 test ("Attack", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p : Player= engine.getActivePlayer();
-	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
+	p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o = engine.getOtherPlayer();
-	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
+	o.zones.BF.addCard(engine.createCard("MRDR"));
 
 	engine.attack(0, 0);
 	expect(o.zones.BF.size()).toEqual(0);
@@ -44,22 +44,22 @@ test ("Attack", () => {
 test ("Taunt", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p : Player = engine.getActivePlayer();
-	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
+	p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o : Player = engine.getOtherPlayer();
-	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
-	let gldf : Card = o.zones.BF.addCard(engine.createCard("GLDF"));
+	o.zones.BF.addCard(engine.createCard("MRDR"));
+	o.zones.BF.addCard(engine.createCard("GLDF"));
 	expect(() => engine.attack(0, 0)).toThrowError("taunt");
 });
 
 test ("Deathrattle", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
+	p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o = engine.getOtherPlayer();
-	let loot : Card = o.zones.BF.addCard(engine.createCard("LOOT"));
-	let rzrh : Card = o.zones.DECK.addCard(engine.createCard("RZRH"));
+	o.zones.BF.addCard(engine.createCard("LOOT"));
+	o.zones.DECK.addCard(engine.createCard("RZRH"));
 
 	engine.attack(0, 0);
 	expect(o.zones.HAND.size()).toEqual(1);

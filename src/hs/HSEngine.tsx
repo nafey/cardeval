@@ -235,11 +235,10 @@ class HSEngine {
 		p.zones.BF.modifyCards({sick: true}, {sick: false});
 	}
 
-	summon = (playerId : string, card : Card) => {
-		logParams("summon", ["playerId", "card"], [playerId, card]);
-		let p : Player = this.state.getPlayerById(playerId);
+	summon = (player : Player, card : Card) => {
+		logParams("summon", ["cardName"], [card.name]);
 		card.sick = true;
-		p.zones.BF.addCard(card);
+		player.zones.BF.addCard(card);
 	}
 
 	createCard = (code : string) : Card => {
@@ -254,13 +253,13 @@ class HSEngine {
 		logParams("triggerEffect", ["card", "effectObj", "targetType"], [card, effectObj, playerTarget?.type]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
-		
+		let player : Player = this.state.getPlayerById(playerId);	
 		let effect : string = effectObj.effect;
 		if (!effect) throw new Error("Effect is missing");
 
 		if (effect === "SUMMON") {
 			let code : string = effectObj.code;
-			this.summon(playerId, this.createCard(code));	
+			this.summon(player, this.createCard(code));	
 		}
 		else if (effect === "DAMAGE") {
 			this.doDamage(card, effectObj, playerTarget);
@@ -286,7 +285,7 @@ class HSEngine {
 		let hand: Zone = p.zones.HAND;
 
 		hand.take(card.cardId);
-		this.summon(playerId, card);
+		this.summon(p, card);
 
 		if (card?.bcry) {
 			this.battleCry(card, playerTarget!);
