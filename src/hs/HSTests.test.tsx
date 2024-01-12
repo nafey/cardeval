@@ -32,36 +32,36 @@ test ("Play One", () => {
 test ("Attack", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p : Player= engine.getActivePlayer();
-	p.zones.BF.addCard(engine.createCard("CROC"));
+	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o = engine.getOtherPlayer();
-	o.zones.BF.addCard(engine.createCard("MRDR"));
+	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
 
-	engine.attack(0, 0);
+	engine.attack(croc, mrdr);
 	expect(o.zones.BF.size()).toEqual(0);
 });
 
 test ("Taunt", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p : Player = engine.getActivePlayer();
-	p.zones.BF.addCard(engine.createCard("CROC"));
+	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o : Player = engine.getOtherPlayer();
-	o.zones.BF.addCard(engine.createCard("MRDR"));
+	let mrdr = o.zones.BF.addCard(engine.createCard("MRDR"));
 	o.zones.BF.addCard(engine.createCard("GLDF"));
-	expect(() => engine.attack(0, 0)).toThrowError("taunt");
+	expect(() => engine.attack(croc, mrdr)).toThrowError("taunt");
 });
 
 test ("Deathrattle", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	p.zones.BF.addCard(engine.createCard("CROC"));
+	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o = engine.getOtherPlayer();
-	o.zones.BF.addCard(engine.createCard("LOOT"));
+	let loot : Card = o.zones.BF.addCard(engine.createCard("LOOT"));
 	o.zones.DECK.addCard(engine.createCard("RZRH"));
 
-	engine.attack(0, 0);
+	engine.attack(croc, loot);
 	expect(o.zones.HAND.size()).toEqual(1);
 });
 
@@ -81,9 +81,9 @@ test ("Battlecry", () => {
 test ("Attack Player", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	p.zones.BF.addCard(engine.createCard("CROC"));
+	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
-	engine.attackPlayer(0);
+	engine.attackOpponent(croc);
 	expect(engine.getOtherPlayer().vals.health).toEqual(28);
 });
 
@@ -133,8 +133,8 @@ test ("Summoning Sickness", () => {
 	engine.endTurn();
 	engine.play(rzrh);
 
-	expect(() => engine.attack(1, 0)).toThrowError("sick");
-	engine.attack(0, 0);
+	expect(() => engine.attack(rzrh, mrdr)).toThrowError("sick");
+	engine.attack(croc, mrdr);
 	expect(o.zones.BF.size()).toBe(0);
 });
 

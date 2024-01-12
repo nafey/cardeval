@@ -136,7 +136,7 @@ class HSEngine {
 		if (!card.death) throw new Error("No death rattle on the card");
 
 		let death : Effect = card.death;		
-		this.triggerEffect(card, death);
+		this.resolveEffect(card, death);
 	}
 
 	removeDeadForPlayer = (player : Player) => {
@@ -176,7 +176,7 @@ class HSEngine {
 
 		card.health -= val;
 		if (card?.on?.trigger === "SELF_DAMAGE") {
-			this.triggerEffect(card, card.on.do)
+			this.resolveEffect(card, card.on.do)
 		}	
 		if (card.health <= 0) {
 			this.removeDead();
@@ -231,7 +231,7 @@ class HSEngine {
 		return c;
 	}
 
-	triggerEffect = (card: Card, effectObj : any, playerTarget?: PlayerTarget) => {
+	resolveEffect = (card: Card, effectObj : any, playerTarget?: PlayerTarget) => {
 		logParams("triggerEffect", ["card", "effectObj", "targetType"], [card, effectObj, playerTarget?.type]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
@@ -260,7 +260,7 @@ class HSEngine {
 			throw new Error("No battleCry on card");
 		}
 
-		this.triggerEffect(card, card.bcry, playerTarget);
+		this.resolveEffect(card, card.bcry, playerTarget);
 	}
 
 	play = (card : Card, playerTarget?: PlayerTarget) => {
@@ -278,26 +278,29 @@ class HSEngine {
 		}
 	}
 	
-	attackPlayer = (fromPos: number) => {
-		logParams("attackPlayer", ["fromPos"], [fromPos]);
+	attackOpponent = (attacker : Card) => {
+		logParams("attackPlayer", ["name"], [attacker.name]);
 		let p : Player = this.getActivePlayer();
-		let o : Player = this.getOtherPlayer();	
+		if (attacker.playerId !== p.playerId) throw new Error("Only minions of active player can attack");
+		if (attacker.zoneId !== p.zones.BF.zoneId) throw new Error("Only minions in Battlefield can attack");
 
-		let attacker : Card = p.zones.BF.at(fromPos); 
-		this.damagePlayer(o, attacker.attack);
+		this.damagePlayer(this.getOtherPlayer(), attacker.attack);
 	}
 	
-	attack = (fromPos: number, toPos: number) => {
-		logParams("attack", ["fromPos", "toPos"], [fromPos, toPos]);
+	attack = (attacker : Card, defender : Card) => {
+		logParams("attack", ["attackerName", "defenderName"], [attacker.name, defender.name]);
 		let p : Player = this.getActivePlayer();
 		let o : Player = this.getOtherPlayer();
 
-		let attacker : Card = p.zones.BF.at(fromPos); 
+		if (attacker.playerId !== p.playerId) throw new Error("Only minions of active player can attack");
+		if (attacker.zoneId !== p.zones.BF.zoneId) throw new Error("Only minions in Battlefield can attack");
+
+		if (defender.playerId !== o.playerId) throw new Error("Only minions of inactive player can be attacked");
+		if (defender.zoneId !== o.zones.BF.zoneId) throw new Error("Only minions in Battlefield can be attacked");
+
 		if (attacker.sick) {
 			throw new Error("Can not attack with sick minions");
 		}
-
-		let defender : Card = o.zones.BF.at(toPos);
 
 		if (!defender?.taunt) {
 			if (o.zones.BF.selectCards({taunt : true}).length > 0) {
