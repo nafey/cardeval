@@ -1,16 +1,19 @@
-import { test, expect } from "vitest";
+import { test, expect , beforeEach} from "vitest";
 import  HSEngine, {} from "./HSEngine";
 import Player from "src/engine/Player";
 import Card from "src/engine/Card";
 
-// const consoleDebug : any = console.debug;
+const consoleDebug : any = console.debug;
 console.debug = () => {};
 
-// console.log = () => {};
-
-// const cardsList : ListCard[] = HSCards();
-
-// let cardsList : Record<string, ListCard> = (new HSCardList()).getList();
+beforeEach((context: any) => {
+	if (context.task.name === "") {
+		console.debug = consoleDebug;
+	}
+	else {
+		console.debug = () => {};
+	}
+});
 
 test ("Init", () => {
 	let engine : HSEngine = new HSEngine(); 

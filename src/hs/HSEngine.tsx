@@ -232,7 +232,7 @@ class HSEngine {
 	}
 
 	resolveEffect = (card: Card, effectObj : any, playerTarget?: PlayerTarget) => {
-		logParams("triggerEffect", ["card", "effectObj", "targetType"], [card, effectObj, playerTarget?.type]);
+		logParams("resolveEffect", ["name", "effect"], [card.name, effectObj.effect]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
 		let player : Player = this.state.getPlayerById(playerId);	
