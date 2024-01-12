@@ -19,7 +19,7 @@ let logAll = (args : string[]) => {
 	log(msg);
 } 
 
-let logParams = (funcName: string, paramNames: string[], vals: any[]) => {
+let logParams = (funcName: string, paramNames: string[] = [], vals: any[] = []) => {
 	let args : any[] = [];
 	args.push(funcName + "():");
 
@@ -123,54 +123,46 @@ class HSEngine {
 	} 
 
 
-	draw = (playerId : string) => {
-		logParams("draw", ["playerId"], [playerId]);
-		let player : Player = this.state.getPlayerById(playerId);
+	draw = (player : Player) => {
+		logParams("draw");
 		if (player.zones.DECK.size() < 1) return;
 
 		let c : Card = player.zones.DECK.takeLast();
 		player.zones.HAND.addCard(c);
 	}
 
-	deathRattle = (playerId : string, death : any) => {
-		logParams("deathRattle", ["playerId", "death"], [playerId, JSON.stringify(death)]);
-		if (death.effect === "DRAW") {
-			let val : number = death.val;
-			for (let i = 0; i < val; i++) {
-				this.draw(playerId);
-			}			
-		}
+	deathRattle = (card : Card) => {
+		logParams("deathRattle", ["cardName"], [card.name]);
+		if (!card.death) throw new Error("No death rattle on the card");
+
+		let death : Effect = card.death;		
+		this.triggerEffect(card, death);
 	}
 
-	removeDeadForPlayer = (playerId : string) => {
-		logParams("removeDeadForPlayer", ["playerId"], [playerId]);
-		let p : Player = this.state.getPlayerById(playerId);
+	removeDeadForPlayer = (player : Player) => {
+		logParams("removeDeadForPlayer");
 
 		let deadIds : string [] = [];
-		p.zones.BF.forEach ((card) => {
+		player.zones.BF.forEach ((card) => {
 			if (card.health <= 0) {
 				deadIds.push(card.cardId);
 			}
 		});	
 
 		deadIds.forEach((cardId : string) => {
-			let c : Card = p.zones.BF.getById(cardId);
+			let c : Card = player.zones.BF.getById(cardId);
 
-			p.zones.BF.removeById(cardId);
+			player.zones.BF.removeById(cardId);
 			if (c?.death) {
-				this.deathRattle(playerId, c.death);
+				this.deathRattle(c);
 			}
 		});
 	}
 
 	removeDead = () => {
-		logParams("removeDead", [], []);
-		this.removeDeadForPlayer(this.getActivePlayer().playerId);
-		this.removeDeadForPlayer(this.getOtherPlayer().playerId);
-	}
-
-	onDamage = () => {
-
+		logParams("removeDead");
+		this.removeDeadForPlayer(this.getActivePlayer());
+		this.removeDeadForPlayer(this.getOtherPlayer());
 	}
 
 	damagePlayer = (playerId: string, val : number) => {
@@ -255,6 +247,7 @@ class HSEngine {
 		if (!playerId) throw new Error("No player Id for Card");	
 		let player : Player = this.state.getPlayerById(playerId);	
 		let effect : string = effectObj.effect;
+
 		if (!effect) throw new Error("Effect is missing");
 
 		if (effect === "SUMMON") {
@@ -263,6 +256,9 @@ class HSEngine {
 		}
 		else if (effect === "DAMAGE") {
 			this.doDamage(card, effectObj, playerTarget);
+		}
+		else if (effect === "DRAW") {
+			this.draw(player);	
 		}
 
 	}
