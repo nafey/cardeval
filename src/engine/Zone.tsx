@@ -1,20 +1,5 @@
 import Card from "./Card";
-import {isMatch} from "lodash";
-
-
-const generateId = () : string => {
-	let characters = "0123456789abcdef"
-	let str = characters[1 + Math.floor(Math.random() * 15)]
-	for(let i = 0; i < 20; i++){
-		str += characters[Math.floor(Math.random() * 16)]
-	}
-
-	return str;
-}
-
-let compareCards = (a: Card, b: Card) => {
-	return Object.entries(a).sort().toString() === Object.entries(b).sort().toString()
-}
+import { generateId, match } from "./Utils";
 
 export default class Zone {
 	zoneId : string = generateId();
@@ -170,7 +155,7 @@ export default class Zone {
 	findCards = (selector : any) : Card[] => {
 		let matchedCards : Card[] = []
 		this.cards.forEach((c: Card) => {
-			if (isMatch(selector, c)) matchedCards.push(c);
+			if (match(selector, c)) matchedCards.push(c);
 		})
 		return matchedCards;
 	}
