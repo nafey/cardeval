@@ -155,7 +155,7 @@ export default class Zone {
 	findCards = (selector : any) : Card[] => {
 		let matchedCards : Card[] = []
 		this.cards.forEach((c: Card) => {
-			if (match(selector, c)) matchedCards.push(c);
+			if (match(c, selector)) matchedCards.push(c);
 		})
 		return matchedCards;
 	}

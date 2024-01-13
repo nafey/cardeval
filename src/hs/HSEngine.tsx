@@ -38,7 +38,7 @@ let logParams = (funcName: string, paramNames: string[] = [], vals: any[] = []) 
 
 }
 
-interface PlayerTarget {
+interface Target {
 	type : string,
 	card : Card 
 }
@@ -189,12 +189,9 @@ class HSEngine {
 		[this.getActivePlayer(), this.getOtherPlayer()].forEach((p : Player) => {
 			let triggeredCards : Card[] = p.zones.BF.findCards({
 				trigger : {
-					on : "SUMMON"
+					on : on
 				}
 			});
-
-			// logParams("raiseTrigger",)
-			console.debug(triggeredCards);
 
 			triggeredCards.forEach((triggered : Card) => {
 				if (raiser?.if) {
@@ -211,7 +208,7 @@ class HSEngine {
 	}
 
 
-	doDamage = (card: Card, damageEffect : Effect, playerTarget? : PlayerTarget) => {
+	doDamage = (card: Card, damageEffect : Effect, playerTarget? : Target) => {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
 		let o : Player = p.players.OPP;
 
@@ -259,7 +256,7 @@ class HSEngine {
 		return c;
 	}
 
-	resolveEffect = (card: Card, effectObj : any, playerTarget?: PlayerTarget) => {
+	resolveEffect = (card: Card, effectObj : any, playerTarget?: Target) => {
 		logParams("resolveEffect", ["name", "effect"], [card.name, effectObj.effect]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
@@ -281,7 +278,7 @@ class HSEngine {
 
 	}
 
-	battleCry = (card: Card, playerTarget : PlayerTarget)=> {
+	battleCry = (card: Card, playerTarget : Target)=> {
 		logParams("battleCry", ["cardName"], [card.name]);
 
 		if (!card?.bcry) {
@@ -291,7 +288,7 @@ class HSEngine {
 		this.resolveEffect(card, card.bcry, playerTarget);
 	}
 
-	play = (card : Card, playerTarget?: PlayerTarget) => {
+	play = (card : Card, playerTarget?: Target) => {
 		logParams("play", ["CardName"], [card.name]);
 		let playerId : string = card.playerId!;
 		let p : Player = this.state.getPlayerById(playerId);

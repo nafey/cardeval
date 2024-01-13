@@ -7,7 +7,7 @@ const consoleDebug : any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "Match Function") {
+	if (context.task.name === "Imp Boss and Knife Juggler") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -161,11 +161,39 @@ test ("Imp Boss", () => {
 test ("Knife Juggler", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
+	let o: Player = engine.getOtherPlayer();
 	let knfj : Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
 	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
 
-	p.zones.DECK.addCard(engine.createCard("LOOT"));
 	engine.play(knfj);
 	engine.play(croc);
-	// expect(p.zones.HAND.size()).toBe(1);
+	expect(o.vals.health).toBe(29);
 });
+
+test ("Knife Juggler 2", () => {
+	let engine : HSEngine = new HSEngine(); 
+	let p: Player = engine.getActivePlayer();
+	let knfj : Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
+	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
+
+	engine.play(knfj);
+	engine.play(croc);
+	expect(p.vals.health).toBe(30);
+});
+
+// TODO : Fix the order of execution here. The other players help should 
+// always be 29 (right????). Sometimes it is 30. Minions removed at random times
+// test ("Imp Boss and Knife Juggler", () => {
+// 	let engine : HSEngine = new HSEngine(); 
+// 	let p: Player = engine.getActivePlayer();
+// 	p.zones.BF.addCard(engine.createCard("KNFJ"));
+// 	let impb : Card = p.zones.BF.addCard(engine.createCard("IMPB"));
+
+// 	let o: Player = engine.getOtherPlayer();
+// 	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
+
+// 	engine.endTurn();
+// 	engine.attack(mrdr, impb);
+
+// 	expect(o.vals.health).toBe(29);
+// });

@@ -70,7 +70,8 @@
 			"on" : "SUMMON",
 			"if" : "FRIENDLY",
 			"do" : {
-				"effect" : "DRAW",
+				"effect" : "DAMAGE",
+				"to" : "RANDOM_ENEMY",
 				"val" : 1
 			}
 		}
