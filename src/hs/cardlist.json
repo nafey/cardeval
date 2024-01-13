@@ -66,11 +66,11 @@
 		"name" : "Knife Juggler",
 		"attack" : 3,
 		"health" : 2,
-		"on" : {
-			"trigger" : "SUMMON",
+		"trigger" : {
+			"on" : "SUMMON",
+			"if" : "FRIENDLY",
 			"do" : {
-				"effect" : "DAMAGE",
-				"to" : "RANDOM_ENEMY",
+				"effect" : "DRAW",
 				"val" : 1
 			}
 		}

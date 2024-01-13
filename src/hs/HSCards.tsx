@@ -7,8 +7,8 @@ export interface Effect {
     val? : number
 }
 
-interface Trigger {
-    trigger : string,
+export interface Trigger {
+    on : string,
     do : Effect
 }
 
@@ -20,7 +20,7 @@ export interface ListCard {
     taunt? : boolean,
     death?: Effect,
     bcry?: Effect,
-    on?: Trigger
+    trigger?: Trigger
 }
 
 export class HSCardList {

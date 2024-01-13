@@ -112,6 +112,6 @@ export default class State  {
 
 	findCard = (cardId : string) : Card => {
 		let z: Zone = this.findZone(cardId);	
-		return z.findCard(cardId);
+		return z.findCardById(cardId);
 	}
 }

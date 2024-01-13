@@ -1,4 +1,3 @@
-
 const generateId = () : string => {
 	let characters = "0123456789abcdef"
 	let str = characters[1 + Math.floor(Math.random() * 15)]
@@ -7,6 +6,23 @@ const generateId = () : string => {
 	}
 
 	return str;
+}
+
+function match (obj1 : any, obj2 : any) : boolean {
+	let keys : string[] = Object.keys(obj2);
+	for (let i = 0; i < keys.length; i++) {
+		let k : string = keys[i];
+		if (!(k in obj1)) return false;	
+
+		let val1 : any = obj1[k];	
+		let val2 : any = obj2[k];	
+
+		if (typeof val1 !== typeof val2) return false;
+
+		if (typeof val1 === "string" || typeof val1 === "number" || typeof val1 === "boolean") return val1 === val2;	
+		return match(obj1[k], obj2[k]);
+	}
+	return true;
 }
 
 
@@ -44,18 +60,22 @@ export default class Card {
 		return str;
 	}
 
+	// match = (selector : Record<string, any>) : boolean => {
+	// 	let keys : string[] = Object.keys(selector);
+
+	// 	for (let i = 0; i < keys.length; i++) {
+	// 		let k = keys[i];
+	// 		if (!(k in this)) return false;
+	// 		else {
+	// 			if (!objEqual(this[k],selector[k])) return false;
+	// 		}
+	// 	}	
+
+	// 	return true;
+	// }
+
 	match = (selector : Record<string, any>) : boolean => {
-		let keys : string[] = Object.keys(selector);
-
-		for (let i = 0; i < keys.length; i++) {
-			let k = keys[i];
-			if (!(k in this)) return false;
-			else {
-				if (!objEqual(this[k],selector[k])) return false;
-			}
-		}	
-
-		return true;
+		return match(this, selector);
 	}
 
 	modify = (updater : Record<string, any>) => {
@@ -66,6 +86,15 @@ export default class Card {
 			this[k] = updater[k]
 		}
 	}
+
+	samePlayer = (c: Card) : boolean => {
+		return (c.playerId === this.playerId);
+	}
+
+	sameZone = (c : Card) : boolean => {
+		return (c.zoneId === this.zoneId);
+	}
+
 
 	[key: string]: any;
 }

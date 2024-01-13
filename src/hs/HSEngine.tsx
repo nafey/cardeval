@@ -2,7 +2,7 @@ import Card from "src/engine/Card";
 import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
-import {Effect, HSCardList} from "src/hs/HSCards"; 
+import {Effect, HSCardList, Trigger} from "src/hs/HSCards"; 
 
 const cardList : Record<string, any> = (new HSCardList()).getList();
 
@@ -183,6 +183,33 @@ class HSEngine {
 		}
 	}
 
+	raiseTrigger = (raiser : Card, on : string) => {
+		logParams("raiseTrigger", ["name", "on"], [raiser.name, on]);
+
+		[this.getActivePlayer(), this.getOtherPlayer()].forEach((p : Player) => {
+			let triggeredCards : Card[] = p.zones.BF.findCards({
+				trigger : {
+					on : "SUMMON"
+				}
+			});
+
+			// logParams("raiseTrigger",)
+			console.debug(triggeredCards);
+
+			triggeredCards.forEach((triggered : Card) => {
+				if (raiser?.if) {
+					let condition : string = raiser?.if;
+					if (condition === "FRIENDLY") {
+						if (!(raiser.samePlayer(triggered))) return;
+					}	
+				}
+
+				this.resolveEffect(triggered, triggered.trigger.do);
+			})
+		});
+
+	}
+
 
 	doDamage = (card: Card, damageEffect : Effect, playerTarget? : PlayerTarget) => {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
@@ -220,6 +247,7 @@ class HSEngine {
 	summon = (player : Player, card : Card) => {
 		logParams("summon", ["cardName"], [card.name]);
 		card.sick = true;
+		this.raiseTrigger(card, "SUMMON");
 		player.zones.BF.addCard(card);
 	}
 

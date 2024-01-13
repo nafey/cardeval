@@ -7,7 +7,7 @@ const consoleDebug : any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "") {
+	if (context.task.name === "Match Function") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -144,7 +144,7 @@ test ("Summoning Sickness", () => {
 
 // Implement: https://www.youtube.com/watch?v=Bd9A4RyGXW4
 // Sequence: https://www.youtube.com/watch?v=Ln0BisR_SfY
-test ("Imp Boss Test", () => {
+test ("Imp Boss", () => {
 	// console.debug = consoleDebug
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
@@ -158,4 +158,39 @@ test ("Imp Boss Test", () => {
 	expect(p.zones.BF.size()).toBe(2);
 });
 
-// console.debug = consoleDebug;
+test ("Knife Juggler", () => {
+	let engine : HSEngine = new HSEngine(); 
+	let p: Player = engine.getActivePlayer();
+	let knfj : Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
+	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
+
+	p.zones.DECK.addCard(engine.createCard("LOOT"));
+	engine.play(knfj);
+	engine.play(croc);
+	// expect(p.zones.HAND.size()).toBe(1);
+});
+
+
+test ("Match Function", () => {
+	let match = (obj1 : any, obj2 : any) : boolean => {
+		let keys : string[] = Object.keys(obj2);
+		for (let i = 0; i < keys.length; i++) {
+			let k : string = keys[i];
+			if (!(k in obj1)) return false;	
+
+			let val1 : any = obj1[k];	
+			let val2 : any = obj2[k];	
+
+			if (typeof val1 !== typeof val2) return false;
+
+			if (typeof val1 === "string" || typeof val1 === "number" || typeof val1 === "boolean") return val1 === val2;	
+			return match(obj1[k], obj2[k]);
+		}
+		return true;
+	}
+
+	expect(match({a : 1}, {a : 2})).toBe(false);
+	expect(match({a : 1}, {a : 1})).toBe(true);
+	expect(match({a : {b: 1, c: 2}}, {a : {b : 1}})).toBe(true);
+	expect(match({a : {b: 1, c: 2}}, {a : {b : 2}})).toBe(false);
+});

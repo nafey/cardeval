@@ -1,4 +1,6 @@
 import Card from "./Card";
+import {isMatch} from "lodash";
+
 
 const generateId = () : string => {
 	let characters = "0123456789abcdef"
@@ -138,7 +140,7 @@ export default class Zone {
 		return found;
 	}
 
-	findCard = (cardId: string): Card => {
+	findCardById = (cardId: string): Card => {
 		let i = this.getIndex(cardId);
 		return this.cards[i];
 	}
@@ -163,6 +165,14 @@ export default class Zone {
 				c.modify(updater);
 			}
 		})		
+	}
+
+	findCards = (selector : any) : Card[] => {
+		let matchedCards : Card[] = []
+		this.cards.forEach((c: Card) => {
+			if (isMatch(selector, c)) matchedCards.push(c);
+		})
+		return matchedCards;
 	}
 
 	getView  = () : string [] => {
