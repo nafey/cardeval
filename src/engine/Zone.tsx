@@ -8,7 +8,16 @@ export default class Zone {
 	limit : number = 0;
 	haveLimit : boolean = false;
 
-	size = () : number => this.cards.length;
+	count = (obj : any = null): number => {
+		if (!obj) return this.cards.length;
+
+		let count = 0;
+		this.cards.forEach((c: Card) => {
+			if (c.match(obj)) count++;
+		});
+
+		return count;
+	}
 
 	push = (card : Card) => {
 		card.zoneId = this.zoneId;
@@ -71,12 +80,12 @@ export default class Zone {
 	}
 
 	takeLast = (): Card => { 
-		if (this.size() === 0) throw new Error("No Card in Zone");
+		if (this.count() === 0) throw new Error("No Card in Zone");
 		return this.takeAt(this.cards.length - 1);
 	}
 
 	takeFirst = (): Card => {
-		if (this.size() === 0) throw new Error("No Card in Zone");
+		if (this.count() === 0) throw new Error("No Card in Zone");
 		return this.takeAt(0); 
 	}
 
@@ -86,7 +95,7 @@ export default class Zone {
 	}
 
 	takeAt = (index: number) : Card => {
-		if (this.size() > index) {
+		if (this.count() > index) {
 			return this.takeCards(index, 1)[0];
 		}
 		throw new Error("Index greater than size of Zone");
@@ -111,18 +120,6 @@ export default class Zone {
 
 		this.cards = [...before, ...after];
 		return ret;
-	}
-
-	hasCard = (card: Card): boolean => {
-		let found: boolean = false;
-		for (const citem of this.cards) {
-			if (compareCards(card, citem)) {
-				found = true;
-				break;
-			}
-		}
-
-		return found;
 	}
 
 	findCardById = (cardId: string): Card => {
@@ -152,7 +149,7 @@ export default class Zone {
 		})		
 	}
 
-	findCards = (selector : any) : Card[] => {
+	match = (selector : any) : Card[] => {
 		let matchedCards : Card[] = []
 		this.cards.forEach((c: Card) => {
 			if (match(c, selector)) matchedCards.push(c);

@@ -2,7 +2,7 @@ import Card from "src/engine/Card";
 import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
-import {Effect, HSCardList, Trigger} from "src/hs/HSCards"; 
+import {Effect, HSCardList} from "src/hs/HSCards"; 
 
 const cardList : Record<string, any> = (new HSCardList()).getList();
 
@@ -125,7 +125,7 @@ class HSEngine {
 
 	draw = (player : Player) => {
 		logParams("draw");
-		if (player.zones.DECK.size() < 1) return;
+		if (player.zones.DECK.count() < 1) return;
 
 		let c : Card = player.zones.DECK.takeLast();
 		player.zones.HAND.addCard(c);
@@ -187,7 +187,7 @@ class HSEngine {
 		logParams("raiseTrigger", ["name", "on"], [raiser.name, on]);
 
 		[this.getActivePlayer(), this.getOtherPlayer()].forEach((p : Player) => {
-			let triggeredCards : Card[] = p.zones.BF.findCards({
+			let triggeredCards : Card[] = p.zones.BF.match({
 				trigger : {
 					on : on
 				}
@@ -204,23 +204,21 @@ class HSEngine {
 				this.resolveEffect(triggered, triggered.trigger.do);
 			})
 		});
-
 	}
-
 
 	doDamage = (card: Card, damageEffect : Effect, playerTarget? : Target) => {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
 		let o : Player = p.players.OPP;
 
 		if (damageEffect.to === "RANDOM_ENEMY") {
-			let minsCount : number = o.zones.BF.size();
+			let mins : Card[] = o.zones.BF.match({health : {op : "gt", val : 0}});
+			let targetIdx : number = Math.floor(Math.random() * (mins.length + 1));			
 
-			let targetIdx : number = Math.floor(Math.random() * (minsCount + 1));			
-			if (targetIdx === minsCount) {
+			if (targetIdx === mins.length) {
 				this.damagePlayer(o, damageEffect.val!);
 			}
 			else {
-				let c : Card = o.zones.BF.at(targetIdx);
+				let c : Card = mins[targetIdx];
 				this.damageCard(c, damageEffect.val!);
 			}
 		}

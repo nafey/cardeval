@@ -7,7 +7,7 @@ const consoleDebug : any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "Imp Boss and Knife Juggler") {
+	if (context.task.name === "") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -19,7 +19,7 @@ test ("Init", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
 	p.zones.HAND.addCard(engine.createCard("LOOT"));
-	expect(p.zones.HAND.size()).toEqual(1)
+	expect(p.zones.HAND.count()).toEqual(1)
 });
 
 test ("Play One", () => {
@@ -28,7 +28,7 @@ test ("Play One", () => {
 	let c: Card = p.zones.HAND.addCard(engine.createCard("LOOT"));
 
 	engine.play(c)
-	expect(p.zones.BF.size()).toEqual(1)
+	expect(p.zones.BF.count()).toEqual(1)
 });
 
 
@@ -41,7 +41,7 @@ test ("Attack", () => {
 	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
 
 	engine.attack(croc, mrdr);
-	expect(o.zones.BF.size()).toEqual(0);
+	expect(o.zones.BF.count()).toEqual(0);
 });
 
 test ("Taunt", () => {
@@ -65,7 +65,7 @@ test ("Deathrattle", () => {
 	o.zones.DECK.addCard(engine.createCard("RZRH"));
 
 	engine.attack(croc, loot);
-	expect(o.zones.HAND.size()).toEqual(1);
+	expect(o.zones.HAND.count()).toEqual(1);
 });
 
 test ("Battlecry", () => {
@@ -78,7 +78,7 @@ test ("Battlecry", () => {
 	o.zones.DECK.addCard(engine.createCard("RZRH"));
 
 	engine.play(iron, {type: "OPP_BF", card : loot});
-	expect(o.zones.HAND.size()).toEqual(1)
+	expect(o.zones.HAND.count()).toEqual(1)
 });
 
 test ("Attack Player", () => {
@@ -97,17 +97,17 @@ test ("Hand Limit", () => {
 		p.zones.HAND.addCard(engine.createCard("CROC"));
 	}
 
-	expect(p.zones.HAND.size()).toEqual(10);
+	expect(p.zones.HAND.count()).toEqual(10);
 });
 
 test ("End Turn", () => {
 	let engine : HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
 	p.zones.BF.addCard(engine.createCard("CROC"));
-	expect(engine.getActivePlayer().zones.BF.size()).toEqual(1);	
+	expect(engine.getActivePlayer().zones.BF.count()).toEqual(1);	
 
 	engine.endTurn();
-	expect(engine.getActivePlayer().zones.BF.size()).toEqual(0);
+	expect(engine.getActivePlayer().zones.BF.count()).toEqual(0);
 });
 
 test ("Start Turn Effects", () => {
@@ -138,7 +138,7 @@ test ("Summoning Sickness", () => {
 
 	expect(() => engine.attack(rzrh, mrdr)).toThrowError("sick");
 	engine.attack(croc, mrdr);
-	expect(o.zones.BF.size()).toBe(0);
+	expect(o.zones.BF.count()).toBe(0);
 });
 
 
@@ -155,7 +155,7 @@ test ("Imp Boss", () => {
 
 	engine.endTurn();
 	engine.play(iron, {type : "OPP_BF", card: impb});	
-	expect(p.zones.BF.size()).toBe(2);
+	expect(p.zones.BF.count()).toBe(2);
 });
 
 test ("Knife Juggler", () => {
@@ -183,17 +183,17 @@ test ("Knife Juggler 2", () => {
 
 // TODO : Fix the order of execution here. The other players help should 
 // always be 29 (right????). Sometimes it is 30. Minions removed at random times
-// test ("Imp Boss and Knife Juggler", () => {
-// 	let engine : HSEngine = new HSEngine(); 
-// 	let p: Player = engine.getActivePlayer();
-// 	p.zones.BF.addCard(engine.createCard("KNFJ"));
-// 	let impb : Card = p.zones.BF.addCard(engine.createCard("IMPB"));
+test ("Imp Boss and Knife Juggler", () => {
+	let engine : HSEngine = new HSEngine(); 
+	let p: Player = engine.getActivePlayer();
+	p.zones.BF.addCard(engine.createCard("KNFJ"));
+	let impb : Card = p.zones.BF.addCard(engine.createCard("IMPB"));
 
-// 	let o: Player = engine.getOtherPlayer();
-// 	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
+	let o: Player = engine.getOtherPlayer();
+	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
 
-// 	engine.endTurn();
-// 	engine.attack(mrdr, impb);
+	engine.endTurn();
+	engine.attack(mrdr, impb);
 
-// 	expect(o.vals.health).toBe(29);
-// });
+	expect(o.vals.health).toBe(29);
+});

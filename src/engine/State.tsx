@@ -100,7 +100,7 @@ export default class State  {
 	findZone = (cardId : string) : Zone => {
 		for (let i = 0; i < this.zones.length; i++) {
 			let z : Zone = this.zones[i];
-			for (let j = 0; j < z.size(); j++) {
+			for (let j = 0; j < z.count(); j++) {
 				let c : Card = z.at(j);
 				if (c.cardId === cardId) {
 					return z;

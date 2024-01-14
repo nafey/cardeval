@@ -44,8 +44,8 @@ class SolitaireEngine  {
 	flipHandler = (zoneName: string) => {		
 		let p : Player = this.getPlayer();
 		const zone : Zone = p.zones[zoneName] ;
-		if (zone.size() === 0) return;
-		if (!zone.last().visible) zone.flip(zone.size() - 1);
+		if (zone.count() === 0) return;
+		if (!zone.last().visible) zone.flip(zone.count() - 1);
 	}
 
 
@@ -59,12 +59,12 @@ class SolitaireEngine  {
 		const fromZone = p.zones[fromZoneName];
 		const toZone = p.zones[toZoneName];
 
-		if (fromZone.size() === 0) {
+		if (fromZone.count() === 0) {
 			return;
 		}
 
 		let fromIndex : number = 0
-		for (let i = 0; i < fromZone.size(); i++) {
+		for (let i = 0; i < fromZone.count(); i++) {
 			if (fromZone.at(i).visible) {
 				fromIndex = i
 				break;
@@ -73,7 +73,7 @@ class SolitaireEngine  {
 
 		let fromCard : Card = fromZone.at(fromIndex);
 		
-		if (toZone.size() === 0) {
+		if (toZone.count() === 0) {
 			this.state.moveCards(fromZone.zoneId, fromCard.cardId, toZone.zoneId);
 		}
 		else {		

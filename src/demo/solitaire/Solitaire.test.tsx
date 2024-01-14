@@ -10,7 +10,7 @@ test("Move one", () => {
 	let p : Player = engine.getPlayer();
 	p.zones.T1.addCard(new Card({suit: "D", num: 1} ))
 	engine.moveHandler("T1", "T2")
-	expect(p.zones.T2.size()).toEqual(1)
+	expect(p.zones.T2.count()).toEqual(1)
 	
 });
 
