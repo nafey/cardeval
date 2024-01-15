@@ -4,7 +4,7 @@ import State from "src/engine/State";
 import Zone from "src/engine/Zone";
 import {Effect, HSCardList} from "src/hs/HSCards"; 
 
-const cardList : Record<string, any> = (new HSCardList()).getList();
+const cardList : Record<string, any> = (new HSCardList()).getCodedList();
 
 let log = (msg: string) => {
 	console.debug(msg);
@@ -175,8 +175,8 @@ class HSEngine {
 		logParams("damageCard", ["name", "val"], [card.name, val]);
 
 		card.health -= val;
-		if (card?.on?.trigger === "SELF_DAMAGE") {
-			this.resolveEffect(card, card.on.do)
+		if (card?.trigger?.on === "SELF_DAMAGE") {
+			this.resolveEffect(card, card.trigger.do)
 		}	
 		if (card.health <= 0) {
 			this.removeDead();

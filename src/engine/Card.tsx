@@ -27,20 +27,6 @@ export default class Card {
 		return str;
 	}
 
-	// match = (selector : Record<string, any>) : boolean => {
-	// 	let keys : string[] = Object.keys(selector);
-
-	// 	for (let i = 0; i < keys.length; i++) {
-	// 		let k = keys[i];
-	// 		if (!(k in this)) return false;
-	// 		else {
-	// 			if (!objEqual(this[k],selector[k])) return false;
-	// 		}
-	// 	}	
-
-	// 	return true;
-	// }
-
 	match = (selector : Record<string, any>) : boolean => {
 		return match(this, selector);
 	}
