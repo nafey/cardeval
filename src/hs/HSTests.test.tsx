@@ -1,13 +1,14 @@
-import { test, expect , beforeEach} from "vitest";
-import  HSEngine, {} from "./HSEngine";
+import { test, expect, beforeEach } from "vitest";
+import HSEngine, {} from "./HSEngine";
 import Player from "src/engine/Player";
 import Card from "src/engine/Card";
+// import { EffectType } from "./HSCards";
 
-const consoleDebug : any = console.debug;
+const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "") {
+	if (context.task.name === "AJV Types") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -15,15 +16,15 @@ beforeEach((context: any) => {
 	}
 });
 
-test ("Init", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Init", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
 	p.zones.HAND.addCard(engine.createCard("LOOT"));
 	expect(p.zones.HAND.count()).toEqual(1)
 });
 
-test ("Play One", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Play One", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
 	let c: Card = p.zones.HAND.addCard(engine.createCard("LOOT"));
 
@@ -32,66 +33,66 @@ test ("Play One", () => {
 });
 
 
-test ("Attack", () => {
-	let engine : HSEngine = new HSEngine(); 
-	let p : Player= engine.getActivePlayer();
-	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
+test("Attack", () => {
+	let engine: HSEngine = new HSEngine(); 
+	let p: Player = engine.getActivePlayer();
+	let croc: Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o = engine.getOtherPlayer();
-	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
+	let mrdr: Card = o.zones.BF.addCard(engine.createCard("MRDR"));
 
 	engine.attack(croc, mrdr);
 	expect(o.zones.BF.count()).toEqual(0);
 });
 
-test ("Taunt", () => {
-	let engine : HSEngine = new HSEngine(); 
-	let p : Player = engine.getActivePlayer();
-	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
+test("Taunt", () => {
+	let engine: HSEngine = new HSEngine(); 
+	let p: Player = engine.getActivePlayer();
+	let croc: Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
-	let o : Player = engine.getOtherPlayer();
+	let o: Player = engine.getOtherPlayer();
 	let mrdr = o.zones.BF.addCard(engine.createCard("MRDR"));
 	o.zones.BF.addCard(engine.createCard("GLDF"));
 	expect(() => engine.attack(croc, mrdr)).toThrowError("taunt");
 });
 
-test ("Deathrattle", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Deathrattle", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
+	let croc: Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o = engine.getOtherPlayer();
-	let loot : Card = o.zones.BF.addCard(engine.createCard("LOOT"));
+	let loot: Card = o.zones.BF.addCard(engine.createCard("LOOT"));
 	o.zones.DECK.addCard(engine.createCard("RZRH"));
 
 	engine.attack(croc, loot);
 	expect(o.zones.HAND.count()).toEqual(1);
 });
 
-test ("Battlecry", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Battlecry", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	let iron : Card = p.zones.HAND.addCard(engine.createCard("IRON"));
+	let iron: Card = p.zones.HAND.addCard(engine.createCard("IRON"));
 
 	let o = engine.getOtherPlayer();
-	let loot : Card = o.zones.BF.addCard(engine.createCard("LOOT"));
+	let loot: Card = o.zones.BF.addCard(engine.createCard("LOOT"));
 	o.zones.DECK.addCard(engine.createCard("RZRH"));
 
-	engine.play(iron, {type: "OPP_BF", card : loot});
+	engine.play(iron, { type: "OPP_BF", card: loot });
 	expect(o.zones.HAND.count()).toEqual(1)
 });
 
-test ("Attack Player", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Attack Player", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	let croc : Card = p.zones.BF.addCard(engine.createCard("CROC"));
+	let croc: Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
 	engine.attackOpponent(croc);
 	expect(engine.getOtherPlayer().vals.health).toEqual(28);
 });
 
-test ("Hand Limit", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Hand Limit", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
 	for (let i = 0; i < 11; i++) {
 		p.zones.HAND.addCard(engine.createCard("CROC"));
@@ -100,8 +101,8 @@ test ("Hand Limit", () => {
 	expect(p.zones.HAND.count()).toEqual(10);
 });
 
-test ("End Turn", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("End Turn", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
 	p.zones.BF.addCard(engine.createCard("CROC"));
 	expect(engine.getActivePlayer().zones.BF.count()).toEqual(1);	
@@ -110,10 +111,10 @@ test ("End Turn", () => {
 	expect(engine.getActivePlayer().zones.BF.count()).toEqual(0);
 });
 
-test ("Start Turn Effects", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Start Turn Effects", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
+	let croc: Card = p.zones.HAND.addCard(engine.createCard("CROC"));
 	engine.play(croc);
 
 	engine.endTurn();
@@ -121,14 +122,14 @@ test ("Start Turn Effects", () => {
 	expect(p.zones.BF.first().sick).toBe(false);
 });
 
-test ("Summoning Sickness", () => {
-	let engine : HSEngine = new HSEngine(); 
-	let p : Player = engine.getActivePlayer();
-	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
-	let rzrh : Card = p.zones.HAND.addCard(engine.createCard("RZRH"));
+test("Summoning Sickness", () => {
+	let engine: HSEngine = new HSEngine(); 
+	let p: Player = engine.getActivePlayer();
+	let croc: Card = p.zones.HAND.addCard(engine.createCard("CROC"));
+	let rzrh: Card = p.zones.HAND.addCard(engine.createCard("RZRH"));
 
 	let o = engine.getOtherPlayer();
-	let mrdr : Card = o.zones.HAND.addCard(engine.createCard("MRDR"));
+	let mrdr: Card = o.zones.HAND.addCard(engine.createCard("MRDR"));
 
 	engine.play(croc);
 	engine.endTurn();
@@ -144,37 +145,37 @@ test ("Summoning Sickness", () => {
 
 // Implement: https://www.youtube.com/watch?v=Bd9A4RyGXW4
 // Sequence: https://www.youtube.com/watch?v=Ln0BisR_SfY
-test ("Imp Boss", () => {
+test("Imp Boss", () => {
 	// console.debug = consoleDebug
-	let engine : HSEngine = new HSEngine(); 
+	let engine: HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
-	let impb : Card = p.zones.BF.addCard(engine.createCard("IMPB"));
+	let impb: Card = p.zones.BF.addCard(engine.createCard("IMPB"));
 
 	let o = engine.getOtherPlayer();
-	let iron : Card = o.zones.HAND.addCard(engine.createCard("IRON"));
+	let iron: Card = o.zones.HAND.addCard(engine.createCard("IRON"));
 
 	engine.endTurn();
-	engine.play(iron, {type : "OPP_BF", card: impb});	
+	engine.play(iron, { type: "OPP_BF", card: impb });	
 	expect(p.zones.BF.count()).toBe(2);
 });
 
-test ("Knife Juggler", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Knife Juggler", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
 	let o: Player = engine.getOtherPlayer();
-	let knfj : Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
-	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
+	let knfj: Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
+	let croc: Card = p.zones.HAND.addCard(engine.createCard("CROC"));
 
 	engine.play(knfj);
 	engine.play(croc);
 	expect(o.vals.health).toBe(29);
 });
 
-test ("Knife Juggler 2", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Knife Juggler 2", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
-	let knfj : Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
-	let croc : Card = p.zones.HAND.addCard(engine.createCard("CROC"));
+	let knfj: Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
+	let croc: Card = p.zones.HAND.addCard(engine.createCard("CROC"));
 
 	engine.play(knfj);
 	engine.play(croc);
@@ -183,17 +184,19 @@ test ("Knife Juggler 2", () => {
 
 // TODO : Fix the order of execution here. The other players help should 
 // always be 29 (right????). Sometimes it is 30. Minions removed at random times
-test ("Imp Boss and Knife Juggler", () => {
-	let engine : HSEngine = new HSEngine(); 
+test("Imp Boss and Knife Juggler", () => {
+	let engine: HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
 	p.zones.BF.addCard(engine.createCard("KNFJ"));
-	let impb : Card = p.zones.BF.addCard(engine.createCard("IMPB"));
+	let impb: Card = p.zones.BF.addCard(engine.createCard("IMPB"));
 
 	let o: Player = engine.getOtherPlayer();
-	let mrdr : Card = o.zones.BF.addCard(engine.createCard("MRDR"));
+	let mrdr: Card = o.zones.BF.addCard(engine.createCard("MRDR"));
 
 	engine.endTurn();
 	engine.attack(mrdr, impb);
 
+
 	expect(o.vals.health).toBe(29);
 });
+
