@@ -46,7 +46,7 @@ export interface SummonEffect {
     code : string
 }
 
-type Effect = DrawEffect | DamageEffect | SummonEffect;
+export type Effect = DrawEffect | DamageEffect | SummonEffect;
 
 export interface Minion {
     code: string,

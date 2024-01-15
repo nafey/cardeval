@@ -2,7 +2,7 @@ import Card from "src/engine/Card";
 import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
-import {Effect, HSCardList} from "src/hs/HSCards"; 
+import {Effect, TriggerType, TriggerConditions, EffectTargetType, DamageEffect, HSCardList, EffectType, SummonEffect} from "src/hs/HSCards"; 
 
 const cardList : Record<string, any> = (new HSCardList()).getCodedList();
 
@@ -175,7 +175,7 @@ class HSEngine {
 		logParams("damageCard", ["name", "val"], [card.name, val]);
 
 		card.health -= val;
-		if (card?.trigger?.on === "SELF_DAMAGE") {
+		if (card?.trigger?.on === TriggerType.SELF_DAMAGE) {
 			this.resolveEffect(card, card.trigger.do)
 		}	
 		if (card.health <= 0) {
@@ -183,7 +183,7 @@ class HSEngine {
 		}
 	}
 
-	raiseTrigger = (raiser : Card, on : string) => {
+	raiseTrigger = (raiser : Card, on : TriggerType) => {
 		logParams("raiseTrigger", ["name", "on"], [raiser.name, on]);
 
 		[this.getActivePlayer(), this.getOtherPlayer()].forEach((p : Player) => {
@@ -196,7 +196,7 @@ class HSEngine {
 			triggeredCards.forEach((triggered : Card) => {
 				if (raiser?.if) {
 					let condition : string = raiser?.if;
-					if (condition === "FRIENDLY") {
+					if (condition === TriggerConditions.FRIENDLY) {
 						if (!(raiser.samePlayer(triggered))) return;
 					}	
 				}
@@ -206,11 +206,11 @@ class HSEngine {
 		});
 	}
 
-	doDamage = (card: Card, damageEffect : Effect, playerTarget? : Target) => {
+	doDamage = (card: Card, damageEffect : DamageEffect, playerTarget? : Target) => {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
 		let o : Player = p.players.OPP;
 
-		if (damageEffect.to === "RANDOM_ENEMY") {
+		if (damageEffect.to === EffectTargetType.RANDOM_ENEMY) {
 			let mins : Card[] = o.zones.BF.match({health : {op : "gt", val : 0}});
 			let targetIdx : number = Math.floor(Math.random() * (mins.length + 1));			
 
@@ -222,7 +222,7 @@ class HSEngine {
 				this.damageCard(c, damageEffect.val!);
 			}
 		}
-		else if (damageEffect.to === "TARGET") {
+		else if (damageEffect.to === EffectTargetType.TARGET) {
 			let type : string = playerTarget?.type!;
 
 			if (type === "OPP_BF") {
@@ -242,7 +242,7 @@ class HSEngine {
 	summon = (player : Player, card : Card) => {
 		logParams("summon", ["cardName"], [card.name]);
 		card.sick = true;
-		this.raiseTrigger(card, "SUMMON");
+		this.raiseTrigger(card, TriggerType.SUMMON);
 		player.zones.BF.addCard(card);
 	}
 
@@ -254,23 +254,23 @@ class HSEngine {
 		return c;
 	}
 
-	resolveEffect = (card: Card, effectObj : any, playerTarget?: Target) => {
+	resolveEffect = (card: Card, effectObj : Effect, playerTarget?: Target) => {
 		logParams("resolveEffect", ["name", "effect"], [card.name, effectObj.effect]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
 		let player : Player = this.state.getPlayerById(playerId);	
-		let effect : string = effectObj.effect;
+		let effect : EffectType = effectObj.effect;
 
 		if (!effect) throw new Error("Effect is missing");
 
-		if (effect === "SUMMON") {
-			let code : string = effectObj.code;
+		if (effect === EffectType.SUMMON) {
+			let code : string = (effectObj as SummonEffect).code;
 			this.summon(player, this.createCard(code));	
 		}
-		else if (effect === "DAMAGE") {
-			this.doDamage(card, effectObj, playerTarget);
+		else if (effect === EffectType.DAMAGE) {
+			this.doDamage(card, (effectObj as DamageEffect), playerTarget);
 		}
-		else if (effect === "DRAW") {
+		else if (effect === EffectType.DRAW) {
 			this.draw(player);	
 		}
 
