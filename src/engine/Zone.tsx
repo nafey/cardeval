@@ -149,6 +149,10 @@ export default class Zone {
 		})		
 	}
 
+	hasCard = (c : Card) => {
+		return this.getIndex(c.cardId) === -1 ? false : true;
+	}
+
 	match = (selector : any) : Card[] => {
 		let matchedCards : Card[] = []
 		this.cards.forEach((c: Card) => {
@@ -192,7 +196,7 @@ export default class Zone {
 				return i;
 			}
 		}
-		throw new Error("Not found index for cardId in zone");
+		return -1;
 	}
 
 

@@ -40,7 +40,7 @@ let logParams = (funcName: string, paramNames: string[] = [], vals: any[] = []) 
 
 interface Target {
 	type : string,
-	card : Card 
+	card? : Card 
 }
 
 class HSEngine {
@@ -87,41 +87,6 @@ class HSEngine {
 	getOtherPlayer = () : Player => {
 		return this.state.getNextPlayer();
 	}
-
-	getZoneView  = (zone : Zone) : string [] => {
-		let viewCard = (c: Card) : string => {
-			let ret: string = ""
-			if (!c.visible) {
-				return "****";
-			}
-			ret = c.toString();
-			return ret;
-		}
-
-		let ret: string[] = [];
-
-		zone.forEach((c: Card) => {
-			ret.push(viewCard(c));
-		});
-
-		return ret;
-	}
-
-	getView = () : Record<string, Record<string, string[]>> => {
-		let me : Record<string, string[]> = {}
-		me["BF"] = this.getZoneView(this.getActivePlayer().zones.BF); 
-		me["HAND"] = this.getZoneView(this.getActivePlayer().zones.HAND); 
-		let you : Record<string, string[]> = {}
-		you["BF"] = this.getZoneView(this.getOtherPlayer().zones.BF); 
-		you["HAND"] = this.getZoneView(this.getOtherPlayer().zones.HAND); 
-
-		let v : Record<string, Record<string, string[]>> = {}
-		v["YOU"] = you;
-		v["ME"] = me;
-
-		return v;
-	} 
-
 
 	draw = (player : Player) => {
 		logParams("draw");
@@ -229,6 +194,12 @@ class HSEngine {
 				let card : Card = playerTarget?.card!;			
 				this.damageCard(card, damageEffect.val!);
 			}	
+			else if (type === "OPP") {
+				this.damagePlayer(o, damageEffect.val);
+			}
+			else {
+				console.debug("Unimplemented target type");
+			}
 		}
 	}
 
@@ -335,6 +306,16 @@ class HSEngine {
 		this.damageCard(attacker, defender.attack);
 
 		this.removeDead();
+	}
+
+	cast = (spell : Card, playerTarget? : Target) => {
+		let p : Player = this.getActivePlayer();
+		
+		if (spell.playerId !== p.playerId) throw new Error("Only active player can cast spells");	
+		if (!p.zones.HAND.hasCard(spell)) throw new Error("Spells can only be cast from hand");
+
+		p.zones.HAND.take(spell.cardId);
+		this.resolveEffect(spell, spell.text, playerTarget);
 	}
 
 	endTurn = () => {

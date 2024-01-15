@@ -118,7 +118,7 @@ export interface Minion {
 export interface Spell {
     code: string,
     name: string,
-    class : HSClass,
+    class : HSClass | HSClass[],
     type: CardType.SPELL,
     text: Effect, 
     collectible?: boolean,
@@ -136,7 +136,6 @@ export class HSCardList {
 }
 
 let hscards: Record<string, HSCard> = {};
-
 
 hscards.CROC = 
 {
@@ -307,5 +306,19 @@ hscards.IMPI =
     rarity: Rarity.UNCOLLECTIBLE,
 };
 
+hscards.ARCN = 
+{
+    code: "ARCN",
+    name: "Arcane Shot",
+    class: HSClass.HUNTER,
+    type: CardType.SPELL,
+    text: {
+        effect : EffectType.DAMAGE,
+        to: EffectTargetType.TARGET,
+        val : 2
+    },
+    set: Set.BASIC,
+    rarity: Rarity.FREE,
+}
 
 

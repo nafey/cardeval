@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "AJV Types") {
+	if (context.task.name === "") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -200,3 +200,12 @@ test("Imp Boss and Knife Juggler", () => {
 	expect(o.vals.health).toBe(29);
 });
 
+test ("Cast Spell", () => {
+	let engine : HSEngine = new HSEngine();	
+	let p: Player = engine.getActivePlayer();
+	let o: Player = engine.getOtherPlayer();
+	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
+
+	engine.cast(arcn, {type: "OPP"});
+	expect(o.vals.health).toBe(28);
+})
