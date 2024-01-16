@@ -209,3 +209,33 @@ test ("Cast Spell", () => {
 	engine.cast(arcn, {type: "OPP"});
 	expect(o.vals.health).toBe(28);
 })
+
+test ("Heal", () => {
+	let engine : HSEngine = new HSEngine();
+	let p : Player = engine.getActivePlayer();
+	let o : Player = engine.getOtherPlayer();
+
+	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
+	let vood : Card = p.zones.HAND.addCard(engine.createCard("VOOD"));
+
+
+	let croc : Card = o.zones.BF.addCard(engine.createCard("CROC"));
+
+	engine.cast(arcn, {type: "OPP_BF", card: croc});
+	expect(croc.health).toBe(1);
+
+	engine.play(vood, {type: "OPP_BF", card: croc});
+	expect(croc.health).toBe(3);
+})
+
+test ("Heal Limit", () => {
+	let engine : HSEngine = new HSEngine();
+	let p : Player = engine.getActivePlayer();
+	let o : Player = engine.getOtherPlayer();
+
+	let vood : Card = p.zones.HAND.addCard(engine.createCard("VOOD"));
+	let croc : Card = o.zones.BF.addCard(engine.createCard("CROC"));
+
+	engine.play(vood, {type: "OPP_BF", card: croc});
+	expect(croc.health).toBe(3);
+})

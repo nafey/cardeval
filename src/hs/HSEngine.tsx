@@ -2,7 +2,10 @@ import Card from "src/engine/Card";
 import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
-import {Effect, TriggerType, TriggerConditions, EffectTargetType, DamageEffect, HSCardList, EffectType, SummonEffect} from "src/hs/HSCards"; 
+import {
+	Effect, TriggerType, TriggerConditions, EffectTargetType, DamageEffect, HSCardList, 
+	EffectType, SummonEffect, CardType, HealEffect
+} from "src/hs/HSCards"; 
 
 const cardList : Record<string, any> = (new HSCardList()).getCodedList();
 
@@ -88,22 +91,6 @@ class HSEngine {
 		return this.state.getNextPlayer();
 	}
 
-	draw = (player : Player) => {
-		logParams("draw");
-		if (player.zones.DECK.count() < 1) return;
-
-		let c : Card = player.zones.DECK.takeLast();
-		player.zones.HAND.addCard(c);
-	}
-
-	deathRattle = (card : Card) => {
-		logParams("deathRattle", ["cardName"], [card.name]);
-		if (!card.death) throw new Error("No death rattle on the card");
-
-		let death : Effect = card.death;		
-		this.resolveEffect(card, death);
-	}
-
 	removeDeadForPlayer = (player : Player) => {
 		logParams("removeDeadForPlayer");
 
@@ -130,22 +117,29 @@ class HSEngine {
 		this.removeDeadForPlayer(this.getOtherPlayer());
 	}
 
-	damagePlayer = (player : Player, val : number) => {
-		logParams("damagePlayer");
-		player.vals.health -= val;
-	}
+	resolveEffect = (card: Card, effectObj : Effect, playerTarget?: Target) => {
+		logParams("resolveEffect", ["name", "effect"], [card.name, effectObj.effect]);
+		let playerId : string = card.playerId!;
+		if (!playerId) throw new Error("No player Id for Card");	
+		let player : Player = this.state.getPlayerById(playerId);	
+		let effect : EffectType = effectObj.effect;
 
+		if (!effect) throw new Error("Effect is missing");
 
-	damageCard = (card: Card, val : number) => {
-		logParams("damageCard", ["name", "val"], [card.name, val]);
-
-		card.health -= val;
-		if (card?.trigger?.on === TriggerType.SELF_DAMAGE) {
-			this.resolveEffect(card, card.trigger.do)
-		}	
-		if (card.health <= 0) {
-			this.removeDead();
+		if (effect === EffectType.SUMMON) {
+			let code : string = (effectObj as SummonEffect).code;
+			this.summon(player, this.createCard(code));	
 		}
+		else if (effect === EffectType.DAMAGE) {
+			this.doDamage(card, (effectObj as DamageEffect), playerTarget);
+		}
+		else if (effect === EffectType.DRAW) {
+			this.draw(player);	
+		}
+		else if (effect === EffectType.HEAL) {
+			this.doHeal(card, (effectObj as HealEffect), playerTarget);
+		}
+
 	}
 
 	raiseTrigger = (raiser : Card, on : TriggerType) => {
@@ -169,6 +163,62 @@ class HSEngine {
 				this.resolveEffect(triggered, triggered.trigger.do);
 			})
 		});
+	}
+
+	draw = (player : Player) => {
+		logParams("draw");
+		if (player.zones.DECK.count() < 1) return;
+
+		let c : Card = player.zones.DECK.takeLast();
+		player.zones.HAND.addCard(c);
+	}
+
+	deathRattle = (card : Card) => {
+		logParams("deathRattle", ["cardName"], [card.name]);
+		if (!card.death) throw new Error("No death rattle on the card");
+
+		let death : Effect = card.death;		
+		this.resolveEffect(card, death);
+	}
+
+	healCard = (card : Card, val : number) => {
+		logParams("healCard" , ["name", "val"], [card.name, val]);
+
+		card.health = Math.min(card.health + val, card.maxHealth);
+	}
+
+	doHeal = (_card: Card, healEffect: HealEffect, playerTarget? : Target) => {
+		if (healEffect.to === EffectTargetType.TARGET) {
+			let type : string = playerTarget?.type!;
+
+			if (type === "OPP_BF") {
+				let card : Card = playerTarget?.card!;
+				this.healCard(card, healEffect.val);
+			}
+		}
+	}
+
+	damageMinion = (card : Card, val : number) => {
+		logParams("damageMinion", ["cardName", "val"], [card.name, val]);
+
+	}
+
+
+	damagePlayer = (player : Player, val : number) => {
+		logParams("damagePlayer");
+		player.vals.health -= val;
+	}
+
+	damageCard = (card: Card, val : number) => {
+		logParams("damageCard", ["name", "val"], [card.name, val]);
+
+		card.health -= val;
+		if (card?.trigger?.on === TriggerType.SELF_DAMAGE) {
+			this.resolveEffect(card, card.trigger.do)
+		}	
+		if (card.health <= 0) {
+			this.removeDead();
+		}
 	}
 
 	doDamage = (card: Card, damageEffect : DamageEffect, playerTarget? : Target) => {
@@ -220,31 +270,12 @@ class HSEngine {
 	createCard = (code : string) : Card => {
 		logParams("createCard", ["code"], [code]);
 		let c : Card = new Card(cardList[code]);
+		if (c.type === CardType.MINION) {
+			c.maxHealth = c.health;
+		}
+
 		if (!c) throw new Error("Missing code in Card List " + code);
-
 		return c;
-	}
-
-	resolveEffect = (card: Card, effectObj : Effect, playerTarget?: Target) => {
-		logParams("resolveEffect", ["name", "effect"], [card.name, effectObj.effect]);
-		let playerId : string = card.playerId!;
-		if (!playerId) throw new Error("No player Id for Card");	
-		let player : Player = this.state.getPlayerById(playerId);	
-		let effect : EffectType = effectObj.effect;
-
-		if (!effect) throw new Error("Effect is missing");
-
-		if (effect === EffectType.SUMMON) {
-			let code : string = (effectObj as SummonEffect).code;
-			this.summon(player, this.createCard(code));	
-		}
-		else if (effect === EffectType.DAMAGE) {
-			this.doDamage(card, (effectObj as DamageEffect), playerTarget);
-		}
-		else if (effect === EffectType.DRAW) {
-			this.draw(player);	
-		}
-
 	}
 
 	battleCry = (card: Card, playerTarget : Target)=> {

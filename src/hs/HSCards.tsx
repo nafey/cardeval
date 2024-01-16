@@ -72,7 +72,8 @@ export interface Trigger {
 export enum EffectType {
     DRAW = "DRAW",
     SUMMON = "SUMMON",
-    DAMAGE = "DAMAGE"     
+    DAMAGE = "DAMAGE",
+    HEAL = "HEAL"
 }
 
 export enum EffectTargetType {
@@ -96,13 +97,20 @@ export interface SummonEffect {
     code : string
 }
 
-export type Effect = DrawEffect | DamageEffect | SummonEffect;
+export interface HealEffect {
+    effect : EffectType.HEAL,
+    to: EffectTargetType,
+    val: number
+}
+
+export type Effect = DrawEffect | DamageEffect | SummonEffect | HealEffect;
 
 export interface Minion {
     code: string,
     name: string,
     type: CardType.MINION,
     class : HSClass | HSClass[],
+    cost : number,
     attack: number,
     health: number,
     taunt?: boolean,
@@ -119,6 +127,7 @@ export interface Spell {
     code: string,
     name: string,
     class : HSClass | HSClass[],
+    cost: number,
     type: CardType.SPELL,
     text: Effect, 
     collectible?: boolean,
@@ -129,12 +138,6 @@ export interface Spell {
 
 export type HSCard = Minion | Spell;
 
-export class HSCardList {
-    getCodedList = (): Record<string, HSCard> => {
-        return hscards;
-    }
-}
-
 let hscards: Record<string, HSCard> = {};
 
 hscards.CROC = 
@@ -142,6 +145,7 @@ hscards.CROC =
     code: "CROC",
     name: "River Crocolisk",
     class : HSClass.NEUTRAL,
+    cost: 2,
     type : CardType.MINION,
     attack: 2,
     health: 3,
@@ -155,6 +159,7 @@ hscards.MRDR =
     code: "MRDR",
     name: "Murloc Raider",
     class : HSClass.NEUTRAL,
+    cost: 1,
     type : CardType.MINION,
     attack: 2,
     health: 1,
@@ -168,6 +173,7 @@ hscards.BOAR =
     code: "BOAR",
     name: "Boar",
     class : HSClass.NEUTRAL,
+    cost: 1,
     type : CardType.MINION,
     attack: 1,
     health: 1,
@@ -182,6 +188,7 @@ hscards.RZRH =
     code: "RZRH",
     name: "Razorfen Hunter",
     class : HSClass.NEUTRAL,
+    cost: 3,
     type : CardType.MINION,
     attack: 2,
     health: 3,
@@ -199,6 +206,7 @@ hscards.RPTR =
     name: "Bloodfen Raptor",
     class : HSClass.NEUTRAL,
     type : CardType.MINION,
+    cost: 2,
     attack: 3,
     health: 2,
     set: Set.BASIC,
@@ -211,6 +219,7 @@ hscards.IRON =
     name: "Ironforge Rifleman",
     class : HSClass.NEUTRAL,
     type : CardType.MINION,
+    cost: 3,
     attack: 2,
     health: 2,
     bcry: {
@@ -228,6 +237,7 @@ hscards.LOOT =
     name: "Loot Hoarder",
     class : HSClass.NEUTRAL,
     type : CardType.MINION,
+    cost: 2,
     attack: 2,
     health: 1,
     death: {
@@ -244,6 +254,7 @@ hscards.GLDF =
     name: "Goldshire Footman",
     class : HSClass.NEUTRAL,
     type : CardType.MINION,
+    cost: 1,
     attack: 1,
     health: 2,
     taunt: true,
@@ -257,6 +268,7 @@ hscards.KNFJ =
     name: "Knife Juggler",
     class : HSClass.NEUTRAL,
     type : CardType.MINION,
+    cost: 2,
     attack: 3,
     health: 2,
     trigger: {
@@ -278,6 +290,7 @@ hscards.IMPB =
     name: "Imp Gang Boss",
     class : HSClass.WARLOCK,
     type : CardType.MINION,
+    cost: 3,
     attack: 2,
     health: 4,
     trigger: {
@@ -298,6 +311,7 @@ hscards.IMPI =
     name: "Imp",
     class : HSClass.WARLOCK,
     type : CardType.MINION,
+    cost: 1,
     attack: 1,
     health: 1,
     collectible: false,
@@ -312,6 +326,7 @@ hscards.ARCN =
     name: "Arcane Shot",
     class: HSClass.HUNTER,
     type: CardType.SPELL,
+    cost: 1,
     text: {
         effect : EffectType.DAMAGE,
         to: EffectTargetType.TARGET,
@@ -321,4 +336,24 @@ hscards.ARCN =
     rarity: Rarity.FREE,
 }
 
+hscards.VOOD = 
+{
+    code: "VOOD",
+    name: "Voodo Doctor",
+    class: HSClass.NEUTRAL,
+    type: CardType.MINION,
+    cost: 1,
+    attack: 2,
+    health: 1,
+    bcry : {
+        effect : EffectType.HEAL,
+        to: EffectTargetType.TARGET,
+        val : 2
+    },
+    set: Set.BASIC,
+    rarity: Rarity.FREE,
+}
 
+export class HSCardList {
+    getCodedList = (): Record<string, HSCard> => hscards
+}
