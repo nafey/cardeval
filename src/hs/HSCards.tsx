@@ -76,9 +76,13 @@ export enum EffectType {
     HEAL = "HEAL"
 }
 
-export enum EffectTargetType {
+export enum EffectArea {
     TARGET = "TARGET",
     RANDOM_ENEMY = "RANDOM_ENEMY",
+    FRIENDLY = "FRIENDLY",
+    FRIENDLY_MIN = "FRIENDLY_MIN",
+    ENEMY = "ENEMY",
+    ENEMY_MIN = "ENEMY_MIN",
     ALL = "ALL"
 }
 
@@ -88,19 +92,19 @@ export interface DrawEffect {
 }
 
 export interface DamageEffect {
-    effect : EffectType.DAMAGE,
-    to: EffectTargetType,
+    effect: EffectType.DAMAGE,
+    to: EffectArea,
     val: number
 }
 
 export interface SummonEffect {
-    effect : EffectType.SUMMON,
-    code : string
+    effect: EffectType.SUMMON,
+    code: string
 }
 
 export interface HealEffect {
-    effect : EffectType.HEAL,
-    to: EffectTargetType,
+    effect: EffectType.HEAL,
+    to: EffectArea,
     val: number
 }
 
@@ -110,8 +114,8 @@ export interface Minion {
     code: string,
     name: string,
     type: CardType.MINION,
-    class : HSClass | HSClass[],
-    cost : number,
+    class: HSClass | HSClass[],
+    cost: number,
     attack: number,
     health: number,
     taunt?: boolean,
@@ -121,20 +125,20 @@ export interface Minion {
     collectible?: boolean,
     tribe?: Tribe | Tribe[],
     set: Set,
-    rarity : Rarity,
+    rarity: Rarity,
 }
 
 export interface Spell {
     code: string,
     name: string,
-    class : HSClass | HSClass[],
+    class: HSClass | HSClass[],
     cost: number,
     type: CardType.SPELL,
-    text: Effect, 
+    text: Effect | Effect[], 
     collectible?: boolean,
     spellSchool?: SpellSchool,
-    set : Set,
-    rarity : Rarity,
+    set: Set,
+    rarity: Rarity,
 }
 
 export type HSCard = Minion | Spell;
@@ -145,9 +149,9 @@ hscards.CROC =
 {
     code: "CROC",
     name: "River Crocolisk",
-    class : HSClass.NEUTRAL,
+    class: HSClass.NEUTRAL,
     cost: 2,
-    type : CardType.MINION,
+    type: CardType.MINION,
     attack: 2,
     health: 3,
     tribe: Tribe.BEAST,
@@ -159,9 +163,9 @@ hscards.MRDR =
 {
     code: "MRDR",
     name: "Murloc Raider",
-    class : HSClass.NEUTRAL,
+    class: HSClass.NEUTRAL,
     cost: 1,
-    type : CardType.MINION,
+    type: CardType.MINION,
     attack: 2,
     health: 1,
     tribe: Tribe.MURLOC,
@@ -173,9 +177,9 @@ hscards.BOAR =
 {
     code: "BOAR",
     name: "Boar",
-    class : HSClass.NEUTRAL,
+    class: HSClass.NEUTRAL,
     cost: 1,
-    type : CardType.MINION,
+    type: CardType.MINION,
     attack: 1,
     health: 1,
     collectible: false,
@@ -188,9 +192,9 @@ hscards.RZRH =
 {
     code: "RZRH",
     name: "Razorfen Hunter",
-    class : HSClass.NEUTRAL,
+    class: HSClass.NEUTRAL,
     cost: 3,
-    type : CardType.MINION,
+    type: CardType.MINION,
     attack: 2,
     health: 3,
     bcry: {
@@ -205,8 +209,8 @@ hscards.RPTR =
 {
     code: "RPTR",
     name: "Bloodfen Raptor",
-    class : HSClass.NEUTRAL,
-    type : CardType.MINION,
+    class: HSClass.NEUTRAL,
+    type: CardType.MINION,
     cost: 2,
     attack: 3,
     health: 2,
@@ -218,14 +222,14 @@ hscards.IRON =
 {
     code: "IRON",
     name: "Ironforge Rifleman",
-    class : HSClass.NEUTRAL,
-    type : CardType.MINION,
+    class: HSClass.NEUTRAL,
+    type: CardType.MINION,
     cost: 3,
     attack: 2,
     health: 2,
     bcry: {
         effect: EffectType.DAMAGE,
-        to: EffectTargetType.TARGET,
+        to: EffectArea.TARGET,
         val: 1
     },
     set: Set.BASIC,
@@ -236,8 +240,8 @@ hscards.LOOT =
 {
     code: "LOOT",
     name: "Loot Hoarder",
-    class : HSClass.NEUTRAL,
-    type : CardType.MINION,
+    class: HSClass.NEUTRAL,
+    type: CardType.MINION,
     cost: 2,
     attack: 2,
     health: 1,
@@ -253,8 +257,8 @@ hscards.GLDF =
 {
     code: "GLDF",
     name: "Goldshire Footman",
-    class : HSClass.NEUTRAL,
-    type : CardType.MINION,
+    class: HSClass.NEUTRAL,
+    type: CardType.MINION,
     cost: 1,
     attack: 1,
     health: 2,
@@ -267,8 +271,8 @@ hscards.KNFJ =
 {
     code: "KNFJ",
     name: "Knife Juggler",
-    class : HSClass.NEUTRAL,
-    type : CardType.MINION,
+    class: HSClass.NEUTRAL,
+    type: CardType.MINION,
     cost: 2,
     attack: 3,
     health: 2,
@@ -277,7 +281,7 @@ hscards.KNFJ =
         if: TriggerConditions.FRIENDLY,
         do: {
             effect: EffectType.DAMAGE,
-            to: EffectTargetType.RANDOM_ENEMY,
+            to: EffectArea.RANDOM_ENEMY,
             val: 1
         }
     },
@@ -289,8 +293,8 @@ hscards.IMPB =
 {
     code: "IMPB",
     name: "Imp Gang Boss",
-    class : HSClass.WARLOCK,
-    type : CardType.MINION,
+    class: HSClass.WARLOCK,
+    type: CardType.MINION,
     cost: 3,
     attack: 2,
     health: 4,
@@ -310,8 +314,8 @@ hscards.IMPI =
 {
     code: "IMPI",
     name: "Imp",
-    class : HSClass.WARLOCK,
-    type : CardType.MINION,
+    class: HSClass.WARLOCK,
+    type: CardType.MINION,
     cost: 1,
     attack: 1,
     health: 1,
@@ -329,9 +333,9 @@ hscards.ARCN =
     type: CardType.SPELL,
     cost: 1,
     text: {
-        effect : EffectType.DAMAGE,
-        to: EffectTargetType.TARGET,
-        val : 2
+        effect: EffectType.DAMAGE,
+        to: EffectArea.TARGET,
+        val: 2
     },
     set: Set.BASIC,
     rarity: Rarity.FREE,
@@ -346,10 +350,10 @@ hscards.VOOD =
     cost: 1,
     attack: 2,
     health: 1,
-    bcry : {
-        effect : EffectType.HEAL,
-        to: EffectTargetType.TARGET,
-        val : 2
+    bcry: {
+        effect: EffectType.HEAL,
+        to: EffectArea.TARGET,
+        val: 2
     },
     set: Set.BASIC,
     rarity: Rarity.FREE,
@@ -364,12 +368,36 @@ hscards.HELL =
     cost: 3,
     text: {
         effect: EffectType.DAMAGE,
-        to: EffectTargetType.ALL,
+        to: EffectArea.ALL,
         val: 3
     },
     set: Set.BASIC,
     rarity: Rarity.FREE
 }
+
+hscards.HOLY = 
+{
+    code: "HOLY",
+    name: "Holy Nova",
+    class: HSClass.PRIEST,
+    type: CardType.SPELL,
+    cost: 3,
+    text: [
+        {
+            effect: EffectType.DAMAGE,
+            to: EffectArea.ENEMY_MIN,
+            val: 2
+        },
+        {
+            effect: EffectType.HEAL,
+            to: EffectArea.FRIENDLY,
+            val: 2
+        }
+    ],
+    set: Set.BASIC,
+    rarity: Rarity.FREE
+}
+
 
 export class HSCardList {
     getCodedList = (): Record<string, HSCard> => hscards

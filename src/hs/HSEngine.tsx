@@ -3,7 +3,7 @@ import Player from "src/engine/Player";
 import State from "src/engine/State";
 import Zone from "src/engine/Zone";
 import {
-	Effect, TriggerType, TriggerConditions, EffectTargetType, DamageEffect, HSCardList, 
+	Effect, TriggerType, TriggerConditions, EffectArea, DamageEffect, HSCardList, 
 	EffectType, SummonEffect, CardType, HealEffect
 } from "src/hs/HSCards"; 
 
@@ -187,14 +187,45 @@ class HSEngine {
 		card.health = Math.min(card.health + val, card.maxHealth);
 	}
 
+	healMultiple = (cards: Card[], players: Player[], val: number) => {
+		logParams("healMultiple", ["cardsNum", "players", "val"], [cards.length, players.length, val]);
+
+		cards.forEach((c : Card) => {
+			c.health = Math.min(c.health + val, c.maxHealth);
+		});
+
+		players.forEach((p : Player) => {
+			p.vals.health = Math.min(p.vals.health + val, p.vals.maxHealth); 
+		});
+	}
+
+
 	doHeal = (_card: Card, healEffect: HealEffect, playerTarget? : Target) => {
-		if (healEffect.to === EffectTargetType.TARGET) {
+		let p : Player = this.state.getPlayerById(card.playerId!);	
+		let o : Player = p.players.OPP;
+
+		if (healEffect.to === EffectArea.TARGET) {
 			let type : string = playerTarget?.type!;
 
 			if (type === "OPP_BF") {
 				let card : Card = playerTarget?.card!;
 				this.healCard(card, healEffect.val);
 			}
+		}
+		else if (healEffect.to === EffectArea.ALL) {
+			this.healMultiple(p.zones.BF.getArr().concat(o.zones.BF.getArr()), [p, o], healEffect.val);
+		}
+		else if (healEffect.to === EffectArea.FRIENDLY) {
+			this.healMultiple(p.zones.BF.getArr(), [p], healEffect.val);	
+		}
+		else if (healEffect.to === EffectArea.FRIENDLY_MIN) {
+			this.healMultiple(p.zones.BF.getArr(), [], healEffect.val);	
+		}
+		else if (healEffect.to === EffectArea.ENEMY) {
+			this.healMultiple(o.zones.BF.getArr(), [o], healEffect.val);	
+		}
+		else if (healEffect.to === EffectArea.ENEMY_MIN) {
+			this.healMultiple(o.zones.BF.getArr(), [], healEffect.val);
 		}
 	}
 
@@ -246,7 +277,7 @@ class HSEngine {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
 		let o : Player = p.players.OPP;
 
-		if (damageEffect.to === EffectTargetType.RANDOM_ENEMY) {
+		if (damageEffect.to === EffectArea.RANDOM_ENEMY) {
 			let mins : Card[] = o.zones.BF.match({health : {op : "gt", val : 0}});
 			let targetIdx : number = Math.floor(Math.random() * (mins.length + 1));			
 
@@ -258,7 +289,7 @@ class HSEngine {
 				this.damageCard(c, damageEffect.val!);
 			}
 		}
-		else if (damageEffect.to === EffectTargetType.TARGET) {
+		else if (damageEffect.to === EffectArea.TARGET) {
 			let type : string = playerTarget?.type!;
 
 			if (type === "OPP_BF") {
@@ -272,11 +303,20 @@ class HSEngine {
 				console.debug("Unimplemented target type");
 			}
 		}
-		else if (damageEffect.to === EffectTargetType.ALL) {
-			let p : Player = this.getActivePlayer();
-			let o : Player = this.getOtherPlayer();
-
+		else if (damageEffect.to === EffectArea.ALL) {
 			this.damageMultiple(p.zones.BF.getArr().concat(o.zones.BF.getArr()), [p, o], damageEffect.val);
+		}
+		else if (damageEffect.to === EffectArea.FRIENDLY) {
+			this.damageMultiple(p.zones.BF.getArr(), [p], damageEffect.val);	
+		}
+		else if (damageEffect.to === EffectArea.FRIENDLY_MIN) {
+			this.damageMultiple(p.zones.BF.getArr(), [], damageEffect.val);	
+		}
+		else if (damageEffect.to === EffectArea.ENEMY) {
+			this.damageMultiple(o.zones.BF.getArr(), [o], damageEffect.val);	
+		}
+		else if (damageEffect.to === EffectArea.ENEMY_MIN) {
+			this.damageMultiple(o.zones.BF.getArr(), [], damageEffect.val);
 		}
 	}
 
