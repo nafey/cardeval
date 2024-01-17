@@ -208,7 +208,7 @@ test ("Cast Spell", () => {
 
 	engine.cast(arcn, {type: "OPP"});
 	expect(o.vals.health).toBe(28);
-})
+});
 
 test ("Heal", () => {
 	let engine : HSEngine = new HSEngine();
@@ -274,4 +274,33 @@ test ("Damage All with Trigger", () => {
 
 	engine.cast(hell);	
 	expect(o.zones.BF.count()).toBe(2);
-})
+});
+
+test ("Damage Self with Spell", () => {
+	let engine : HSEngine = new HSEngine();	
+	let p: Player = engine.getActivePlayer();
+	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
+
+	engine.cast(arcn, {type: "SELF"});
+	expect(p.vals.health).toBe(28);
+});
+
+
+test ("Multi Effect spells", () => {
+	let engine : HSEngine = new HSEngine();	
+	let p: Player = engine.getActivePlayer();
+	let o: Player = engine.getOtherPlayer();
+
+	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
+	o.zones.BF.addCard(engine.createCard("MRDR"));
+	o.zones.BF.addCard(engine.createCard("MRDR"));
+
+	engine.cast(arcn, {type: "SELF"});
+	expect(p.vals.health).toBe(28);
+	expect(o.zones.BF.count()).toBe(2);
+
+	let holy : Card = p.zones.HAND.addCard(engine.createCard("HOLY"));
+	engine.cast(holy);	
+	expect(p.vals.health).toBe(30);
+	expect(o.zones.BF.count()).toBe(0);
+});

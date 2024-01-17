@@ -292,12 +292,15 @@ class HSEngine {
 		else if (damageEffect.to === EffectArea.TARGET) {
 			let type : string = playerTarget?.type!;
 
-			if (type === "OPP_BF") {
-				let card : Card = playerTarget?.card!;			
-				this.damageCard(card, damageEffect.val!);
-			}	
-			else if (type === "OPP") {
+			if (type === "OPP") {
 				this.damagePlayer(o, damageEffect.val);
+			}
+			else if (type === "SELF") {
+				this.damagePlayer(p, damageEffect.val);
+			}
+			else if (type === "SELF_BF" || type === "OPP_BF") {
+				let targetCard : Card = playerTarget?.card!;
+				this.damageCard(targetCard, damageEffect.val);
 			}
 			else {
 				console.debug("Unimplemented target type");
@@ -415,7 +418,15 @@ class HSEngine {
 		if (!p.zones.HAND.hasCard(spell)) throw new Error("Spells can only be cast from hand");
 
 		p.zones.HAND.take(spell.cardId);
-		this.resolveEffect(spell, spell.text, playerTarget);
+		if (Array.isArray(spell.text)) {
+			let effects : Effect[] = spell.text as Effect[];
+			effects.forEach((e : Effect) => {
+				this.resolveEffect(spell, e, playerTarget);
+			});
+		}
+		else {
+			this.resolveEffect(spell, spell.text, playerTarget);
+		}
 	}
 
 	endTurn = () => {
