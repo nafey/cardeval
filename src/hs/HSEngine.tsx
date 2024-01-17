@@ -249,8 +249,6 @@ class HSEngine {
 				this.resolveEffect(c, c.trigger.do);
 			}	
 		});
-
-		this.removeDead();
 	}
 
 
@@ -354,6 +352,8 @@ class HSEngine {
 		if (card?.bcry) {
 			this.battleCry(card, playerTarget!);
 		}
+
+		this.removeDead();
 	}
 	
 	attackOpponent = (attacker : Card) => {
@@ -408,6 +408,8 @@ class HSEngine {
 		else {
 			this.resolveEffect(spell, spell.text, playerTarget);
 		}
+
+		this.removeDead();
 	}
 
 	endTurn = () => {

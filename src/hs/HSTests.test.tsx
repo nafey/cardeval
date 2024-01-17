@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "Post Death Effects") {
+	if (context.task.name === "") {
 		console.debug = consoleDebug;
 	}
 	else {
