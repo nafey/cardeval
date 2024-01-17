@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "") {
+	if (context.task.name === "Post Death Effects") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -304,3 +304,26 @@ test ("Multi Effect spells", () => {
 	expect(p.vals.health).toBe(30);
 	expect(o.zones.BF.count()).toBe(0);
 });
+
+test("Post Death Effects", () => {
+
+	let engine : HSEngine = new HSEngine();	
+	let p: Player = engine.getActivePlayer();
+	let o: Player = engine.getOtherPlayer();
+
+	let holy : Card = p.zones.HAND.addCard(engine.createCard("HOLY"));
+	let arcn1 : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
+	let arcn2 : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
+
+	o.zones.BF.addCard(engine.createCard("IMPB"));
+	o.zones.BF.addCard(engine.createCard("KNFJ"));
+
+	engine.cast(arcn1, {type: "SELF"});
+	engine.cast(arcn2, {type: "SELF"});
+
+	expect(p.vals.health).toBe(26);
+
+	engine.cast(holy);
+
+	expect(p.vals.health).toBe(27);
+})
