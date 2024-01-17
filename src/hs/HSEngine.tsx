@@ -91,30 +91,29 @@ class HSEngine {
 		return this.state.getNextPlayer();
 	}
 
-	removeDeadForPlayer = (player : Player) => {
-		logParams("removeDeadForPlayer");
-
-		let deadIds : string [] = [];
-		player.zones.BF.forEach ((card) => {
-			if (card.health <= 0) {
-				deadIds.push(card.cardId);
-			}
-		});	
-
-		deadIds.forEach((cardId : string) => {
-			let c : Card = player.zones.BF.getById(cardId);
-
-			player.zones.BF.removeById(cardId);
-			if (c?.death) {
-				this.deathRattle(c);
-			}
-		});
-	}
-
 	removeDead = () => {
+		let removeDeadForP = (player : Player) => {
+
+			let deadIds : string [] = [];
+			player.zones.BF.forEach ((card) => {
+				if (card.health <= 0) {
+					deadIds.push(card.cardId);
+				}
+			});	
+
+			deadIds.forEach((cardId : string) => {
+				let c : Card = player.zones.BF.getById(cardId);
+				logParams("removeDead", ["dead"], [c.name]);
+				player.zones.BF.removeById(cardId);
+				if (c?.death) {
+					this.deathRattle(c);
+				}
+			});
+		}
+
 		logParams("removeDead");
-		this.removeDeadForPlayer(this.getActivePlayer());
-		this.removeDeadForPlayer(this.getOtherPlayer());
+		removeDeadForP(this.getActivePlayer());
+		removeDeadForP(this.getOtherPlayer());
 	}
 
 	resolveEffect = (card: Card, effectObj : Effect, playerTarget?: Target) => {
@@ -234,24 +233,6 @@ class HSEngine {
 
 	}
 
-
-	damagePlayer = (player : Player, val : number) => {
-		logParams("damagePlayer");
-		player.vals.health -= val;
-	}
-
-	damageCard = (card: Card, val : number) => {
-		logParams("damageCard", ["name", "val"], [card.name, val]);
-
-		card.health -= val;
-		if (card?.trigger?.on === TriggerType.SELF_DAMAGE) {
-			this.resolveEffect(card, card.trigger.do);
-		}	
-		if (card.health <= 0) {
-			this.removeDead();
-		}
-	}
-
 	damageMultiple = (cards: Card[], players: Player[], val: number) => {
 		logParams("damageMultiple", ["cardsNum", "players", "val"], [cards.length, players.length, val]);
 
@@ -282,25 +263,25 @@ class HSEngine {
 			let targetIdx : number = Math.floor(Math.random() * (mins.length + 1));			
 
 			if (targetIdx === mins.length) {
-				this.damagePlayer(o, damageEffect.val!);
+				this.damageMultiple([], [o], damageEffect.val!);
 			}
 			else {
 				let c : Card = mins[targetIdx];
-				this.damageCard(c, damageEffect.val!);
+				this.damageMultiple([c], [], damageEffect.val!);
 			}
 		}
 		else if (damageEffect.to === EffectArea.TARGET) {
 			let type : string = playerTarget?.type!;
 
 			if (type === "OPP") {
-				this.damagePlayer(o, damageEffect.val);
+				this.damageMultiple([], [o], damageEffect.val);
 			}
 			else if (type === "SELF") {
-				this.damagePlayer(p, damageEffect.val);
+				this.damageMultiple([], [p], damageEffect.val);
 			}
 			else if (type === "SELF_BF" || type === "OPP_BF") {
 				let targetCard : Card = playerTarget?.card!;
-				this.damageCard(targetCard, damageEffect.val);
+				this.damageMultiple([targetCard], [], damageEffect.val);
 			}
 			else {
 				console.debug("Unimplemented target type");
@@ -381,7 +362,7 @@ class HSEngine {
 		if (attacker.playerId !== p.playerId) throw new Error("Only minions of active player can attack");
 		if (attacker.zoneId !== p.zones.BF.zoneId) throw new Error("Only minions in Battlefield can attack");
 
-		this.damagePlayer(this.getOtherPlayer(), attacker.attack);
+		this.damageMultiple([], [this.getOtherPlayer()], attacker.attack);
 	}
 	
 	attack = (attacker : Card, defender : Card) => {
@@ -405,8 +386,8 @@ class HSEngine {
 			}
 		} 
 
-		this.damageCard(defender, attacker.attack);
-		this.damageCard(attacker, defender.attack);
+		this.damageMultiple([defender], [], attacker.attack);
+		this.damageMultiple([attacker], [], defender.attack);
 
 		this.removeDead();
 	}
