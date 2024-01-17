@@ -200,7 +200,7 @@ class HSEngine {
 	}
 
 
-	doHeal = (_card: Card, healEffect: HealEffect, playerTarget? : Target) => {
+	doHeal = (card: Card, healEffect: HealEffect, playerTarget? : Target) => {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
 		let o : Player = p.players.OPP;
 
