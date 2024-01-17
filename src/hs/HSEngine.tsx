@@ -214,12 +214,33 @@ class HSEngine {
 
 		card.health -= val;
 		if (card?.trigger?.on === TriggerType.SELF_DAMAGE) {
-			this.resolveEffect(card, card.trigger.do)
+			this.resolveEffect(card, card.trigger.do);
 		}	
 		if (card.health <= 0) {
 			this.removeDead();
 		}
 	}
+
+	damageMultiple = (cards: Card[], players: Player[], val: number) => {
+		logParams("damageMultiple", ["cardsNum", "players", "val"], [cards.length, players.length, val]);
+
+		cards.forEach((c : Card) => {
+			c.health -= val;
+		});
+
+		players.forEach((p : Player) => {
+			p.vals.health -= val;
+		});
+
+		cards.forEach((c : Card) => {
+			if (c?.trigger?.on === TriggerType.SELF_DAMAGE) {
+				this.resolveEffect(c, c.trigger.do);
+			}	
+		});
+
+		this.removeDead();
+	}
+
 
 	doDamage = (card: Card, damageEffect : DamageEffect, playerTarget? : Target) => {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
@@ -250,6 +271,12 @@ class HSEngine {
 			else {
 				console.debug("Unimplemented target type");
 			}
+		}
+		else if (damageEffect.to === EffectTargetType.ALL) {
+			let p : Player = this.getActivePlayer();
+			let o : Player = this.getOtherPlayer();
+
+			this.damageMultiple(p.zones.BF.getArr().concat(o.zones.BF.getArr()), [p, o], damageEffect.val);
 		}
 	}
 
@@ -293,6 +320,8 @@ class HSEngine {
 		let playerId : string = card.playerId!;
 		let p : Player = this.state.getPlayerById(playerId);
 		if (playerId !== this.getActivePlayer().playerId) throw new Error ("Inactive player attempting to play card");
+		if (card.type !== CardType.MINION) throw new Error ("Only Minions can be played");
+
 		let hand: Zone = p.zones.HAND;
 
 		hand.take(card.cardId);

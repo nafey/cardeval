@@ -8,6 +8,11 @@ export default class Zone {
 	limit : number = 0;
 	haveLimit : boolean = false;
 
+	getArr = () : Card[] => {
+		return this.cards;
+	}
+
+
 	count = (obj : any = null): number => {
 		if (!obj) return this.cards.length;
 

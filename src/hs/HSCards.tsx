@@ -78,7 +78,8 @@ export enum EffectType {
 
 export enum EffectTargetType {
     TARGET = "TARGET",
-    RANDOM_ENEMY = "RANDOM_ENEMY"
+    RANDOM_ENEMY = "RANDOM_ENEMY",
+    ALL = "ALL"
 }
 
 export interface DrawEffect {
@@ -352,6 +353,22 @@ hscards.VOOD =
     },
     set: Set.BASIC,
     rarity: Rarity.FREE,
+}
+
+hscards.HELL = 
+{
+    code: "HELL",
+    name: "Hellfire",
+    class: HSClass.WARLOCK,
+    type: CardType.SPELL,
+    cost: 3,
+    text: {
+        effect: EffectType.DAMAGE,
+        to: EffectTargetType.ALL,
+        val: 3
+    },
+    set: Set.BASIC,
+    rarity: Rarity.FREE
 }
 
 export class HSCardList {

@@ -239,3 +239,39 @@ test ("Heal Limit", () => {
 	engine.play(vood, {type: "OPP_BF", card: croc});
 	expect(croc.health).toBe(3);
 })
+
+// If you cast LegacyHoly Nova while your opponent has an Blackrock MountainImp Gang Boss  
+// and a LegacyKnife Juggler, because the Damage Events are Created and Resolved before the Healing 
+// Events are Created and Resolved, the extra damage caused by the knife from the 
+// summoned Imp may be healed by the second step of LegacyHoly Nova.
+
+
+test ("Damage All", () => {
+	let engine : HSEngine = new HSEngine();
+	let p : Player = engine.getActivePlayer();
+	let o : Player = engine.getOtherPlayer();	
+
+	let hell : Card = p.zones.HAND.addCard(engine.createCard("HELL"));
+
+	o.zones.BF.addCard(engine.createCard("CROC"));
+	o.zones.BF.addCard(engine.createCard("MRDR"));
+
+	engine.cast(hell);	
+	expect(o.zones.BF.count()).toBe(0);
+});
+
+
+test ("Damage All with Trigger", () => {
+	let engine : HSEngine = new HSEngine();
+	let p : Player = engine.getActivePlayer();
+	let o : Player = engine.getOtherPlayer();	
+
+	let hell : Card = p.zones.HAND.addCard(engine.createCard("HELL"));
+
+	o.zones.BF.addCard(engine.createCard("CROC"));
+	o.zones.BF.addCard(engine.createCard("MRDR"));
+	o.zones.BF.addCard(engine.createCard("IMPB"));
+
+	engine.cast(hell);	
+	expect(o.zones.BF.count()).toBe(2);
+})
