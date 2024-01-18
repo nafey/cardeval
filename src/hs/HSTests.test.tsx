@@ -88,7 +88,7 @@ test("Attack Player", () => {
 	let croc: Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
 	engine.attackOpponent(croc);
-	expect(engine.getOtherPlayer().vals.health).toEqual(28);
+	expect(engine.getOtherPlayer().refs.self.health).toEqual(28);
 });
 
 test("Hand Limit", () => {
@@ -168,7 +168,7 @@ test("Knife Juggler", () => {
 
 	engine.play(knfj);
 	engine.play(croc);
-	expect(o.vals.health).toBe(29);
+	expect(o.refs.self.health).toBe(29);
 });
 
 test("Knife Juggler 2", () => {
@@ -179,11 +179,9 @@ test("Knife Juggler 2", () => {
 
 	engine.play(knfj);
 	engine.play(croc);
-	expect(p.vals.health).toBe(30);
+	expect(p.refs.self.health).toBe(30);
 });
 
-// TODO : Fix the order of execution here. The other players help should 
-// always be 29 (right????). Sometimes it is 30. Minions removed at random times
 test("Imp Boss and Knife Juggler", () => {
 	let engine: HSEngine = new HSEngine(); 
 	let p: Player = engine.getActivePlayer();
@@ -197,7 +195,7 @@ test("Imp Boss and Knife Juggler", () => {
 	engine.attack(mrdr, impb);
 
 
-	expect(o.vals.health).toBe(29);
+	expect(o.refs.self.health).toBe(29);
 });
 
 test ("Cast Spell", () => {
@@ -207,7 +205,7 @@ test ("Cast Spell", () => {
 	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
 
 	engine.cast(arcn, {type: "OPP"});
-	expect(o.vals.health).toBe(28);
+	expect(o.refs.self.health).toBe(28);
 });
 
 test ("Heal", () => {
@@ -243,7 +241,7 @@ test ("Heal Limit", () => {
 // If you cast LegacyHoly Nova while your opponent has an Blackrock MountainImp Gang Boss  
 // and a LegacyKnife Juggler, because the Damage Events are Created and Resolved before the Healing 
 // Events are Created and Resolved, the extra damage caused by the knife from the 
-// summoned Imp may be healed by the second step of LegacyHoly Nova.
+// summoned Imp may be healed by the second step of Holy Nova.
 
 
 test ("Damage All", () => {
@@ -282,7 +280,7 @@ test ("Damage Self with Spell", () => {
 	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
 
 	engine.cast(arcn, {type: "SELF"});
-	expect(p.vals.health).toBe(28);
+	expect(p.refs.self.health).toBe(28);
 });
 
 
@@ -296,12 +294,12 @@ test ("Multi Effect spells", () => {
 	o.zones.BF.addCard(engine.createCard("MRDR"));
 
 	engine.cast(arcn, {type: "SELF"});
-	expect(p.vals.health).toBe(28);
+	expect(p.refs.self.health).toBe(28);
 	expect(o.zones.BF.count()).toBe(2);
 
 	let holy : Card = p.zones.HAND.addCard(engine.createCard("HOLY"));
 	engine.cast(holy);	
-	expect(p.vals.health).toBe(30);
+	expect(p.refs.self.health).toBe(30);
 	expect(o.zones.BF.count()).toBe(0);
 });
 
@@ -321,9 +319,9 @@ test("Post Death Effects", () => {
 	engine.cast(arcn1, {type: "SELF"});
 	engine.cast(arcn2, {type: "SELF"});
 
-	expect(p.vals.health).toBe(26);
+	expect(p.refs.self.health).toBe(26);
 
 	engine.cast(holy);
 
-	expect(p.vals.health).toBe(27);
+	expect(p.refs.self.health).toBe(27);
 })

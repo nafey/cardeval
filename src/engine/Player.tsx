@@ -1,3 +1,4 @@
+import Card from "./Card";
 import { generateId } from "./Utils";
 import Zone from "./Zone";
 
@@ -7,7 +8,7 @@ export default class Player {
 	name: string = "";
 	zones: Record<string, Zone> = {};
 	players : Record<string, Player> = {};
-	vals: Record<string, number> = {};
+	refs: Record<string, Card> = {}
 
 	constructor (n: string = "") {
 		this.name = n;

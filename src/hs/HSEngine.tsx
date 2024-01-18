@@ -57,12 +57,16 @@ class HSEngine {
 			p.addZone("BF", this.state.newZone());
 			p.addZone("HAND", this.state.newZone());
 			p.addZone("DECK", this.state.newZone());
+			p.addZone("PLAYER", this.state.newZone());
 
-			p.vals.health = 30;
-			p.vals.maxHealth = 30;
+			let playerCard : Card = new Card();
+			playerCard.health = 30;
+			playerCard.maxHealth = 30;
+			playerCard.attack = 0;
+			playerCard.mana = 0;
+			playerCard.maxMana = 0;
 
-			p.vals.mana = 0;
-			p.vals.maxMana = 0;	
+			p.refs.self = playerCard;
 
 			p.zones.BF.setLimit(7);
 			p.zones.HAND.setLimit(10);
@@ -194,7 +198,9 @@ class HSEngine {
 		});
 
 		players.forEach((p : Player) => {
-			p.vals.health = Math.min(p.vals.health + val, p.vals.maxHealth); 
+			let health = p.refs.self.health;
+			let maxHealth = p.refs.self.maxHealth;
+			p.refs.self.health = Math.min(health + val, maxHealth); 
 		});
 	}
 
@@ -241,7 +247,7 @@ class HSEngine {
 		});
 
 		players.forEach((p : Player) => {
-			p.vals.health -= val;
+			p.refs.self.health -= val;
 		});
 
 		cards.forEach((c : Card) => {
