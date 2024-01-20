@@ -2,7 +2,7 @@ import Card from "./Card";
 import Player from "./Player";
 import Zone from "./Zone";
 
-export default class State  {
+export default class Engine  {
 	
 	private zones: Zone[] = [] 
 

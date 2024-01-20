@@ -1,6 +1,6 @@
 import { test, expect} from "vitest";
 import { match } from "./Utils";
-import State from "./State";
+import Engine from "./State";
 import Zone from "./Zone";
 import Card from "./Card";
 
@@ -19,7 +19,7 @@ test ("Match Operator", () => {
 });
 
 test ("Card Count", () => {
-    let s : State = new State();
+    let s : Engine = new Engine();
     let z : Zone = s.newZone();
 
     z.addCard(new Card({a : 10}));

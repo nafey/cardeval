@@ -1,6 +1,6 @@
 import Card from "src/engine/Card";
 import Player from "src/engine/Player";
-import State from "src/engine/State";
+import Engine from "src/engine/State";
 import Zone from "src/engine/Zone";
 import {
 	Effect, TriggerType, TriggerConditions, EffectArea, DamageEffect, HSCardList, 
@@ -47,7 +47,7 @@ interface Target {
 }
 
 class HSEngine {
-	private state : State = new State();
+	private state : Engine = new Engine();
 
 	constructor () {
 		let p1 : Player = this.state.newPlayer();
