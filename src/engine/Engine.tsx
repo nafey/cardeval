@@ -110,28 +110,21 @@ export default class Engine  {
 		return this.moveCards(fromZone, cardId, toZone, 1);
 	}
 	
-	findZone = (cardId : string) : Zone => {
-		for (let i = 0; i < this.zones.length; i++) {
-			let z : Zone = this.zones[i];
-			for (let j = 0; j < z.count(); j++) {
-				let c : Card = z.at(j);
-				if (c.cardId === cardId) {
-					return z;
-				}
-			}
-		}
-		throw new Error("Not found given cardId in any zone");	
-	}	
 
 	findCard = (cardId : string) : Card => {
-		let z: Zone = this.findZone(cardId);	
-		return z.findCardById(cardId);
+		for (let i = 0; i < this.zones.length; i++) {
+			let c : Card = this.zones[i].findCardById(cardId);
+			if (c) return c;
+		}
+
+		throw new Error("Card Id is invalid");
 	}
 
 	eval = (e : Event) => {
 		if (e.event === "MODIFY") {
 
 			let card : Card = this.findCard(e.cardId!);	
+
 			card.modify(e.modifier!);
 
 		}

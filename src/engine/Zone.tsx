@@ -4,12 +4,14 @@ import { generateId, match } from "./Utils";
 export default class Zone {
 	zoneId : string = generateId();
 	private cards: Card[] = [];
-	private lookup: Record<string, Card> = {};
+	private lookup: Record<string, number> = {};
 	playerId? : string = ""; 
 	limit : number = 0;
 	haveLimit : boolean = false;
 
 	at = (index: number) => this.cards[index];
+
+
 	
 	first = (): Card => this.cards[0];
 
@@ -17,6 +19,14 @@ export default class Zone {
 
 	forEach = (fn : (c : Card) => any) => {
 		this.cards.forEach(fn);	
+	}
+
+	reIndex = () => {
+		this.lookup = {};
+		for (let i = 0; i < this.cards.length; i++) {
+			let c : Card = this.cards[i];	
+			this.lookup[c.cardId] = i;	
+		}	
 	}
 
 	getArr = () : Card[] => {
@@ -38,7 +48,7 @@ export default class Zone {
 	push = (card : Card) => {
 		card.zoneId = this.zoneId;
 		card.playerId = this.playerId;
-		this.lookup[card.cardId] = card;
+		this.lookup[card.cardId] = this.cards.length;
 		this.cards.push(card);
 	}
 
@@ -105,10 +115,7 @@ export default class Zone {
 		}
 
 		this.cards = [...before, ...after];
-
-		ret.forEach((c : Card) => {
-			delete this.lookup[c.cardId];
-		})	
+		this.reIndex();
 
 		return ret;
 	}
@@ -138,6 +145,8 @@ export default class Zone {
 
 
 	findCardById = (cardId: string): Card => {
+		console.debug(this.lookup);
+		console.debug(cardId);
 		let i = this.getIndex(cardId);
 		return this.cards[i];
 	}
@@ -197,20 +206,14 @@ export default class Zone {
 
 	
 	getById = (cardId: string) : Card => {
-		let ret : Card = this.lookup[cardId];
+		let ret : Card = this.cards[this.lookup[cardId]];
 		if (!ret) throw new Error("Not found cardId in zone");
 
 		return ret;
 	}
 
-	// TODO: Make this faster
 	getIndex = (cardId: string) : number => {
-		for (let i = 0; i < this.cards.length; i++) {
-			if (cardId === this.cards[i].cardId) {
-				return i;
-			}
-		}
-		return -1;
+		return this.lookup[cardId];
 	}
 
 
