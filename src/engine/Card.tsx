@@ -1,8 +1,7 @@
 import { generateId, match } from "./Utils";
 
 export interface Modifier {
-	key : string,
-	op : "DEC" | "INC",
+	op : "add" | "sub",
 	val : number
 }
 
@@ -42,17 +41,27 @@ export default class Card {
 
 		for (let i = 0; i < keys.length; i++) {
 			let k = keys[i];
-			this[k] = updater[k];
+			let rhs = updater[k];
+
+			if (typeof rhs === "object") {
+				this.modify(k, rhs as Modifier);
+			}
+			else {
+				this[k] = rhs;
+			}
 		}
 	}
 
-	modify = (modifier : Modifier) => {
-		let key : string = modifier.key;
+	modify = (key: string, modifier : Modifier) => {
+
 		let op: string = modifier.op;
 		let val : number = modifier.val;	
 
-		if (op === "DEC") {
+		if (op === "sub") {
 			this[key] -= val;	
+		}
+		else if (op === "add") {
+			this[key] += val;
 		}
 	}
 

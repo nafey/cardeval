@@ -145,8 +145,6 @@ export default class Zone {
 
 
 	findCardById = (cardId: string): Card => {
-		console.debug(this.lookup);
-		console.debug(cardId);
 		let i = this.getIndex(cardId);
 		return this.cards[i];
 	}

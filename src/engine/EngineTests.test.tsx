@@ -29,7 +29,7 @@ test ("Card Count", () => {
     expect(z.count({a : {op : "lt", val : 9}})).toBe(0);
 });
 
-test ("Modify Event", () => {
+test ("Update Event", () => {
     let engine : Engine = new Engine();   
     let z : Zone = engine.newZone();
     let c : Card = new Card({a : 10});
@@ -37,7 +37,7 @@ test ("Modify Event", () => {
     z.addCard(c);
     expect(c.a).toBe(10);
 
-    engine.eval({event: "MODIFY", cardId : c.cardId, modifier : {key: "a", op : "DEC", val : 1}});
+    engine.eval({event: "UPDATE", cardId : c.cardId, update : {a : {op : "sub", val : 1}}});
     expect(c.a).toBe(9);
+});
 
-})

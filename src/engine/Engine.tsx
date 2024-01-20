@@ -21,7 +21,7 @@ export default class Engine  {
 
 	private activePlayer : number = 0;
 
-	private handlers: Handler[] = [];
+	private cardList: any[] = [];
 
 	newPlayer = () : Player => {
 		let p : Player = new Player();
@@ -121,12 +121,9 @@ export default class Engine  {
 	}
 
 	eval = (e : Event) => {
-		if (e.event === "MODIFY") {
-
+		if (e.event === "UPDATE") {
 			let card : Card = this.findCard(e.cardId!);	
-
-			card.modify(e.modifier!);
-
+			card.update(e.update);
 		}
 	}
 }
