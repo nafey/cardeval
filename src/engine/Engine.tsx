@@ -134,7 +134,7 @@ export default class Engine  {
 	
 	findCardZone = (cardId : string) : Zone => {
 		for (let i = 0; i < this.zones.length; i++) {
-			let c : Card = this.zones[i].findCardById(cardId);
+			let c : Card = this.zones[i].getById(cardId);
 			if (c) {
 				return this.zones[i];
 			} 
@@ -145,10 +145,8 @@ export default class Engine  {
 	}
 
 	findCard = (cardId : string) : Card => {
-		for (let i = 0; i < this.zones.length; i++) {
-			let c : Card = this.zones[i].findCardById(cardId);
-			if (c) return c;
-		}
+		let z : Zone = this.findCardZone(cardId);
+		if (z) return z.getById(cardId);
 
 		throw new Error("Card Id is invalid");
 	}
@@ -165,6 +163,10 @@ export default class Engine  {
 
 			zone.addCard(card);
 		}
+		else if (e.event === "DELETE") {
+			let zone : Zone = this.findCardZone(e.cardId);
 
+			zone.take(e.cardId);
+		}
 	}
 }

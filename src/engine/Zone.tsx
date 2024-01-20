@@ -143,13 +143,6 @@ export default class Zone {
 		return this.takeAt(idx);
 	}
 
-
-	findCardById = (cardId: string): Card => {
-		let i = this.getIndex(cardId);
-		return this.cards[i];
-	}
-
-
 	selectCards = (selector : Record<string, any>) : Card[] => {
 		let selected : Card[] = [];
 		for (let i = 0; i < this.cards.length; i++) {
@@ -181,25 +174,6 @@ export default class Zone {
 			if (match(c, selector)) matchedCards.push(c);
 		})
 		return matchedCards;
-	}
-
-	getView  = () : string [] => {
-		let viewCard = (c: Card) : string => {
-			let ret: string = ""
-			if (!c.visible) {
-				return "****";
-			}
-			ret = c.toString();
-			return ret;
-		}
-
-		let ret: string[] = [];
-
-		this.cards.forEach((c: Card) => {
-			ret.push(viewCard(c));
-		});
-
-		return ret;
 	}
 
 	

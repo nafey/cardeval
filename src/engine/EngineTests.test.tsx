@@ -59,3 +59,14 @@ test ("Create Event", () => {
     expect(zone.count()).toBe(1);
 });
 
+test ("Delete Event", () => {
+    let engine : Engine = new Engine();   
+    let zone : Zone = engine.newZone();
+    let card : Card = new Card({a : 1});
+    zone.addCard(card);
+
+    engine.eval ({event : "DELETE", cardId : card.cardId});
+
+    expect(zone.count()).toBe(0);
+});
+
