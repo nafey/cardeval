@@ -1,14 +1,27 @@
-import Card from "./Card";
+import Card, { Modifier } from "./Card";
 import Player from "./Player";
 import Zone from "./Zone";
 
+
+
+export interface Event {
+	event : string,
+	cardId?: string,
+	modifier?: Modifier,
+	[key: string] : any
+}
+
+export type Handler = (e : Event) => Event;
+
 export default class Engine  {
 	
-	private zones: Zone[] = [] 
+	private zones: Zone[] = []; 
 
-	private players: Player[] = []
+	private players: Player[] = [];
 
 	private activePlayer : number = 0;
+
+	private handlers: Handler[] = [];
 
 	newPlayer = () : Player => {
 		let p : Player = new Player();
@@ -113,5 +126,14 @@ export default class Engine  {
 	findCard = (cardId : string) : Card => {
 		let z: Zone = this.findZone(cardId);	
 		return z.findCardById(cardId);
+	}
+
+	eval = (e : Event) => {
+		if (e.event === "MODIFY") {
+
+			let card : Card = this.findCard(e.cardId!);	
+			card.modify(e.modifier!);
+
+		}
 	}
 }

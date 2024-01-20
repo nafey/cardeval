@@ -1,5 +1,11 @@
 import { generateId, match } from "./Utils";
 
+export interface Modifier {
+	key : string,
+	op : "DEC" | "INC",
+	val : number
+}
+
 export default class Card {
 	cardId: string = generateId();
 	zoneId?: string = "";
@@ -31,12 +37,22 @@ export default class Card {
 		return match(this, selector);
 	}
 
-	modify = (updater : Record<string, any>) => {
+	update = (updater : Record<string, any>) => {
 		let keys : string[] = Object.keys(updater);
 
 		for (let i = 0; i < keys.length; i++) {
 			let k = keys[i];
-			this[k] = updater[k]
+			this[k] = updater[k];
+		}
+	}
+
+	modify = (modifier : Modifier) => {
+		let key : string = modifier.key;
+		let op: string = modifier.op;
+		let val : number = modifier.val;	
+
+		if (op === "DEC") {
+			this[key] -= val;	
 		}
 	}
 

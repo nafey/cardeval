@@ -4,9 +4,20 @@ import { generateId, match } from "./Utils";
 export default class Zone {
 	zoneId : string = generateId();
 	private cards: Card[] = [];
+	private lookup: Record<string, Card> = {};
 	playerId? : string = ""; 
 	limit : number = 0;
 	haveLimit : boolean = false;
+
+	at = (index: number) => this.cards[index];
+	
+	first = (): Card => this.cards[0];
+
+	last = (): Card => this.cards[this.cards.length - 1];
+
+	forEach = (fn : (c : Card) => any) => {
+		this.cards.forEach(fn);	
+	}
 
 	getArr = () : Card[] => {
 		return this.cards;
@@ -27,6 +38,7 @@ export default class Zone {
 	push = (card : Card) => {
 		card.zoneId = this.zoneId;
 		card.playerId = this.playerId;
+		this.lookup[card.cardId] = card;
 		this.cards.push(card);
 	}
 
@@ -70,40 +82,9 @@ export default class Zone {
 		this.limit = l;
 	}
 
-	at = (index: number) => this.cards[index];
-	
-	first = (): Card => this.cards[0];
-
-	last = (): Card => this.cards[this.cards.length - 1];
-
-	forEach = (fn : (c : Card) => any) => {
-		this.cards.forEach(fn);	
-	}
 
 	flip = (index: number)  => {
 		this.cards[index].visible = !this.cards[index].visible;
-	}
-
-	takeLast = (): Card => { 
-		if (this.count() === 0) throw new Error("No Card in Zone");
-		return this.takeAt(this.cards.length - 1);
-	}
-
-	takeFirst = (): Card => {
-		if (this.count() === 0) throw new Error("No Card in Zone");
-		return this.takeAt(0); 
-	}
-
-	take = (cardId : string) : Card => {
-		let idx = this.getIndex(cardId);
-		return this.takeAt(idx);
-	}
-
-	takeAt = (index: number) : Card => {
-		if (this.count() > index) {
-			return this.takeCards(index, 1)[0];
-		}
-		throw new Error("Index greater than size of Zone");
 	}
 
 	takeCards = (from: number, _count: number): Card[] => {
@@ -124,8 +105,37 @@ export default class Zone {
 		}
 
 		this.cards = [...before, ...after];
+
+		ret.forEach((c : Card) => {
+			delete this.lookup[c.cardId];
+		})	
+
 		return ret;
 	}
+
+	takeAt = (index: number) : Card => {
+		if (this.count() > index) {
+			return this.takeCards(index, 1)[0];
+
+		}
+		throw new Error("Index greater than size of Zone");
+	}
+
+	takeLast = (): Card => { 
+		if (this.count() === 0) throw new Error("No Card in Zone");
+		return this.takeAt(this.cards.length - 1);
+	}
+
+	takeFirst = (): Card => {
+		if (this.count() === 0) throw new Error("No Card in Zone");
+		return this.takeAt(0); 
+	}
+
+	take = (cardId : string) : Card => {
+		let idx = this.getIndex(cardId);
+		return this.takeAt(idx);
+	}
+
 
 	findCardById = (cardId: string): Card => {
 		let i = this.getIndex(cardId);
@@ -149,7 +159,7 @@ export default class Zone {
 	modifyCards = (selector : Record<string, any>, updater : Record<string, any>) => {
 		this.cards.forEach((c: Card) => {
 			if (c.match(selector)) {
-				c.modify(updater);
+				c.update(updater);
 			}
 		})		
 	}
@@ -187,14 +197,13 @@ export default class Zone {
 
 	
 	getById = (cardId: string) : Card => {
-		for (let i = 0; i < this.cards.length; i++) {
-			if (cardId === this.cards[i].cardId) {
-				return this.cards[i];
-			}
-		}
-		throw new Error("Not found cardId in zone");
+		let ret : Card = this.lookup[cardId];
+		if (!ret) throw new Error("Not found cardId in zone");
+
+		return ret;
 	}
 
+	// TODO: Make this faster
 	getIndex = (cardId: string) : number => {
 		for (let i = 0; i < this.cards.length; i++) {
 			if (cardId === this.cards[i].cardId) {

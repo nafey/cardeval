@@ -1,6 +1,6 @@
 import Card from "src/engine/Card";
 import Player from "src/engine/Player";
-import Engine from "src/engine/State";
+import Engine from "src/engine/Engine";
 import Zone from "src/engine/Zone";
 import {
 	Effect, TriggerType, TriggerConditions, EffectArea, DamageEffect, HSCardList, 

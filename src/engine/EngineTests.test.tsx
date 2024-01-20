@@ -1,6 +1,6 @@
 import { test, expect} from "vitest";
 import { match } from "./Utils";
-import Engine from "./State";
+import Engine from "./Engine";
 import Zone from "./Zone";
 import Card from "./Card";
 
@@ -29,4 +29,15 @@ test ("Card Count", () => {
     expect(z.count({a : {op : "lt", val : 9}})).toBe(0);
 });
 
+test ("Modify Event", () => {
+    let engine : Engine = new Engine();   
+    let z : Zone = engine.newZone();
+    let c : Card = new Card({a : 10});
 
+    z.addCard(c);
+    expect(c.a).toBe(10);
+
+    engine.eval({event: "MODIFY", cardId : c.cardId, modifier : {key: "a", op : "DEC", val : 1}});
+    expect(c.a).toBe(9);
+
+})
