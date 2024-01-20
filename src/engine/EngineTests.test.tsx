@@ -41,3 +41,21 @@ test ("Update Event", () => {
     expect(c.a).toBe(9);
 });
 
+test ("Create Card from List", () => {
+    let engine : Engine = new Engine();   
+    engine.addToList("A1", {a : 1});
+    let c : Card = engine.createCardFromList("A1");
+
+    expect(c).toBeTruthy();
+});
+
+test ("Create Event", () => {
+    let engine : Engine = new Engine();   
+    let zone : Zone = engine.newZone();
+    engine.addToList("A1", {a : 1});
+
+    engine.eval ({event : "CREATE", zoneId : zone.zoneId, code : "A1"});
+
+    expect(zone.count()).toBe(1);
+});
+

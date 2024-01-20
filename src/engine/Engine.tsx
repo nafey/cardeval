@@ -3,13 +3,26 @@ import Player from "./Player";
 import Zone from "./Zone";
 
 
+// export interface CreateEvent {
+// 	event : "CREATE",
+// 	zoneId : string,
+// 	code : string,
+// 	[key: string] : any
+// }
+
+// export interface UpdateEvent {
+// 	event : "UPDATE",
+// 	cardId?: string,
+// 	modifier?: Modifier,
+// 	[key: string] : any
+// }
 
 export interface Event {
 	event : string,
-	cardId?: string,
-	modifier?: Modifier,
 	[key: string] : any
 }
+
+// export type Event = UpdateEvent | CreateEvent;
 
 export type Handler = (e : Event) => Event;
 
@@ -21,7 +34,7 @@ export default class Engine  {
 
 	private activePlayer : number = 0;
 
-	private cardList: any[] = [];
+	private cardList: Record<string, any> = {}; 
 
 	newPlayer = () : Player => {
 		let p : Player = new Player();
@@ -95,6 +108,15 @@ export default class Engine  {
 		cards.forEach((c) => this.addCard(z, c));
 	}
 
+	addToList = (code: string, listCard : any) => {
+		this.cardList[code] = listCard;
+	}
+
+	createCardFromList = (code : string) : Card => {
+		if (!this.cardList[code]) throw new Error("Invalid Code for card");
+		return new Card (this.cardList[code]);
+	}
+
 	moveCards = (fromZoneId: string, cardId: string, toZoneId: string, count: number = -1) => {
 		let from : Zone = this.getZoneById(fromZoneId);
 		let to : Zone = this.getZoneById(toZoneId);
@@ -110,6 +132,17 @@ export default class Engine  {
 		return this.moveCards(fromZone, cardId, toZone, 1);
 	}
 	
+	findCardZone = (cardId : string) : Zone => {
+		for (let i = 0; i < this.zones.length; i++) {
+			let c : Card = this.zones[i].findCardById(cardId);
+			if (c) {
+				return this.zones[i];
+			} 
+		}
+
+		throw new Error("Card Id not found");
+
+	}
 
 	findCard = (cardId : string) : Card => {
 		for (let i = 0; i < this.zones.length; i++) {
@@ -122,8 +155,16 @@ export default class Engine  {
 
 	eval = (e : Event) => {
 		if (e.event === "UPDATE") {
+			// e as UpdateEvent;
 			let card : Card = this.findCard(e.cardId!);	
 			card.update(e.update);
 		}
+		else if (e.event === "CREATE") {
+			let card : Card = this.createCardFromList(e.code);	
+			let zone : Zone = this.getZoneById(e.zoneId);
+
+			zone.addCard(card);
+		}
+
 	}
 }
