@@ -2,7 +2,7 @@ import { test, expect, beforeEach } from "vitest";
 import HSEngine, {} from "./HSEngine";
 import Player from "src/engine/Player";
 import Card from "src/engine/Card";
-// import { EffectType } from "./HSCards";
+// import { EventType } from "./HSCards";
 
 const consoleDebug: any = console.debug;
 console.debug = () => {};
@@ -111,7 +111,7 @@ test("End Turn", () => {
 	expect(engine.getActivePlayer().zones.BF.count()).toEqual(0);
 });
 
-test("Start Turn Effects", () => {
+test("Start Turn Events", () => {
 	let engine: HSEngine = new HSEngine(); 
 	let p = engine.getActivePlayer();
 	let croc: Card = p.zones.HAND.addCard(engine.createCard("CROC"));
@@ -284,7 +284,7 @@ test ("Damage Self with Spell", () => {
 });
 
 
-test ("Multi Effect spells", () => {
+test ("Multi Event spells", () => {
 	let engine : HSEngine = new HSEngine();	
 	let p: Player = engine.getActivePlayer();
 	let o: Player = engine.getOtherPlayer();
@@ -303,7 +303,7 @@ test ("Multi Effect spells", () => {
 	expect(o.zones.BF.count()).toBe(0);
 });
 
-test("Post Death Effects", () => {
+test("Post Death Events", () => {
 
 	let engine : HSEngine = new HSEngine();	
 	let p: Player = engine.getActivePlayer();

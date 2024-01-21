@@ -65,18 +65,18 @@ export enum TriggerConditions {
 
 export interface HSTrigger {
     on: TriggerType,
-    do: Effect,
+    do: HSEvent,
     if?: TriggerConditions,
 }
 
-export enum EffectType {
+export enum HSEventType {
     DRAW = "DRAW",
     SUMMON = "SUMMON",
     DAMAGE = "DAMAGE",
     HEAL = "HEAL"
 }
 
-export enum EffectArea {
+export enum HSEventArea {
     TARGET = "TARGET",
     RANDOM_ENEMY = "RANDOM_ENEMY",
     FRIENDLY = "FRIENDLY",
@@ -86,29 +86,29 @@ export enum EffectArea {
     ALL = "ALL"
 }
 
-export interface DrawEffect {
-    effect: EffectType.DRAW,
+export interface DrawEvent {
+    event: HSEventType.DRAW,
     val: number
 }
 
-export interface DamageEffect {
-    effect: EffectType.DAMAGE,
-    to: EffectArea,
+export interface DamageEvent {
+    event: HSEventType.DAMAGE,
+    to: HSEventArea,
     val: number
 }
 
-export interface SummonEffect {
-    effect: EffectType.SUMMON,
+export interface SummonEvent {
+    event: HSEventType.SUMMON,
     code: string
 }
 
-export interface HealEffect {
-    effect: EffectType.HEAL,
-    to: EffectArea,
+export interface HealEvent {
+    event: HSEventType.HEAL,
+    to: HSEventArea,
     val: number
 }
 
-export type Effect = DrawEffect | DamageEffect | SummonEffect | HealEffect;
+export type HSEvent = DrawEvent | DamageEvent | SummonEvent | HealEvent;
 
 export interface Minion {
     code: string,
@@ -119,8 +119,8 @@ export interface Minion {
     attack: number,
     health: number,
     taunt?: boolean,
-    death?: Effect,
-    bcry?: Effect,
+    death?: HSEvent,
+    bcry?: HSEvent,
     trigger?: HSTrigger,
     collectible?: boolean,
     tribe?: Tribe | Tribe[],
@@ -134,7 +134,7 @@ export interface Spell {
     class: HSClass | HSClass[],
     cost: number,
     type: CardType.SPELL,
-    text: Effect | Effect[], 
+    text: HSEvent | HSEvent[], 
     collectible?: boolean,
     spellSchool?: SpellSchool,
     set: Set,
@@ -198,7 +198,7 @@ hscards.RZRH =
     attack: 2,
     health: 3,
     bcry: {
-        effect: EffectType.SUMMON,
+        event: HSEventType.SUMMON,
         code: "BOAR"
     },
     set: Set.BASIC,
@@ -228,8 +228,8 @@ hscards.IRON =
     attack: 2,
     health: 2,
     bcry: {
-        effect: EffectType.DAMAGE,
-        to: EffectArea.TARGET,
+        event: HSEventType.DAMAGE,
+        to: HSEventArea.TARGET,
         val: 1
     },
     set: Set.BASIC,
@@ -246,7 +246,7 @@ hscards.LOOT =
     attack: 2,
     health: 1,
     death: {
-        effect: EffectType.DRAW,
+        event: HSEventType.DRAW,
         val: 1
     },
     set: Set.BASIC,
@@ -280,8 +280,8 @@ hscards.KNFJ =
         on: TriggerType.SUMMON,
         if: TriggerConditions.FRIENDLY,
         do: {
-            effect: EffectType.DAMAGE,
-            to: EffectArea.RANDOM_ENEMY,
+            event: HSEventType.DAMAGE,
+            to: HSEventArea.RANDOM_ENEMY,
             val: 1
         }
     },
@@ -301,7 +301,7 @@ hscards.IMPB =
     trigger: {
         on: TriggerType.SELF_DAMAGE,
         do: {
-            effect: EffectType.SUMMON,
+            event: HSEventType.SUMMON,
             code: "IMPI"
         }
     },
@@ -333,8 +333,8 @@ hscards.ARCN =
     type: CardType.SPELL,
     cost: 1,
     text: {
-        effect: EffectType.DAMAGE,
-        to: EffectArea.TARGET,
+        event: HSEventType.DAMAGE,
+        to: HSEventArea.TARGET,
         val: 2
     },
     set: Set.BASIC,
@@ -351,8 +351,8 @@ hscards.VOOD =
     attack: 2,
     health: 1,
     bcry: {
-        effect: EffectType.HEAL,
-        to: EffectArea.TARGET,
+        event: HSEventType.HEAL,
+        to: HSEventArea.TARGET,
         val: 2
     },
     set: Set.BASIC,
@@ -367,8 +367,8 @@ hscards.HELL =
     type: CardType.SPELL,
     cost: 3,
     text: {
-        effect: EffectType.DAMAGE,
-        to: EffectArea.ALL,
+        event: HSEventType.DAMAGE,
+        to: HSEventArea.ALL,
         val: 3
     },
     set: Set.BASIC,
@@ -384,13 +384,13 @@ hscards.HOLY =
     cost: 3,
     text: [
         {
-            effect: EffectType.DAMAGE,
-            to: EffectArea.ENEMY_MIN,
+            event: HSEventType.DAMAGE,
+            to: HSEventArea.ENEMY_MIN,
             val: 2
         },
         {
-            effect: EffectType.HEAL,
-            to: EffectArea.FRIENDLY,
+            event: HSEventType.HEAL,
+            to: HSEventArea.FRIENDLY,
             val: 2
         }
     ],

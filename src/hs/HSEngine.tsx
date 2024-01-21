@@ -3,8 +3,8 @@ import Player from "src/engine/Player";
 import Engine from "src/engine/Engine";
 import Zone from "src/engine/Zone";
 import {
-	Effect, TriggerType, TriggerConditions, EffectArea, DamageEffect, HSCardList, 
-	EffectType, SummonEffect, CardType, HealEffect
+	HSEvent, TriggerType, TriggerConditions, HSEventArea, DamageEvent, HSCardList, 
+	HSEventType, SummonEvent, CardType, HealEvent
 } from "src/hs/HSCards"; 
 
 const cardList : Record<string, any> = (new HSCardList()).getCodedList();
@@ -120,27 +120,27 @@ class HSEngine {
 		removeDeadForP(this.getOtherPlayer());
 	}
 
-	resolveEffect = (card: Card, effectObj : Effect, playerTarget?: Target) => {
-		logParams("resolveEffect", ["name", "effect"], [card.name, effectObj.effect]);
+	resolveEvent = (card: Card, eventObj : HSEvent, playerTarget?: Target) => {
+		logParams("resolveEvent", ["name", "event"], [card.name, eventObj.event]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
 		let player : Player = this.state.getPlayerById(playerId);	
-		let effect : EffectType = effectObj.effect;
+		let event : HSEventType = eventObj.event;
 
-		if (!effect) throw new Error("Effect is missing");
+		if (!event) throw new Error("Event is missing");
 
-		if (effect === EffectType.SUMMON) {
-			let code : string = (effectObj as SummonEffect).code;
+		if (event === HSEventType.SUMMON) {
+			let code : string = (eventObj as SummonEvent).code;
 			this.summon(player, this.createCard(code));	
 		}
-		else if (effect === EffectType.DAMAGE) {
-			this.doDamage(card, (effectObj as DamageEffect), playerTarget);
+		else if (event === HSEventType.DAMAGE) {
+			this.doDamage(card, (eventObj as DamageEvent), playerTarget);
 		}
-		else if (effect === EffectType.DRAW) {
+		else if (event === HSEventType.DRAW) {
 			this.draw(player);	
 		}
-		else if (effect === EffectType.HEAL) {
-			this.doHeal(card, (effectObj as HealEffect), playerTarget);
+		else if (event === HSEventType.HEAL) {
+			this.doHeal(card, (eventObj as HealEvent), playerTarget);
 		}
 
 	}
@@ -163,7 +163,7 @@ class HSEngine {
 					}	
 				}
 
-				this.resolveEffect(triggered, triggered.trigger.do);
+				this.resolveEvent(triggered, triggered.trigger.do);
 			})
 		});
 	}
@@ -180,8 +180,8 @@ class HSEngine {
 		logParams("deathRattle", ["cardName"], [card.name]);
 		if (!card.death) throw new Error("No death rattle on the card");
 
-		let death : Effect = card.death;		
-		this.resolveEffect(card, death);
+		let death : HSEvent = card.death;		
+		this.resolveEvent(card, death);
 	}
 
 	healCard = (card : Card, val : number) => {
@@ -205,32 +205,32 @@ class HSEngine {
 	}
 
 
-	doHeal = (card: Card, healEffect: HealEffect, playerTarget? : Target) => {
+	doHeal = (card: Card, healEvent: HealEvent, playerTarget? : Target) => {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
 		let o : Player = p.players.OPP;
 
-		if (healEffect.to === EffectArea.TARGET) {
+		if (healEvent.to === HSEventArea.TARGET) {
 			let type : string = playerTarget?.type!;
 
 			if (type === "OPP_BF") {
 				let card : Card = playerTarget?.card!;
-				this.healCard(card, healEffect.val);
+				this.healCard(card, healEvent.val);
 			}
 		}
-		else if (healEffect.to === EffectArea.ALL) {
-			this.healMultiple(p.zones.BF.getArr().concat(o.zones.BF.getArr()), [p, o], healEffect.val);
+		else if (healEvent.to === HSEventArea.ALL) {
+			this.healMultiple(p.zones.BF.getArr().concat(o.zones.BF.getArr()), [p, o], healEvent.val);
 		}
-		else if (healEffect.to === EffectArea.FRIENDLY) {
-			this.healMultiple(p.zones.BF.getArr(), [p], healEffect.val);	
+		else if (healEvent.to === HSEventArea.FRIENDLY) {
+			this.healMultiple(p.zones.BF.getArr(), [p], healEvent.val);	
 		}
-		else if (healEffect.to === EffectArea.FRIENDLY_MIN) {
-			this.healMultiple(p.zones.BF.getArr(), [], healEffect.val);	
+		else if (healEvent.to === HSEventArea.FRIENDLY_MIN) {
+			this.healMultiple(p.zones.BF.getArr(), [], healEvent.val);	
 		}
-		else if (healEffect.to === EffectArea.ENEMY) {
-			this.healMultiple(o.zones.BF.getArr(), [o], healEffect.val);	
+		else if (healEvent.to === HSEventArea.ENEMY) {
+			this.healMultiple(o.zones.BF.getArr(), [o], healEvent.val);	
 		}
-		else if (healEffect.to === EffectArea.ENEMY_MIN) {
-			this.healMultiple(o.zones.BF.getArr(), [], healEffect.val);
+		else if (healEvent.to === HSEventArea.ENEMY_MIN) {
+			this.healMultiple(o.zones.BF.getArr(), [], healEvent.val);
 		}
 	}
 
@@ -252,59 +252,59 @@ class HSEngine {
 
 		cards.forEach((c : Card) => {
 			if (c?.trigger?.on === TriggerType.SELF_DAMAGE) {
-				this.resolveEffect(c, c.trigger.do);
+				this.resolveEvent(c, c.trigger.do);
 			}	
 		});
 	}
 
 
-	doDamage = (card: Card, damageEffect : DamageEffect, playerTarget? : Target) => {
+	doDamage = (card: Card, damageEvent : DamageEvent, playerTarget? : Target) => {
 		let p : Player = this.state.getPlayerById(card.playerId!);	
 		let o : Player = p.players.OPP;
 
-		if (damageEffect.to === EffectArea.RANDOM_ENEMY) {
+		if (damageEvent.to === HSEventArea.RANDOM_ENEMY) {
 			let mins : Card[] = o.zones.BF.match({health : {op : "gt", val : 0}});
 			let targetIdx : number = Math.floor(Math.random() * (mins.length + 1));			
 
 			if (targetIdx === mins.length) {
-				this.damageMultiple([], [o], damageEffect.val!);
+				this.damageMultiple([], [o], damageEvent.val!);
 			}
 			else {
 				let c : Card = mins[targetIdx];
-				this.damageMultiple([c], [], damageEffect.val!);
+				this.damageMultiple([c], [], damageEvent.val!);
 			}
 		}
-		else if (damageEffect.to === EffectArea.TARGET) {
+		else if (damageEvent.to === HSEventArea.TARGET) {
 			let type : string = playerTarget?.type!;
 
 			if (type === "OPP") {
-				this.damageMultiple([], [o], damageEffect.val);
+				this.damageMultiple([], [o], damageEvent.val);
 			}
 			else if (type === "SELF") {
-				this.damageMultiple([], [p], damageEffect.val);
+				this.damageMultiple([], [p], damageEvent.val);
 			}
 			else if (type === "SELF_BF" || type === "OPP_BF") {
 				let targetCard : Card = playerTarget?.card!;
-				this.damageMultiple([targetCard], [], damageEffect.val);
+				this.damageMultiple([targetCard], [], damageEvent.val);
 			}
 			else {
 				console.debug("Unimplemented target type");
 			}
 		}
-		else if (damageEffect.to === EffectArea.ALL) {
-			this.damageMultiple(p.zones.BF.getArr().concat(o.zones.BF.getArr()), [p, o], damageEffect.val);
+		else if (damageEvent.to === HSEventArea.ALL) {
+			this.damageMultiple(p.zones.BF.getArr().concat(o.zones.BF.getArr()), [p, o], damageEvent.val);
 		}
-		else if (damageEffect.to === EffectArea.FRIENDLY) {
-			this.damageMultiple(p.zones.BF.getArr(), [p], damageEffect.val);	
+		else if (damageEvent.to === HSEventArea.FRIENDLY) {
+			this.damageMultiple(p.zones.BF.getArr(), [p], damageEvent.val);	
 		}
-		else if (damageEffect.to === EffectArea.FRIENDLY_MIN) {
-			this.damageMultiple(p.zones.BF.getArr(), [], damageEffect.val);	
+		else if (damageEvent.to === HSEventArea.FRIENDLY_MIN) {
+			this.damageMultiple(p.zones.BF.getArr(), [], damageEvent.val);	
 		}
-		else if (damageEffect.to === EffectArea.ENEMY) {
-			this.damageMultiple(o.zones.BF.getArr(), [o], damageEffect.val);	
+		else if (damageEvent.to === HSEventArea.ENEMY) {
+			this.damageMultiple(o.zones.BF.getArr(), [o], damageEvent.val);	
 		}
-		else if (damageEffect.to === EffectArea.ENEMY_MIN) {
-			this.damageMultiple(o.zones.BF.getArr(), [], damageEffect.val);
+		else if (damageEvent.to === HSEventArea.ENEMY_MIN) {
+			this.damageMultiple(o.zones.BF.getArr(), [], damageEvent.val);
 		}
 	}
 
@@ -340,7 +340,7 @@ class HSEngine {
 			throw new Error("No battleCry on card");
 		}
 
-		this.resolveEffect(card, card.bcry, playerTarget);
+		this.resolveEvent(card, card.bcry, playerTarget);
 	}
 
 	play = (card : Card, playerTarget?: Target) => {
@@ -406,13 +406,13 @@ class HSEngine {
 
 		p.zones.HAND.take(spell.cardId);
 		if (Array.isArray(spell.text)) {
-			let effects : Effect[] = spell.text as Effect[];
-			effects.forEach((e : Effect) => {
-				this.resolveEffect(spell, e, playerTarget);
+			let events : HSEvent[] = spell.text as HSEvent[];
+			events.forEach((e : HSEvent) => {
+				this.resolveEvent(spell, e, playerTarget);
 			});
 		}
 		else {
-			this.resolveEffect(spell, spell.text, playerTarget);
+			this.resolveEvent(spell, spell.text, playerTarget);
 		}
 
 		this.removeDead();

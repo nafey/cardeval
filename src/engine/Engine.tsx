@@ -1,4 +1,4 @@
-import Card, { Modifier } from "./Card";
+import Card from "./Card";
 import Player from "./Player";
 import Zone from "./Zone";
 
