@@ -1,5 +1,10 @@
 import { generateId, match } from "./Utils";
 
+export interface Modifier {
+	op : "add" | "sub",
+	val : number
+}
+
 export default class Card {
 	cardId: string = generateId();
 	zoneId?: string = "";
@@ -31,12 +36,32 @@ export default class Card {
 		return match(this, selector);
 	}
 
-	modify = (updater : Record<string, any>) => {
+	update = (updater : Record<string, any>) => {
 		let keys : string[] = Object.keys(updater);
 
 		for (let i = 0; i < keys.length; i++) {
 			let k = keys[i];
-			this[k] = updater[k]
+			let rhs = updater[k];
+
+			if (typeof rhs === "object") {
+				this.modify(k, rhs as Modifier);
+			}
+			else {
+				this[k] = rhs;
+			}
+		}
+	}
+
+	modify = (key: string, modifier : Modifier) => {
+
+		let op: string = modifier.op;
+		let val : number = modifier.val;	
+
+		if (op === "sub") {
+			this[key] -= val;	
+		}
+		else if (op === "add") {
+			this[key] += val;
 		}
 	}
 
@@ -48,6 +73,28 @@ export default class Card {
 		return (c.zoneId === this.zoneId);
 	}
 
+	hydrate = (obj : Record<string, any>) : Record<string, any> => {
+		let keys : string[] = Object.keys(obj);		
+		let ret : Record<string, any> = {};
+		keys.forEach((key : string) => {
+			let val : any = obj[key];	
+			if (typeof val === "object") {
+				ret[key] = this.hydrate(val);
+			}	
+			else if (typeof val === "string" && val.startsWith("@")) {
+				ret[key] = this.eval(val.substring(1));
+			}
+			else {
+				ret[key] = val;
+			}
+		})	
+
+		return ret;
+	}
+
+	eval = (expr: string) => {
+		return eval(expr);
+	}
 
 	[key: string]: any;
 }

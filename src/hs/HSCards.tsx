@@ -63,7 +63,7 @@ export enum TriggerConditions {
     FRIENDLY = "FRIENDLY"
 }
 
-export interface Trigger {
+export interface HSTrigger {
     on: TriggerType,
     do: Effect,
     if?: TriggerConditions,
@@ -121,7 +121,7 @@ export interface Minion {
     taunt?: boolean,
     death?: Effect,
     bcry?: Effect,
-    trigger?: Trigger,
+    trigger?: HSTrigger,
     collectible?: boolean,
     tribe?: Tribe | Tribe[],
     set: Set,

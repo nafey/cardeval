@@ -1,6 +1,6 @@
 import Card from "src/engine/Card";
 import Player from "src/engine/Player";
-import State from "src/engine/State";
+import Engine from "src/engine/Engine";
 import Zone from "src/engine/Zone";
 
 
@@ -13,7 +13,7 @@ export class SolitaireCard extends Card {
 
 class SolitaireEngine  {
 
-	private state : State = new State()
+	private state : Engine = new Engine()
 
 	constructor() {
 		let p : Player = this.state.newPlayer();
@@ -23,7 +23,7 @@ class SolitaireEngine  {
 		})
 	}
 
-	getState = () : State => {
+	getState = () : Engine => {
 		return this.state;
 	}
 
