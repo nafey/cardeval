@@ -3,11 +3,12 @@ import { generateId } from "./Utils";
 import Zone from "./Zone";
 
 
-export default class Player {
+export default class Refs {
 	playerId: string = generateId();
 	name: string = "";
 	zones: Record<string, Zone> = {};
-	players : Record<string, Player> = {};
+	players : Record<string, Refs> = {};
+
 	refs: Record<string, Card> = {}
 
 	constructor (n: string = "") {

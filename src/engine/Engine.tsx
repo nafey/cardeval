@@ -1,5 +1,5 @@
 import Card from "./Card";
-import Player from "./Player";
+import Refs from "./Refs";
 import Zone from "./Zone";
 
 
@@ -36,7 +36,7 @@ export default class Engine  {
 	
 	private zones: Zone[] = []; 
 
-	private players: Player[] = [];
+	private players: Refs[] = [];
 
 	private activePlayer : number = 0;
 
@@ -44,8 +44,8 @@ export default class Engine  {
 
 
 
-	newPlayer = () : Player => {
-		let p : Player = new Player();
+	newPlayer = () : Refs => {
+		let p : Refs = new Refs();
 		this.players.push(p);
 		return p;
 	}
@@ -56,11 +56,11 @@ export default class Engine  {
     	return z;		
     }
 
-    getActivePlayer = () : Player => {
+    getActivePlayer = () : Refs => {
     	return this.players[this.activePlayer];
     }
 
-    getNextPlayer = () : Player => {
+    getNextPlayer = () : Refs => {
     	return this.players[(this.activePlayer + 1) % this.players.length];
     }
 
@@ -68,13 +68,13 @@ export default class Engine  {
     	this.activePlayer = (this.activePlayer + 1) % this.players.length;
     }
 
-    getPlayers = () : Player[] => {
+    getPlayers = () : Refs[] => {
     	return this.players;
     }
 
-	getPlayerById = (playerId: string) : Player => {
+	getPlayerById = (playerId: string) : Refs => {
 		let idx = -1;
-		this.players.forEach((p:Player, i: number) => {
+		this.players.forEach((p:Refs, i: number) => {
 			if (p.playerId === playerId ) { 
 				idx = i 
 			} 
