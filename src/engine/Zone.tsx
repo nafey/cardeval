@@ -3,13 +3,9 @@ import { Event, Trigger } from "./Engine";
 import { generateId, match } from "./Utils";
 
 export default class Zone {
-
 	zoneId : string = generateId();
-
 	private cards: Card[] = [];
 	private lookup: Record<string, number> = {};
-
-	refs : Record<string, any> = {};
 	playerId? : string = ""; 
 	limit : number = 0;
 	haveLimit : boolean = false;
@@ -54,7 +50,6 @@ export default class Zone {
 		card.zoneId = this.zoneId;
 		card.playerId = this.playerId;
 		this.lookup[card.cardId] = this.cards.length;
-		card.refs = this.refs;
 		this.cards.push(card);
 	}
 
@@ -121,11 +116,6 @@ export default class Zone {
 		}
 
 		this.cards = [...before, ...after];
-
-		this.cards.forEach((c : Card) => {
-			c.refs = {};
-		});
-
 		this.reIndex();
 
 		return ret;

@@ -108,11 +108,3 @@ test ("Trigger on Create", () => {
 });
 
 
-test ("Custom Events", () => {
-    let engine : Engine = new Engine();   
-    let zone1 : Zone = engine.newZone();
-    let zone2 : Zone = engine.newZone();
-    let card : Card = new Card({a : 1});
-    zone1.addCard(card);
-
-})
