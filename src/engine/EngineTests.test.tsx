@@ -37,7 +37,7 @@ test ("Update Event", () => {
     z.addCard(c);
     expect(c.a).toBe(10);
 
-    engine.eval({event: "UPDATE", cardId : c.cardId, update : {a : {op : "sub", val : 1}}});
+    engine.eval({event: "UPDATE", cardId : c.cardId, update : {a : {op : "sub", val : 1}}}, c);
     expect(c.a).toBe(9);
 });
 
@@ -50,13 +50,25 @@ test ("Create Card from List", () => {
 });
 
 test ("Create Event", () => {
-    let engine : Engine = new Engine();   
+    let engine : Engine = new Engine(); 
     let zone : Zone = engine.newZone();
+
+    let raiser : Card = new Card({
+        b : 2,
+        raise : {
+            event : "CREATE", 
+            zoneId : "@this.zoneId", 
+            code : "A1"
+        }
+    });
+
+    zone.addCard(raiser);
+
     engine.addToList("A1", {a : 1});
 
-    engine.eval ({event : "CREATE", zoneId : zone.zoneId, code : "A1"});
+    engine.eval (raiser.raise, raiser);
 
-    expect(zone.count()).toBe(1);
+    expect(zone.count()).toBe(2);
 });
 
 test ("Delete Event", () => {
@@ -65,8 +77,34 @@ test ("Delete Event", () => {
     let card : Card = new Card({a : 1});
     zone.addCard(card);
 
-    engine.eval ({event : "DELETE", cardId : card.cardId});
+    engine.eval ({event : "DELETE", cardId : "@this.cardId"}, card);
 
     expect(zone.count()).toBe(0);
 });
+
+test ("Trigger on Create", () => {
+    let engine : Engine = new Engine();   
+    let zone : Zone = engine.newZone();
+    engine.addToList("A1", {a : 1});
+
+    let b1 = {
+        hp : 10,
+        trigger : {
+            on : "CREATE",
+            match : {zoneId : "@this.zoneId"},
+            do : {
+               event : "UPDATE",
+               cardId  : "@this.cardId",
+               update : {hp : {op : "add", val : 1}}
+            } 
+        } 
+    }
+
+    let b1Card : Card = zone.addCard(new Card(b1));
+
+    engine.eval({event : "CREATE", zoneId : zone.zoneId, code : "A1"});
+
+    expect(b1Card.hp).toBe(11);
+});
+
 

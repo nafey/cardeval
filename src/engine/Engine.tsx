@@ -22,6 +22,12 @@ export interface Event {
 	[key: string] : any
 }
 
+export interface Trigger {
+	on : string,
+	match : any,
+	do : Event,
+}
+
 // export type Event = UpdateEvent | CreateEvent;
 
 export type Handler = (e : Event) => Event;
@@ -35,6 +41,8 @@ export default class Engine  {
 	private activePlayer : number = 0;
 
 	private cardList: Record<string, any> = {}; 
+
+
 
 	newPlayer = () : Player => {
 		let p : Player = new Player();
@@ -150,23 +158,52 @@ export default class Engine  {
 
 		throw new Error("Card Id is invalid");
 	}
+	
 
-	eval = (e : Event) => {
+	triggerListeners = (e : Event, raiser?: Card) => {
+		this.zones.forEach((z : Zone) => {
+			z.triggerListeners(e, raiser, this.eval);
+		})	
+	}
+
+	eval = (e : Event, raiser? : Card) => {
+		let evalVals = (val : string) => {
+			if (val.length < 1) throw new Error("Val string is empty");
+			if (val.charAt(0) === "@") {
+				if (!raiser) throw new Error("Event initiator is not provided");
+				if (val.startsWith("@this")) {
+					return raiser.eval(val.substring(1));
+				}
+				else {
+					console.debug("Other vals not implemented");
+				}
+			}
+
+			return val;
+		}
+
+		let receiver : Card;
+
 		if (e.event === "UPDATE") {
-			// e as UpdateEvent;
-			let card : Card = this.findCard(e.cardId!);	
+			let cardId : string = evalVals(e.cardId);
+			let card : Card = this.findCard(cardId);	
 			card.update(e.update);
+			receiver = card;
 		}
 		else if (e.event === "CREATE") {
 			let card : Card = this.createCardFromList(e.code);	
-			let zone : Zone = this.getZoneById(e.zoneId);
+			let zoneId : string = evalVals(e.zoneId);
+			let zone : Zone = this.getZoneById(zoneId);
 
-			zone.addCard(card);
+			receiver = zone.addCard(card);
 		}
 		else if (e.event === "DELETE") {
-			let zone : Zone = this.findCardZone(e.cardId);
+			let cardId : string = evalVals(e.cardId);
+			let zone : Zone = this.findCardZone(cardId);
 
-			zone.take(e.cardId);
+			receiver = zone.take(cardId);
 		}
+
+		this.triggerListeners(e, receiver!);
 	}
 }

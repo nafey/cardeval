@@ -1,4 +1,5 @@
 import Card from "./Card";
+import { Event, Trigger } from "./Engine";
 import { generateId, match } from "./Utils";
 
 export default class Zone {
@@ -194,5 +195,18 @@ export default class Zone {
 		if (index >=0) {
 			this.takeAt(index);
 		}
+	}
+
+	triggerListeners = (e : Event, raiser? : Card, evalFn?: any) => {
+
+		this.cards.forEach((c : Card) => {
+			if (c?.trigger?.on !== e.event) return; 		
+
+			let trigger : Trigger = c.hydrate(c.trigger) as Trigger;
+
+			if (trigger?.match && !raiser!.match(trigger.match)) return;
+
+			evalFn(trigger.do, c);	
+		})	
 	}
 }
