@@ -3,20 +3,6 @@ import Player from "./Player";
 import Zone from "./Zone";
 
 
-// export interface CreateEvent {
-// 	event : "CREATE",
-// 	zoneId : string,
-// 	code : string,
-// 	[key: string] : any
-// }
-
-// export interface UpdateEvent {
-// 	event : "UPDATE",
-// 	cardId?: string,
-// 	modifier?: Modifier,
-// 	[key: string] : any
-// }
-
 export interface Event {
 	event : string,
 	[key: string] : any
@@ -28,8 +14,6 @@ export interface Trigger {
 	do : Event,
 }
 
-// export type Event = UpdateEvent | CreateEvent;
-
 export type Handler = (e : Event) => Event;
 
 export default class Engine  {
@@ -40,9 +24,17 @@ export default class Engine  {
 
 	private activePlayer : number = 0;
 
-	private cardList: Record<string, any> = {}; 
+	private playersCount : number = 1;
 
+	private cardList: Record<string, any> = {};
 
+	private playerZoneRefs : Record<string, any>[]; 
+
+	constructor (playersCount : number = 1) {
+		this.playersCount = playersCount;
+		this.playerZoneRefs = [];
+		this.playerZoneRefs[0] = {};
+	}
 
 	newPlayer = () : Player => {
 		let p : Player = new Player();
@@ -70,6 +62,14 @@ export default class Engine  {
 
     getPlayers = () : Player[] => {
     	return this.players;
+    }
+
+    getPlayerRef = (playerIndex : number) : Record<string, any> => {
+    	return this.playerZoneRefs[playerIndex];	
+    }
+
+    getActivePlayerZoneRef = () : Record<string, any> => {
+    	return this.playerZoneRefs[this.activePlayer];
     }
 
 	getPlayerById = (playerId: string) : Player => {
@@ -149,7 +149,6 @@ export default class Engine  {
 		}
 
 		throw new Error("Card Id not found");
-
 	}
 
 	findCard = (cardId : string) : Card => {
@@ -202,6 +201,9 @@ export default class Engine  {
 			let zone : Zone = this.findCardZone(cardId);
 
 			receiver = zone.take(cardId);
+		}
+		else {
+
 		}
 
 		this.triggerListeners(e, receiver!);

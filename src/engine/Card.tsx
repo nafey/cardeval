@@ -7,6 +7,8 @@ export interface Modifier {
 
 export default class Card {
 	cardId: string = generateId();
+	refs?: Record<string, any> = {};
+	
 	zoneId?: string = "";
 	playerId?: string = "";
 	visible?: boolean = true;

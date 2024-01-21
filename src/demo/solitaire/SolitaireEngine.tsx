@@ -1,5 +1,4 @@
 import Card from "src/engine/Card";
-import Player from "src/engine/Player";
 import Engine from "src/engine/Engine";
 import Zone from "src/engine/Zone";
 
@@ -13,51 +12,40 @@ export class SolitaireCard extends Card {
 
 class SolitaireEngine  {
 
-	private state : Engine = new Engine()
+	private engine : Engine = new Engine()
 
 	constructor() {
-		let p : Player = this.state.newPlayer();
+		let refs : Record<string, Zone> = this.engine.getActivePlayerZoneRef();
 		(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]).forEach((s: string) => {
-			let z = this.state.newZone() 
-			p.addZone(s, z);
+			let z = this.engine.newZone() 
+			refs[s] = z;	
+			z.refs = refs;
 		})
 	}
 
 	getState = () : Engine => {
-		return this.state;
+		return this.engine;
 	}
 
-	getPlayer = () : Player => {
-		return this.state.getPlayers()[0];
-	}
-
-	getView = ()  : Record<string, string[]> => {
-		let v : Record<string, string[]> = {};
-
-		(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]).forEach((z: string) => {
-			v[z] = this.getPlayer().zones[z].getView();
-		});
-
-		return v;
-	}
-
-	flipHandler = (zoneName: string) => {		
-		let p : Player = this.getPlayer();
-		const zone : Zone = p.zones[zoneName] ;
+	flip = (zone: Zone) => {		
 		if (zone.count() === 0) return;
 		if (!zone.last().visible) zone.flip(zone.count() - 1);
 	}
 
+	getActivePlayerZoneRefs = () : Record<string, Zone> => {
+		return this.engine.getActivePlayerZoneRef();
+	}
 
-	moveHandler = (fromZoneName: string, toZoneName: string) => {	
-		let p: Player = this.getPlayer();
+	move = (fromZoneName: string, toZoneName: string) => {	
+		let refs : Record<string, any> = this.engine.getActivePlayerZoneRef();
+
 		const validFroms : string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "W"];
 		const validTos: string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS"];
 
 		if (!validFroms.includes(fromZoneName)) return;
 		if (!validTos.includes(toZoneName)) return;
-		const fromZone = p.zones[fromZoneName];
-		const toZone = p.zones[toZoneName];
+		const fromZone : Zone = refs[fromZoneName]; 
+		const toZone : Zone = refs[toZoneName];
 
 		if (fromZone.count() === 0) {
 			return;
@@ -74,7 +62,7 @@ class SolitaireEngine  {
 		let fromCard : Card = fromZone.at(fromIndex);
 		
 		if (toZone.count() === 0) {
-			this.state.moveCards(fromZone.zoneId, fromCard.cardId, toZone.zoneId);
+			this.engine.moveCards(fromZone.zoneId, fromCard.cardId, toZone.zoneId);
 		}
 		else {		
 			let toCard : Card = toZone.last();
@@ -86,10 +74,10 @@ class SolitaireEngine  {
 
 			if ((redSuit.includes(fromCard.suit) && redSuit.includes(toCard.suit)) || (blackSuit.includes(fromCard.suit) && blackSuit.includes(toCard.suit))) return;
 
-			this.state.moveCards(fromZone.zoneId, fromCard.cardId, toZone.zoneId);
+			this.engine.moveCards(fromZone.zoneId, fromCard.cardId, toZone.zoneId);
 		}
 
-		this.flipHandler(fromZoneName);
+		this.flip(fromZone);
 	}
 }
 
