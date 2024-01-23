@@ -3,16 +3,14 @@ import { generateId } from "./Utils";
 import Zone from "./Zone";
 
 
-export default class Refs {
+export default class Context {
 	playerId: string = generateId();
 	name: string = "";
 	zones: Record<string, Zone> = {};
-	players : Record<string, Refs> = {};
-
+	players : Record<string, Context> = {};
 	refs: Record<string, Card> = {}
 
-	constructor (n: string = "") {
-		this.name = n;
+	constructor () {
 	}
 
 	addZone = (zoneName: string, zone: Zone) => {

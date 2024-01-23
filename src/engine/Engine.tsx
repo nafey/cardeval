@@ -1,5 +1,5 @@
 import Card from "./Card";
-import Refs from "./Refs";
+import Context from "./Context";
 import Zone from "./Zone";
 
 
@@ -36,7 +36,7 @@ export default class Engine  {
 	
 	private zones: Zone[] = []; 
 
-	private players: Refs[] = [];
+	private players: Context[] = [];
 
 	private activePlayer : number = 0;
 
@@ -44,8 +44,8 @@ export default class Engine  {
 
 
 
-	newPlayer = () : Refs => {
-		let p : Refs = new Refs();
+	newPlayer = () : Context => {
+		let p : Context = new Context();
 		this.players.push(p);
 		return p;
 	}
@@ -56,11 +56,11 @@ export default class Engine  {
     	return z;		
     }
 
-    getActivePlayer = () : Refs => {
+    getActivePlayer = () : Context => {
     	return this.players[this.activePlayer];
     }
 
-    getNextPlayer = () : Refs => {
+    getNextPlayer = () : Context => {
     	return this.players[(this.activePlayer + 1) % this.players.length];
     }
 
@@ -68,13 +68,13 @@ export default class Engine  {
     	this.activePlayer = (this.activePlayer + 1) % this.players.length;
     }
 
-    getPlayers = () : Refs[] => {
+    getPlayers = () : Context[] => {
     	return this.players;
     }
 
-	getPlayerById = (playerId: string) : Refs => {
+	getPlayerById = (playerId: string) : Context => {
 		let idx = -1;
-		this.players.forEach((p:Refs, i: number) => {
+		this.players.forEach((p:Context, i: number) => {
 			if (p.playerId === playerId ) { 
 				idx = i 
 			} 
@@ -182,28 +182,28 @@ export default class Engine  {
 			return val;
 		}
 
-		let receiver : Card;
+		let eventTarget : Card;
 
 		if (e.event === "UPDATE") {
 			let cardId : string = evalVals(e.cardId);
 			let card : Card = this.findCard(cardId);	
 			card.update(e.update);
-			receiver = card;
+			eventTarget = card;
 		}
 		else if (e.event === "CREATE") {
 			let card : Card = this.createCardFromList(e.code);	
 			let zoneId : string = evalVals(e.zoneId);
 			let zone : Zone = this.getZoneById(zoneId);
 
-			receiver = zone.addCard(card);
+			eventTarget = zone.addCard(card);
 		}
 		else if (e.event === "DELETE") {
 			let cardId : string = evalVals(e.cardId);
 			let zone : Zone = this.findCardZone(cardId);
 
-			receiver = zone.take(cardId);
+			eventTarget = zone.take(cardId);
 		}
 
-		this.triggerListeners(e, receiver!);
+		this.triggerListeners(e, eventTarget!);
 	}
 }

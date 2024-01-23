@@ -1,11 +1,13 @@
 import Card from "./Card";
 import { Event, Trigger } from "./Engine";
+import Context from "./Context";
 import { generateId, match } from "./Utils";
 
 export default class Zone {
 	zoneId : string = generateId();
 	private cards: Card[] = [];
 	private lookup: Record<string, number> = {};
+	context : Context = new Context();
 	playerId? : string = ""; 
 	limit : number = 0;
 	haveLimit : boolean = false;
@@ -50,6 +52,7 @@ export default class Zone {
 		card.zoneId = this.zoneId;
 		card.playerId = this.playerId;
 		this.lookup[card.cardId] = this.cards.length;
+		card.zone = this;
 		this.cards.push(card);
 	}
 

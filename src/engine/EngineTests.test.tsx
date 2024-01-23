@@ -3,6 +3,7 @@ import { match } from "./Utils";
 import Engine from "./Engine";
 import Zone from "./Zone";
 import Card from "./Card";
+import Context from "./Context";
 
 
 test ("Match", () => {
@@ -107,4 +108,35 @@ test ("Trigger on Create", () => {
     expect(b1Card.hp).toBe(11);
 });
 
+test ("Zone reference", () => {
 
+    let engine : Engine = new Engine();   
+    let zone : Zone = engine.newZone();
+
+    let context : Context = new Context();
+    context.zones.MAIN = zone;
+
+    engine.addToList("A10" ,{
+        a : 10,
+        trigger : {
+            on : "CREATE",
+            in : "@MAIN",
+            match : {card: "@self", zone : "@MAIN"},
+            do : {
+               event : "UPDATE",
+               in : "@MAIN",
+               matchExcept : "@self",
+               update : {hp : {op : "add", val : 1}}
+            } 
+        } 
+    });
+
+    let a1 : Card = zone.addCard(new Card({a : 1}));
+    let a2 : Card = zone.addCard(new Card({a : 2}));
+
+    engine.eval({event : "CREATE", zoneId: zone.zoneId, code : "A10"});
+
+    expect(a1.a).toBe(2);
+    expect(a2.a).toBe(3);
+    expect(zone.getArr()[2].a).toBe(10);
+});

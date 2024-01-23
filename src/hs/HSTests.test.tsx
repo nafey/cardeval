@@ -1,6 +1,6 @@
 import { test, expect, beforeEach } from "vitest";
 import HSEngine, {} from "./HSEngine";
-import Refs from "src/engine/Refs";
+import Context from "src/engine/Context";
 import Card from "src/engine/Card";
 // import { EventType } from "./HSCards";
 
@@ -18,14 +18,14 @@ beforeEach((context: any) => {
 
 test("Init", () => {
 	let engine: HSEngine = new HSEngine(); 
-	let p: Refs = engine.getActivePlayer();
+	let p: Context = engine.getActivePlayer();
 	p.zones.HAND.addCard(engine.createCard("LOOT"));
 	expect(p.zones.HAND.count()).toEqual(1)
 });
 
 test("Play One", () => {
 	let engine: HSEngine = new HSEngine(); 
-	let p: Refs = engine.getActivePlayer();
+	let p: Context = engine.getActivePlayer();
 	let c: Card = p.zones.HAND.addCard(engine.createCard("LOOT"));
 
 	engine.play(c)
@@ -35,7 +35,7 @@ test("Play One", () => {
 
 test("Attack", () => {
 	let engine: HSEngine = new HSEngine(); 
-	let p: Refs = engine.getActivePlayer();
+	let p: Context = engine.getActivePlayer();
 	let croc: Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
 	let o = engine.getOtherPlayer();
@@ -47,10 +47,10 @@ test("Attack", () => {
 
 test("Taunt", () => {
 	let engine: HSEngine = new HSEngine(); 
-	let p: Refs = engine.getActivePlayer();
+	let p: Context = engine.getActivePlayer();
 	let croc: Card = p.zones.BF.addCard(engine.createCard("CROC"));
 
-	let o: Refs = engine.getOtherPlayer();
+	let o: Context = engine.getOtherPlayer();
 	let mrdr = o.zones.BF.addCard(engine.createCard("MRDR"));
 	o.zones.BF.addCard(engine.createCard("GLDF"));
 	expect(() => engine.attack(croc, mrdr)).toThrowError("taunt");
@@ -124,7 +124,7 @@ test("Start Turn Events", () => {
 
 test("Summoning Sickness", () => {
 	let engine: HSEngine = new HSEngine(); 
-	let p: Refs = engine.getActivePlayer();
+	let p: Context = engine.getActivePlayer();
 	let croc: Card = p.zones.HAND.addCard(engine.createCard("CROC"));
 	let rzrh: Card = p.zones.HAND.addCard(engine.createCard("RZRH"));
 
@@ -161,8 +161,8 @@ test("Imp Boss", () => {
 
 test("Knife Juggler", () => {
 	let engine: HSEngine = new HSEngine(); 
-	let p: Refs = engine.getActivePlayer();
-	let o: Refs = engine.getOtherPlayer();
+	let p: Context = engine.getActivePlayer();
+	let o: Context = engine.getOtherPlayer();
 	let knfj: Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
 	let croc: Card = p.zones.HAND.addCard(engine.createCard("CROC"));
 
@@ -173,7 +173,7 @@ test("Knife Juggler", () => {
 
 test("Knife Juggler 2", () => {
 	let engine: HSEngine = new HSEngine(); 
-	let p: Refs = engine.getActivePlayer();
+	let p: Context = engine.getActivePlayer();
 	let knfj: Card = p.zones.HAND.addCard(engine.createCard("KNFJ"));
 	let croc: Card = p.zones.HAND.addCard(engine.createCard("CROC"));
 
@@ -184,11 +184,11 @@ test("Knife Juggler 2", () => {
 
 test("Imp Boss and Knife Juggler", () => {
 	let engine: HSEngine = new HSEngine(); 
-	let p: Refs = engine.getActivePlayer();
+	let p: Context = engine.getActivePlayer();
 	p.zones.BF.addCard(engine.createCard("KNFJ"));
 	let impb: Card = p.zones.BF.addCard(engine.createCard("IMPB"));
 
-	let o: Refs = engine.getOtherPlayer();
+	let o: Context = engine.getOtherPlayer();
 	let mrdr: Card = o.zones.BF.addCard(engine.createCard("MRDR"));
 
 	engine.endTurn();
@@ -200,8 +200,8 @@ test("Imp Boss and Knife Juggler", () => {
 
 test ("Cast Spell", () => {
 	let engine : HSEngine = new HSEngine();	
-	let p: Refs = engine.getActivePlayer();
-	let o: Refs = engine.getOtherPlayer();
+	let p: Context = engine.getActivePlayer();
+	let o: Context = engine.getOtherPlayer();
 	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
 
 	engine.cast(arcn, {type: "OPP"});
@@ -210,8 +210,8 @@ test ("Cast Spell", () => {
 
 test ("Heal", () => {
 	let engine : HSEngine = new HSEngine();
-	let p : Refs = engine.getActivePlayer();
-	let o : Refs = engine.getOtherPlayer();
+	let p : Context = engine.getActivePlayer();
+	let o : Context = engine.getOtherPlayer();
 
 	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
 	let vood : Card = p.zones.HAND.addCard(engine.createCard("VOOD"));
@@ -228,8 +228,8 @@ test ("Heal", () => {
 
 test ("Heal Limit", () => {
 	let engine : HSEngine = new HSEngine();
-	let p : Refs = engine.getActivePlayer();
-	let o : Refs = engine.getOtherPlayer();
+	let p : Context = engine.getActivePlayer();
+	let o : Context = engine.getOtherPlayer();
 
 	let vood : Card = p.zones.HAND.addCard(engine.createCard("VOOD"));
 	let croc : Card = o.zones.BF.addCard(engine.createCard("CROC"));
@@ -246,8 +246,8 @@ test ("Heal Limit", () => {
 
 test ("Damage All", () => {
 	let engine : HSEngine = new HSEngine();
-	let p : Refs = engine.getActivePlayer();
-	let o : Refs = engine.getOtherPlayer();	
+	let p : Context = engine.getActivePlayer();
+	let o : Context = engine.getOtherPlayer();	
 
 	let hell : Card = p.zones.HAND.addCard(engine.createCard("HELL"));
 
@@ -261,8 +261,8 @@ test ("Damage All", () => {
 
 test ("Damage All with Trigger", () => {
 	let engine : HSEngine = new HSEngine();
-	let p : Refs = engine.getActivePlayer();
-	let o : Refs = engine.getOtherPlayer();	
+	let p : Context = engine.getActivePlayer();
+	let o : Context = engine.getOtherPlayer();	
 
 	let hell : Card = p.zones.HAND.addCard(engine.createCard("HELL"));
 
@@ -276,7 +276,7 @@ test ("Damage All with Trigger", () => {
 
 test ("Damage Self with Spell", () => {
 	let engine : HSEngine = new HSEngine();	
-	let p: Refs = engine.getActivePlayer();
+	let p: Context = engine.getActivePlayer();
 	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
 
 	engine.cast(arcn, {type: "SELF"});
@@ -286,8 +286,8 @@ test ("Damage Self with Spell", () => {
 
 test ("Multi Event spells", () => {
 	let engine : HSEngine = new HSEngine();	
-	let p: Refs = engine.getActivePlayer();
-	let o: Refs = engine.getOtherPlayer();
+	let p: Context = engine.getActivePlayer();
+	let o: Context = engine.getOtherPlayer();
 
 	let arcn : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));
 	o.zones.BF.addCard(engine.createCard("MRDR"));
@@ -306,8 +306,8 @@ test ("Multi Event spells", () => {
 test("Post Death Events", () => {
 
 	let engine : HSEngine = new HSEngine();	
-	let p: Refs = engine.getActivePlayer();
-	let o: Refs = engine.getOtherPlayer();
+	let p: Context = engine.getActivePlayer();
+	let o: Context = engine.getOtherPlayer();
 
 	let holy : Card = p.zones.HAND.addCard(engine.createCard("HOLY"));
 	let arcn1 : Card = p.zones.HAND.addCard(engine.createCard("ARCN"));

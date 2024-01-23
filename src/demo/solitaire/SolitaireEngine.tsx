@@ -1,5 +1,5 @@
 import Card from "src/engine/Card";
-import Refs from "src/engine/Refs";
+import Context from "src/engine/Refs";
 import Engine from "src/engine/Engine";
 import Zone from "src/engine/Zone";
 
@@ -16,7 +16,7 @@ class SolitaireEngine  {
 	private state : Engine = new Engine()
 
 	constructor() {
-		let p : Refs = this.state.newPlayer();
+		let p : Context = this.state.newPlayer();
 		(["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS", "S", "W"]).forEach((s: string) => {
 			let z = this.state.newZone() 
 			p.addZone(s, z);
@@ -27,7 +27,7 @@ class SolitaireEngine  {
 		return this.state;
 	}
 
-	getPlayer = () : Refs => {
+	getPlayer = () : Context => {
 		return this.state.getPlayers()[0];
 	}
 
@@ -42,7 +42,7 @@ class SolitaireEngine  {
 	}
 
 	flipHandler = (zoneName: string) => {		
-		let p : Refs = this.getPlayer();
+		let p : Context = this.getPlayer();
 		const zone : Zone = p.zones[zoneName] ;
 		if (zone.count() === 0) return;
 		if (!zone.last().visible) zone.flip(zone.count() - 1);
@@ -50,7 +50,7 @@ class SolitaireEngine  {
 
 
 	moveHandler = (fromZoneName: string, toZoneName: string) => {	
-		let p: Refs = this.getPlayer();
+		let p: Context = this.getPlayer();
 		const validFroms : string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "W"];
 		const validTos: string[] = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "FH", "FD", "FC", "FS"];
 

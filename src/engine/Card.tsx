@@ -1,4 +1,5 @@
 import { generateId, match } from "./Utils";
+import Zone from "./Zone";
 
 export interface Modifier {
 	op : "add" | "sub",
@@ -8,6 +9,7 @@ export interface Modifier {
 export default class Card {
 	cardId: string = generateId();
 	zoneId?: string = "";
+	zone?: Zone;
 	playerId?: string = "";
 	visible?: boolean = true;
 	
@@ -17,7 +19,6 @@ export default class Card {
 		Object.keys(vals).forEach((k: string) => {
 			if (k === "cardId" || k === "visible") return;
 			this[k] = vals[k];
-
 		});
 	}
 
