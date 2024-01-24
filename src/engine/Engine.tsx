@@ -2,21 +2,6 @@ import Card from "./Card";
 import Context from "./Context";
 import Zone from "./Zone";
 
-
-// export interface CreateEvent {
-// 	event : "CREATE",
-// 	zoneId : string,
-// 	code : string,
-// 	[key: string] : any
-// }
-
-// export interface UpdateEvent {
-// 	event : "UPDATE",
-// 	cardId?: string,
-// 	modifier?: Modifier,
-// 	[key: string] : any
-// }
-
 export interface Event {
 	event : string,
 	[key: string] : any
@@ -28,7 +13,37 @@ export interface Trigger {
 	do : Event,
 }
 
-// export type Event = UpdateEvent | CreateEvent;
+let log = (msg: string) => {
+	console.debug(msg);
+}
+
+let logAll = (args : string[]) => {
+	let sep = " ";
+	let msg = "";
+	for (let i = 0; i < args.length; i++) {
+		msg = msg + sep + args[i];
+	}
+	log(msg);
+} 
+
+let logParams = (funcName: string, paramNames: string[] = [], vals: any[] = []) => {
+	let args : any[] = [];
+	args.push(funcName + "():");
+
+	if (paramNames.length !== vals.length) {
+		console.error("Mismatched args size");
+	}
+
+	for (let i = 0; i < paramNames.length; i++) {
+		args.push(paramNames[i]);
+		args.push("-");
+		args.push(vals[i]);
+		args.push("|");
+	}
+
+	logAll(args);
+
+}
 
 export type Handler = (e : Event) => Event;
 
@@ -158,15 +173,63 @@ export default class Engine  {
 
 		throw new Error("Card Id is invalid");
 	}
-	
 
-	triggerListeners = (e : Event, raiser?: Card) => {
-		this.zones.forEach((z : Zone) => {
-			z.triggerListeners(e, raiser, this.eval);
+
+	// triggerListeners = (e : Event, raiser?: Card) => {
+	// 	logParams("triggerListeners", ["eventType"], [e.event]);
+	// 	this.zones.forEach((z : Zone) => {
+	// 		z.triggerListenersInZone(e, raiser, this.eval);
+	// 	})	
+	// }
+
+	// triggerListeners = ()
+
+	evalZone = () => {
+
+	}
+
+	evalCardId = () => {
+
+	}
+
+
+	hydrate = (card : Card, obj : Record<string, any>) : Record<string, any> => {
+		console.debug(">>>>>>>>>> 5");
+		let keys : string[] = Object.keys(obj);		
+		let ret : Record<string, any> = {};
+		keys.forEach((key : string) => {
+			if (key === "zone") {
+				console.debug("Zone parsing");	
+			}
+			let val : any = obj[key];	
+			if (typeof val === "object") {
+				ret[key] = this.hydrate(card, val);
+			}	
+			else if (typeof val === "string" && val.startsWith("@")) {
+				ret[key] = card.eval(val.substring(1));
+			}
+			else {
+				ret[key] = val;
+			}
 		})	
+
+		return ret;
+	}
+
+	triggerCard = (source : Card, target : Card, e : Event) => {
+		if (target?.trigger?.on !== e.event) return; 		
+
+		let trigger : Trigger = this.hydrate(target, target.trigger) as Trigger;
+
+		if (trigger?.match && !source!.match(trigger.match)) return;
+
+		console.debug(">>>>>>>>>>> 4");
+		this.eval(trigger.do, target);	
 	}
 
 	eval = (e : Event, raiser? : Card) => {
+		logParams("eval", ["eventType"], [e.event]);
+		console.debug(">>>>>>>>>>>> 1");
 		let evalVals = (val : string) => {
 			if (val.length < 1) throw new Error("Val string is empty");
 			if (val.charAt(0) === "@") {
@@ -183,6 +246,8 @@ export default class Engine  {
 		}
 
 		let eventTarget : Card;
+
+		console.debug(">>>>>>>>>> 2");
 
 		if (e.event === "UPDATE") {
 			let cardId : string = evalVals(e.cardId);
@@ -204,6 +269,10 @@ export default class Engine  {
 			eventTarget = zone.take(cardId);
 		}
 
-		this.triggerListeners(e, eventTarget!);
+		this.zones.forEach((z : Zone) => {
+			z.getArr().forEach((c : Card) => {
+				this.triggerCard(eventTarget, c, e);
+			})
+		});
 	}
 }

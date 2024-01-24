@@ -1,3 +1,4 @@
+import Context from "./Context";
 import { generateId, match } from "./Utils";
 import Zone from "./Zone";
 
@@ -72,25 +73,6 @@ export default class Card {
 
 	sameZone = (c : Card) : boolean => {
 		return (c.zoneId === this.zoneId);
-	}
-
-	hydrate = (obj : Record<string, any>) : Record<string, any> => {
-		let keys : string[] = Object.keys(obj);		
-		let ret : Record<string, any> = {};
-		keys.forEach((key : string) => {
-			let val : any = obj[key];	
-			if (typeof val === "object") {
-				ret[key] = this.hydrate(val);
-			}	
-			else if (typeof val === "string" && val.startsWith("@")) {
-				ret[key] = this.eval(val.substring(1));
-			}
-			else {
-				ret[key] = val;
-			}
-		})	
-
-		return ret;
 	}
 
 	eval = (expr: string) => {

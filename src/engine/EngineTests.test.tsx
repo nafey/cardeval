@@ -1,10 +1,22 @@
-import { test, expect} from "vitest";
+import { test, expect, beforeEach } from "vitest";
 import { match } from "./Utils";
 import Engine from "./Engine";
 import Zone from "./Zone";
 import Card from "./Card";
 import Context from "./Context";
 
+const consoleDebug: any = console.debug;
+console.debug = () => {};
+
+beforeEach((context: any) => {
+    if (context.task.name === "Trigger on Create") {
+        console.debug = consoleDebug;
+    }
+    else {
+        console.debug = () => {};
+    }
+});
+        
 
 test ("Match", () => {
     expect(match({a : 1}, {a : 2})).toBe(false);
