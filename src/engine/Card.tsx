@@ -1,4 +1,3 @@
-import Context from "./Context";
 import { generateId, match } from "./Utils";
 import Zone from "./Zone";
 
@@ -13,6 +12,7 @@ export default class Card {
 	zone?: Zone;
 	playerId?: string = "";
 	visible?: boolean = true;
+	refs: Record<string, any> = {};
 	
 	constructor(vals : Record<string, any> = {}, visible: boolean = true) {
 		this.visible = visible;
@@ -21,6 +21,8 @@ export default class Card {
 			if (k === "cardId" || k === "visible") return;
 			this[k] = vals[k];
 		});
+
+		this.refs.this = this;
 	}
 
 	toString = () : string => {

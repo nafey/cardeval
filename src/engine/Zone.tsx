@@ -43,6 +43,7 @@ export default class Zone {
 	playerId? : string = ""; 
 	limit : number = 0;
 	haveLimit : boolean = false;
+	refs : Record<string, any> = {};
 
 	at = (index: number) => this.cards[index];
 

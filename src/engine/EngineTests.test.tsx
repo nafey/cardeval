@@ -50,7 +50,17 @@ test ("Update Event", () => {
     z.addCard(c);
     expect(c.a).toBe(10);
 
-    engine.eval({event: "UPDATE", cardId : c.cardId, update : {a : {op : "sub", val : 1}}}, c);
+    engine.eval({
+        event: "UPDATE", 
+        card : "@this", 
+        update : {
+            a : {
+                op : "sub", 
+                val : 1
+            }
+        }
+   }, c);
+
     expect(c.a).toBe(9);
 });
 
@@ -68,18 +78,19 @@ test ("Create Event", () => {
 
     let raiser : Card = new Card({
         b : 2,
-        raise : {
-            event : "CREATE", 
-            zoneId : "@this.zoneId", 
-            code : "A1"
-        }
     });
+
+    let event = {
+        event : "CREATE",
+        zone : "@this.zone", 
+        code : "A1"
+    }
 
     zone.addCard(raiser);
 
     engine.addToList("A1", {a : 1});
 
-    engine.eval (raiser.raise, raiser);
+    engine.eval(event, raiser);
 
     expect(zone.count()).toBe(2);
 });
@@ -90,7 +101,10 @@ test ("Delete Event", () => {
     let card : Card = new Card({a : 1});
     zone.addCard(card);
 
-    engine.eval ({event : "DELETE", cardId : "@this.cardId"}, card);
+    engine.eval ({
+        event : "DELETE", 
+        card : "@this"
+    }, card);
 
     expect(zone.count()).toBe(0);
 });
@@ -98,24 +112,31 @@ test ("Delete Event", () => {
 test ("Trigger on Create", () => {
     let engine : Engine = new Engine();   
     let zone : Zone = engine.newZone();
-    engine.addToList("A1", {a : 1});
+    engine.refs.MAIN = zone;
+
+    engine.addToList("A1", {name : "pahla", a : 1});
 
     let b1 = {
+        name: "dusra",
         hp : 10,
         trigger : {
             on : "CREATE",
-            match : {zoneId : "@this.zoneId"},
+            onSelf: "SKIP",
+            zone : "@this.zone",
             do : {
                event : "UPDATE",
-               cardId  : "@this.cardId",
+               card: "@this",
                update : {hp : {op : "add", val : 1}}
             } 
         } 
     }
 
     let b1Card : Card = zone.addCard(new Card(b1));
-
-    engine.eval({event : "CREATE", zoneId : zone.zoneId, code : "A1"});
+    engine.eval({
+        event : "CREATE", 
+        zone : "@MAIN", 
+        code : "A1"
+    });
 
     expect(b1Card.hp).toBe(11);
 });
@@ -133,11 +154,11 @@ test ("Zone reference", () => {
         trigger : {
             on : "CREATE",
             in : "@MAIN",
-            match : {card: "@self", zone : "@MAIN"},
+            match : {card: "@this", zone : "@MAIN"},
             do : {
                event : "UPDATE",
                in : "@MAIN",
-               matchExcept : "@self",
+               matchExcept : "@this",
                update : {hp : {op : "add", val : 1}}
             } 
         } 

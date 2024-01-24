@@ -9,8 +9,8 @@ export interface Event {
 
 export interface Trigger {
 	on : string,
-	match : any,
 	do : Event,
+	[key: string] : any
 }
 
 let log = (msg: string) => {
@@ -57,6 +57,7 @@ export default class Engine  {
 
 	private cardList: Record<string, any> = {}; 
 
+	refs: Record<string, any> = {};
 
 
 	newPlayer = () : Context => {
@@ -174,16 +175,6 @@ export default class Engine  {
 		throw new Error("Card Id is invalid");
 	}
 
-
-	// triggerListeners = (e : Event, raiser?: Card) => {
-	// 	logParams("triggerListeners", ["eventType"], [e.event]);
-	// 	this.zones.forEach((z : Zone) => {
-	// 		z.triggerListenersInZone(e, raiser, this.eval);
-	// 	})	
-	// }
-
-	// triggerListeners = ()
-
 	evalZone = () => {
 
 	}
@@ -192,81 +183,127 @@ export default class Engine  {
 
 	}
 
+	readRefs = (lookup : string, refs : Record<string, any>) : any => {
+		if (!lookup.startsWith("@")) throw new Error("Invalid lookup string for refs");
 
-	hydrate = (card : Card, obj : Record<string, any>) : Record<string, any> => {
-		console.debug(">>>>>>>>>> 5");
-		let keys : string[] = Object.keys(obj);		
-		let ret : Record<string, any> = {};
-		keys.forEach((key : string) => {
-			if (key === "zone") {
-				console.debug("Zone parsing");	
-			}
-			let val : any = obj[key];	
-			if (typeof val === "object") {
-				ret[key] = this.hydrate(card, val);
-			}	
-			else if (typeof val === "string" && val.startsWith("@")) {
-				ret[key] = card.eval(val.substring(1));
-			}
-			else {
-				ret[key] = val;
-			}
-		})	
+		if (lookup === "@this.zone") return refs["this"].zone;
+		return refs[lookup.substring(1)];
+	}
+
+	parseCard = (obj : any, refs: Record<string, any>) : Card => {
+
+	}
+
+	hydrateEvent = (event : Event, refs : Record<string, any>) : Event => {
+		logParams("hydrateEvent", ["event"], [event.event]);
+		if (!event?.event) throw new Error("Missing event name on Event obj");
+		let ret : Event = {
+			event : event.event
+		}		
+
+		if (event?.card) {
+			ret.card = this.readRefs(event.card, refs) as Card;
+		}
+
+		if (event?.zone) {
+			ret.zone = this.readRefs(event.zone, refs) as Zone;
+		}
+
+		if (event?.update) {
+			ret.update = event.update;
+		}
+
+		if (event?.code) {
+			ret.code = event.code;
+		}
 
 		return ret;
 	}
 
-	triggerCard = (source : Card, target : Card, e : Event) => {
-		if (target?.trigger?.on !== e.event) return; 		
+	hydrateTrigger = (trigger : Trigger, refs : Record<string, any>) : Trigger => {
+		logParams("hydrateTrigger", ["trigger"], [trigger.on]);
+		if (!trigger?.on) throw new Error("Missing event trigger name");
+		if (!trigger?.do) throw new Error("Missing do event trigger");
 
-		let trigger : Trigger = this.hydrate(target, target.trigger) as Trigger;
+		let doEvent : Event = this.hydrateEvent(trigger.do, refs);		
+
+		let ret : Trigger = {
+			on : trigger.on,
+			do : doEvent
+		}
+
+		if (trigger?.zone) {
+			ret.zone = this.readRefs(trigger.zone, refs) as Zone;
+		}		
+
+		if (trigger?.onSelf) ret.onSelf = trigger.onSelf;
+
+		return ret;
+	}
+	
+	getRefs = (card?: Card) : Record<string, any> => {
+
+		let ret : Record<string, any> = {};
+		let crefs : Record<string, any> = card ? card.refs : {};
+		let zrefs : Record<string, any> = card?.zone?.refs ? card.zone.refs : {};
+		let grefs : Record<string, any> = this.refs;
+		Object.keys(grefs).forEach((k : string) => {
+			ret[k] = grefs[k];
+		});
+
+		Object.keys(zrefs).forEach((k : string) => {
+			ret[k] = zrefs[k];
+		});
+
+		Object.keys(crefs).forEach((k : string) => {
+			ret[k] = crefs[k];
+		});
+
+		return ret;
+	}
+
+
+	triggerCard = (source : Card, target : Card, e : Event) => {
+		if (target?.trigger?.on !== e.event) return;	
+
+		logParams("triggerCard", ["eventName"], [e.event]);
+
+		let trigger : Trigger = this.hydrateTrigger(target.trigger, this.getRefs(target)); 
 
 		if (trigger?.match && !source!.match(trigger.match)) return;
 
-		console.debug(">>>>>>>>>>> 4");
-		this.eval(trigger.do, target);	
+		if (trigger?.onSelf) {
+			if (trigger.onSelf === "SKIP" && source === target) return;
+		}
+
+		this.eval(target?.trigger?.do, target);	
 	}
 
 	eval = (e : Event, raiser? : Card) => {
 		logParams("eval", ["eventType"], [e.event]);
-		console.debug(">>>>>>>>>>>> 1");
-		let evalVals = (val : string) => {
-			if (val.length < 1) throw new Error("Val string is empty");
-			if (val.charAt(0) === "@") {
-				if (!raiser) throw new Error("Event initiator is not provided");
-				if (val.startsWith("@this")) {
-					return raiser.eval(val.substring(1));
-				}
-				else {
-					console.debug("Other vals not implemented");
-				}
-			}
-
-			return val;
-		}
 
 		let eventTarget : Card;
 
-		console.debug(">>>>>>>>>> 2");
+		let refs : Record<string, any> = this.getRefs(raiser!);
+		e = this.hydrateEvent(e, refs);
 
 		if (e.event === "UPDATE") {
-			let cardId : string = evalVals(e.cardId);
-			let card : Card = this.findCard(cardId);	
+			let card : Card = e.card;
 			card.update(e.update);
+
 			eventTarget = card;
 		}
 		else if (e.event === "CREATE") {
-			let card : Card = this.createCardFromList(e.code);	
-			let zoneId : string = evalVals(e.zoneId);
-			let zone : Zone = this.getZoneById(zoneId);
+			let zone : Zone = e.zone;
+			let card : Card = this.createCardFromList(e.code);
 
 			eventTarget = zone.addCard(card);
 		}
 		else if (e.event === "DELETE") {
-			let cardId : string = evalVals(e.cardId);
-			let zone : Zone = this.findCardZone(cardId);
+			let card : Card = e.card;
+			let zone : Zone = card.zone!;
 
-			eventTarget = zone.take(cardId);
+			eventTarget = zone.take(card.cardId);
 		}
 
 		this.zones.forEach((z : Zone) => {
