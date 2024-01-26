@@ -45,6 +45,8 @@ let logParams = (funcName: string, paramNames: string[] = [], vals: any[] = []) 
 
 }
 
+export type Refs = Record<string, any>;
+
 export type Handler = (e : Event) => Event;
 
 export default class Engine  {
@@ -196,6 +198,7 @@ export default class Engine  {
 
 	hydrateEvent = (event : Event, refs : Record<string, any>) : Event => {
 		logParams("hydrateEvent", ["event"], [event.event]);
+
 		if (!event?.event) throw new Error("Missing event name on Event obj");
 		let ret : Event = {
 			event : event.event
@@ -215,6 +218,14 @@ export default class Engine  {
 
 		if (event?.code) {
 			ret.code = event.code;
+		}
+
+		if (event?.in) {
+			ret.in = this.readRefs(event.in, refs) as Zone;
+		}
+
+		if (event?.onSelf) {
+			ret.onSelf = event.onSelf;
 		}
 
 		return ret;
@@ -240,7 +251,7 @@ export default class Engine  {
 
 		return ret;
 	}
-	
+
 	getRefs = (card?: Card) : Record<string, any> => {
 
 		let ret : Record<string, any> = {};
@@ -263,7 +274,7 @@ export default class Engine  {
 	}
 
 
-	triggerCard = (source : Card, target : Card, e : Event) => {
+	triggerCard = (e: Event, source : Card, target : Card) => {
 		if (target?.trigger?.on !== e.event) return;	
 
 		logParams("triggerCard", ["eventName"], [e.event]);
@@ -279,36 +290,63 @@ export default class Engine  {
 		this.eval(target?.trigger?.do, target);	
 	}
 
+	evalUpdate = (e: Event, raiser?: Card, refs : Record<string, any>) : Card[] => {
+		let ret: Card[] = [];
+
+		if (e?.card) {
+			let card : Card = e.card;
+			card.update(e.update);
+
+			ret.push(card);
+		}
+		else if (e?.in) {
+			let zone : Zone = e.in;
+
+			zone.getArr().forEach((target : Card) => {
+				if (e.onSelf && e.onSelf === "SKIP" && target === raiser) return; 	
+
+				target.update(e.update);
+				ret.push(target);
+			})	
+
+		}
+
+		return ret;
+	}
+
 	eval = (e : Event, raiser? : Card) => {
 		logParams("eval", ["eventType"], [e.event]);
 
-		let eventTarget : Card;
+		let eventTargets : Card[] = [];
 
 		let refs : Record<string, any> = this.getRefs(raiser!);
 		e = this.hydrateEvent(e, refs);
 
 		if (e.event === "UPDATE") {
-			let card : Card = e.card;
-			card.update(e.update);
+			this.evalUpdate(e, raiser, refs);
+			// let card : Card = e.card;
+			// card.update(e.update);
 
-			eventTarget = card;
+			// eventTargets.push(card);
 		}
 		else if (e.event === "CREATE") {
 			let zone : Zone = e.zone;
 			let card : Card = this.createCardFromList(e.code);
 
-			eventTarget = zone.addCard(card);
+			eventTargets.push(zone.addCard(card));
 		}
 		else if (e.event === "DELETE") {
 			let card : Card = e.card;
 			let zone : Zone = card.zone!;
 
-			eventTarget = zone.take(card.cardId);
+			eventTargets.push(zone.take(card.cardId));
 		}
 
 		this.zones.forEach((z : Zone) => {
-			z.getArr().forEach((c : Card) => {
-				this.triggerCard(eventTarget, c, e);
+			z.getArr().forEach((target : Card) => {
+				eventTargets.forEach((source: Card) => {
+					this.triggerCard(e, source, target);
+				})
 			})
 		});
 	}

@@ -3,13 +3,12 @@ import { match } from "./Utils";
 import Engine from "./Engine";
 import Zone from "./Zone";
 import Card from "./Card";
-import Context from "./Context";
 
 const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-    if (context.task.name === "Trigger on Create") {
+    if (context.task.name === "") {
         console.debug = consoleDebug;
     }
     else {
@@ -146,10 +145,12 @@ test ("Zone reference", () => {
     let engine : Engine = new Engine();   
     let zone : Zone = engine.newZone();
 
-    let context : Context = new Context();
-    context.zones.MAIN = zone;
+    engine.refs.MAIN = zone;
+    // let context : Context = new Context();
+    // context.zones.MAIN = zone;
 
-    engine.addToList("A10" ,{
+    engine.addToList("A10" ,
+    {
         a : 10,
         trigger : {
             on : "CREATE",
@@ -158,16 +159,17 @@ test ("Zone reference", () => {
             do : {
                event : "UPDATE",
                in : "@MAIN",
-               matchExcept : "@this",
-               update : {hp : {op : "add", val : 1}}
+               onSelf : "SKIP",
+               update : {a : {op : "add", val : 1}}
             } 
         } 
     });
 
+
     let a1 : Card = zone.addCard(new Card({a : 1}));
     let a2 : Card = zone.addCard(new Card({a : 2}));
 
-    engine.eval({event : "CREATE", zoneId: zone.zoneId, code : "A10"});
+    engine.eval({event : "CREATE", zone: "@MAIN", code : "A10"});
 
     expect(a1.a).toBe(2);
     expect(a2.a).toBe(3);
