@@ -290,7 +290,22 @@ export default class Engine  {
 		this.eval(target?.trigger?.do, target);	
 	}
 
-	evalUpdate = (e: Event, raiser?: Card, refs : Record<string, any>) : Card[] => {
+	evalDelete = (e: Event) => {
+		let card : Card = e.card;
+		let zone : Zone = card.zone!;
+
+		return [zone.take(card.cardId)];
+	}
+
+	evalCreate = (e: Event) : Card[] => {
+		let ret: Card[] = []
+		let zone : Zone = e.zone;
+		let card : Card = this.createCardFromList(e.code);
+		ret.push(zone.addCard(card))
+		return ret;
+	}
+
+	evalUpdate = (e: Event, raiser?: Card) : Card[] => {
 		let ret: Card[] = [];
 
 		if (e?.card) {
@@ -314,37 +329,30 @@ export default class Engine  {
 		return ret;
 	}
 
-	eval = (e : Event, raiser? : Card) => {
+	eval = (e : Event, source? : Card) => {
 		logParams("eval", ["eventType"], [e.event]);
+		
+		let targets : Card[] = [];
 
-		let eventTargets : Card[] = [];
-
-		let refs : Record<string, any> = this.getRefs(raiser!);
+		let refs : Record<string, any> = this.getRefs(source!);
 		e = this.hydrateEvent(e, refs);
 
 		if (e.event === "UPDATE") {
-			this.evalUpdate(e, raiser, refs);
-			// let card : Card = e.card;
-			// card.update(e.update);
-
-			// eventTargets.push(card);
+			targets = this.evalUpdate(e, source);
 		}
 		else if (e.event === "CREATE") {
-			let zone : Zone = e.zone;
-			let card : Card = this.createCardFromList(e.code);
-
-			eventTargets.push(zone.addCard(card));
+			targets = this.evalCreate(e);
 		}
 		else if (e.event === "DELETE") {
-			let card : Card = e.card;
-			let zone : Zone = card.zone!;
-
-			eventTargets.push(zone.take(card.cardId));
+			targets = this.evalDelete(e);
+		}
+		else {
+			throw new Error("Event type not implemented");
 		}
 
 		this.zones.forEach((z : Zone) => {
 			z.getArr().forEach((target : Card) => {
-				eventTargets.forEach((source: Card) => {
+				targets.forEach((source: Card) => {
 					this.triggerCard(e, source, target);
 				})
 			})
