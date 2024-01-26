@@ -1,39 +1,6 @@
 import Card from "./Card";
-import { Event, Trigger } from "./Engine";
 import Context from "./Context";
 import { generateId, match } from "./Utils";
-
-let log = (msg: string) => {
-	console.debug(msg);
-}
-
-let logAll = (args : string[]) => {
-	let sep = " ";
-	let msg = "";
-	for (let i = 0; i < args.length; i++) {
-		msg = msg + sep + args[i];
-	}
-	log(msg);
-} 
-
-let logParams = (funcName: string, paramNames: string[] = [], vals: any[] = []) => {
-	let args : any[] = [];
-	args.push(funcName + "():");
-
-	if (paramNames.length !== vals.length) {
-		console.error("Mismatched args size");
-	}
-
-	for (let i = 0; i < paramNames.length; i++) {
-		args.push(paramNames[i]);
-		args.push("-");
-		args.push(vals[i]);
-		args.push("|");
-	}
-
-	logAll(args);
-
-}
 
 export default class Zone {
 	zoneId : string = generateId();
@@ -212,7 +179,6 @@ export default class Zone {
 		})
 		return matchedCards;
 	}
-
 	
 	getById = (cardId: string) : Card => {
 		let ret : Card = this.cards[this.lookup[cardId]];
@@ -225,27 +191,10 @@ export default class Zone {
 		return this.lookup[cardId];
 	}
 
-
 	removeById = (cardId: string) => {
 		let index = this.getIndex(cardId);
 		if (index >=0) {
 			this.takeAt(index);
 		}
-	}
-
-	triggerListeners = (e : Event, raiser? : Card, evalFn?: any) => {
-		logParams("triggerListeners", ["eventType"], [e.event]);
-		console.debug(">>>>>>>>>>> 3");
-
-		this.cards.forEach((c : Card) => {
-			if (c?.trigger?.on !== e.event) return; 		
-
-			let trigger : Trigger = c.hydrate(c.trigger) as Trigger;
-
-			if (trigger?.match && !raiser!.match(trigger.match)) return;
-
-			console.debug(">>>>>>>>>>> 4");
-			evalFn(trigger.do, c);	
-		})	
 	}
 }

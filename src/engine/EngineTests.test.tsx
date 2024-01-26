@@ -135,19 +135,16 @@ test ("Trigger on Create", () => {
         event : "CREATE", 
         zone : "@MAIN", 
         code : "A1"
-    });
+    }, b1Card);
 
     expect(b1Card.hp).toBe(11);
 });
 
 test ("Zone reference", () => {
-
     let engine : Engine = new Engine();   
     let zone : Zone = engine.newZone();
 
     engine.refs.MAIN = zone;
-    // let context : Context = new Context();
-    // context.zones.MAIN = zone;
 
     engine.addToList("A10" ,
     {
@@ -165,13 +162,73 @@ test ("Zone reference", () => {
         } 
     });
 
-
     let a1 : Card = zone.addCard(new Card({a : 1}));
     let a2 : Card = zone.addCard(new Card({a : 2}));
 
-    engine.eval({event : "CREATE", zone: "@MAIN", code : "A10"});
-
+    engine.eval({event : "CREATE", zone: "@MAIN", code : "A10"}, a1);
     expect(a1.a).toBe(2);
     expect(a2.a).toBe(3);
     expect(zone.getArr()[2].a).toBe(10);
+});
+
+
+test ("Move", () => {
+    let engine : Engine = new Engine();   
+
+    let area1 : Zone = engine.newZone();
+    engine.refs.AREA1 = area1;
+
+    let area2 : Zone = engine.newZone();
+    engine.refs.AREA2 = area2;
+
+    let card : Card = new Card({a : 1});
+    engine.eval(
+        {
+            event: "MOVE",
+            card : "@this", 
+            from: "@AREA1",
+            to: "@AREA2"
+        }
+    , card);
+
+    expect(area1.count()).toBe(0);
+    expect(area2.count()).toBe(1);
+});
+
+
+test ("Custom Events", () => {
+    let engine : Engine = new Engine();   
+
+    let area1 : Zone = engine.newZone();
+    engine.refs.AREA1 = area1;
+
+    let area2 : Zone = engine.newZone();
+    engine.refs.AREA2 = area2;
+
+    let card : Card = new Card({a : 1});
+
+    engine.defineEvent({
+            eventName : "PLAY",
+            vars: [
+                {
+                    var: "card",
+                    type: "CARD"
+                },
+            ]
+        },
+        {
+            event: "MOVE",
+            card : "@event.card",
+            from: "@AREA1",
+            to: "@AREA2"
+        }
+    );
+
+    engine.eval({
+        event : "PLAY",
+        card : card
+    }, card)
+
+    expect(area1.count()).toBe(0);
+    expect(area2.count()).toBe(1);
 });
