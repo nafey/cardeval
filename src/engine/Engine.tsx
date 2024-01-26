@@ -1,6 +1,8 @@
 import Card from "./Card";
 import Context from "./Context";
 import Zone from "./Zone";
+import { logParams } from "./Logger";
+import Parser from "./Parser";
 
 export interface Event {
 	event : string,
@@ -11,38 +13,6 @@ export interface Trigger {
 	on : string,
 	do : Event,
 	[key: string] : any
-}
-
-let log = (msg: string) => {
-	console.debug(msg);
-}
-
-let logAll = (args : string[]) => {
-	let sep = " ";
-	let msg = "";
-	for (let i = 0; i < args.length; i++) {
-		msg = msg + sep + args[i];
-	}
-	log(msg);
-} 
-
-let logParams = (funcName: string, paramNames: string[] = [], vals: any[] = []) => {
-	let args : any[] = [];
-	args.push(funcName + "():");
-
-	if (paramNames.length !== vals.length) {
-		console.error("Mismatched args size");
-	}
-
-	for (let i = 0; i < paramNames.length; i++) {
-		args.push(paramNames[i]);
-		args.push("-");
-		args.push(vals[i]);
-		args.push("|");
-	}
-
-	logAll(args);
-
 }
 
 export type Refs = Record<string, any>;
@@ -177,109 +147,13 @@ export default class Engine  {
 		throw new Error("Card Id is invalid");
 	}
 
-	evalZone = () => {
-
-	}
-
-	evalCardId = () => {
-
-	}
-
-	readRefs = (lookup : string, refs : Record<string, any>) : any => {
-		if (!lookup.startsWith("@")) throw new Error("Invalid lookup string for refs");
-
-		if (lookup === "@this.zone") return refs["this"].zone;
-		return refs[lookup.substring(1)];
-	}
-
-	parseCard = (obj : any, refs: Record<string, any>) : Card => {
-
-	}
-
-	hydrateEvent = (event : Event, refs : Record<string, any>) : Event => {
-		logParams("hydrateEvent", ["event"], [event.event]);
-
-		if (!event?.event) throw new Error("Missing event name on Event obj");
-		let ret : Event = {
-			event : event.event
-		}		
-
-		if (event?.card) {
-			ret.card = this.readRefs(event.card, refs) as Card;
-		}
-
-		if (event?.zone) {
-			ret.zone = this.readRefs(event.zone, refs) as Zone;
-		}
-
-		if (event?.update) {
-			ret.update = event.update;
-		}
-
-		if (event?.code) {
-			ret.code = event.code;
-		}
-
-		if (event?.in) {
-			ret.in = this.readRefs(event.in, refs) as Zone;
-		}
-
-		if (event?.onSelf) {
-			ret.onSelf = event.onSelf;
-		}
-
-		return ret;
-	}
-
-	hydrateTrigger = (trigger : Trigger, refs : Record<string, any>) : Trigger => {
-		logParams("hydrateTrigger", ["trigger"], [trigger.on]);
-		if (!trigger?.on) throw new Error("Missing event trigger name");
-		if (!trigger?.do) throw new Error("Missing do event trigger");
-
-		let doEvent : Event = this.hydrateEvent(trigger.do, refs);		
-
-		let ret : Trigger = {
-			on : trigger.on,
-			do : doEvent
-		}
-
-		if (trigger?.zone) {
-			ret.zone = this.readRefs(trigger.zone, refs) as Zone;
-		}		
-
-		if (trigger?.onSelf) ret.onSelf = trigger.onSelf;
-
-		return ret;
-	}
-
-	getRefs = (card?: Card) : Record<string, any> => {
-
-		let ret : Record<string, any> = {};
-		let crefs : Record<string, any> = card ? card.refs : {};
-		let zrefs : Record<string, any> = card?.zone?.refs ? card.zone.refs : {};
-		let grefs : Record<string, any> = this.refs;
-		Object.keys(grefs).forEach((k : string) => {
-			ret[k] = grefs[k];
-		});
-
-		Object.keys(zrefs).forEach((k : string) => {
-			ret[k] = zrefs[k];
-		});
-
-		Object.keys(crefs).forEach((k : string) => {
-			ret[k] = crefs[k];
-		});
-
-		return ret;
-	}
-
 
 	triggerCard = (e: Event, source : Card, target : Card) => {
 		if (target?.trigger?.on !== e.event) return;	
 
 		logParams("triggerCard", ["eventName"], [e.event]);
-
-		let trigger : Trigger = this.hydrateTrigger(target.trigger, this.getRefs(target)); 
+		let parser : Parser = new Parser(target, this.refs);
+		let trigger : Trigger = parser.parseTrigger(target.trigger);
 
 		if (trigger?.match && !source!.match(trigger.match)) return;
 
@@ -291,6 +165,7 @@ export default class Engine  {
 	}
 
 	evalDelete = (e: Event) => {
+
 		let card : Card = e.card;
 		let zone : Zone = card.zone!;
 
@@ -329,13 +204,14 @@ export default class Engine  {
 		return ret;
 	}
 
-	eval = (e : Event, source? : Card) => {
+	eval = (e : Event, source : Card) => {
 		logParams("eval", ["eventType"], [e.event]);
-		
+
 		let targets : Card[] = [];
 
-		let refs : Record<string, any> = this.getRefs(source!);
-		e = this.hydrateEvent(e, refs);
+		let parser : Parser = new Parser(source, this.refs);
+		e = parser.parseEvent(e)
+
 
 		if (e.event === "UPDATE") {
 			targets = this.evalUpdate(e, source);
