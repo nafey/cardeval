@@ -156,7 +156,7 @@ export default class Engine  {
 		if (target?.trigger?.on !== e.event) return;	
 
 		logParams("triggerCard", ["eventName"], [e.event]);
-		let parser : Parser = new Parser(target, this.refs);
+		let parser : Parser = new Parser(this.makeCardRefs(target));
 		let trigger : Trigger = parser.parseTrigger(target.trigger);
 
 		if (trigger?.match && !source!.match(trigger.match)) return;
@@ -165,15 +165,40 @@ export default class Engine  {
 			if (trigger.onSelf === "SKIP" && source === target) return;
 		}
 
-		this.eval(target?.trigger?.do, target);	
+		this.evalOnCard(target, target.trigger.do);
 	}
 
+	mergeRefs = (r1? : Refs, r2? : Refs) : Refs => {
+		logParams("mergeRefs");
+		let ret : Refs = {};
+		r1 = r1 ? r1 : {};
+		r2 = r2 ? r2 : {};	
+
+		Object.keys(r2).forEach((k: string) => {if(typeof r2![k] !== "function") ret[k] = r2![k]});
+		Object.keys(r1).forEach((k: string) => {if(typeof r1![k] !== "function") ret[k] = r1![k]});
+
+		return ret;
+	}
+
+	makeZoneRefs = (z : Zone) : Refs => {
+		return this.mergeRefs(z.refs, this.refs);
+	}
+
+	makeCardRefs = (c : Card) : Refs => {
+		logParams("makeCardRefs");
+
+		let zRefs : Refs = c.zone ? this.makeZoneRefs(c.zone) : this.refs; 
+		let ret : Refs = this.mergeRefs(c.refs, zRefs);
+
+		return ret;
+	}
 	// evalCustomEvent = (customEvent : Event) : Card[] => {
 	// 	let eventName : string = customEvent.event;	
 
 	// }
 
 	evalMove = (e: Event) : Card[] => {
+		logParams("evalMove");
 		let from : Zone = e.from;	
 		let to : Zone = e.to;	
 		let card: Card = e.card;
@@ -182,7 +207,7 @@ export default class Engine  {
 	}
 
 	evalDelete = (e: Event) : Card[] => {
-
+		logParams("evalDelete");
 		let card : Card = e.card;
 		let zone : Zone = card.zone!;
 
@@ -190,6 +215,7 @@ export default class Engine  {
 	}
 
 	evalCreate = (e: Event) : Card[] => {
+		logParams("evalCreate");
 		let ret: Card[] = []
 		let zone : Zone = e.zone;
 		let card : Card = this.createCardFromList(e.code);
@@ -197,7 +223,8 @@ export default class Engine  {
 		return ret;
 	}
 
-	evalUpdate = (e: Event, raiser?: Card) : Card[] => {
+	evalUpdate = (e: Event) : Card[] => {
+		logParams("evalUpdate");
 		let ret: Card[] = [];
 
 		if (e?.card) {
@@ -210,7 +237,6 @@ export default class Engine  {
 			let zone : Zone = e.in;
 
 			zone.getArr().forEach((target : Card) => {
-				if (e.onSelf && e.onSelf === "SKIP" && target === raiser) return; 	
 
 				target.update(e.update);
 				ret.push(target);
@@ -221,17 +247,17 @@ export default class Engine  {
 		return ret;
 	}
 
-	eval = (e : Event, source : Card) => {
+	eval = (e : Event, refs? : Refs) => {
 		logParams("eval", ["eventType"], [e.event]);
-
 		let targets : Card[] = [];
 
-		let parser : Parser = new Parser(source, this.refs);
+		let parser : Parser = new Parser(this.mergeRefs(refs, this.refs));
 		e = parser.parseEvent(e)
 
 
 		if (e.event === "UPDATE") {
-			targets = this.evalUpdate(e, source);
+
+			targets = this.evalUpdate(e);
 		}
 		else if (e.event === "CREATE") {
 			targets = this.evalCreate(e);
@@ -249,10 +275,17 @@ export default class Engine  {
 		this.zones.forEach((z : Zone) => {
 			z.getArr().forEach((target : Card) => {
 				targets.forEach((source: Card) => {
+					if (source === target) return;
+
 					this.triggerCard(e, source, target);
 				})
 			})
 		});
+	}
+
+	evalOnCard = (c : Card, e : Event) => {
+		let refs : Refs = this.makeCardRefs(c);	
+		this.eval(e, refs);
 	}
 
 	defineEvent = (eventName: string, e : Event) => {

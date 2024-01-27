@@ -200,4 +200,13 @@ export default class Zone {
 			this.takeAt(index);
 		}
 	}
+
+	toString = () : string => {
+		let ret = "";	
+		this.cards.forEach((c : Card) => {
+			ret += c.cardId;
+		})
+
+		return ret;
+	}
 }

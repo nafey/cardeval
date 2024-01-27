@@ -6,24 +6,11 @@ import Zone from "./Zone";
 export default class Parser {
     refs : Refs = {};
 
-    constructor(card: Card, grefs : Refs) {
-        let ret : Record<string, any> = {};
-        let crefs : Record<string, any> = card ? card.refs : {};
-        let zrefs : Record<string, any> = card?.zone?.refs ? card.zone.refs : {};
-        Object.keys(grefs).forEach((k : string) => {
-            ret[k] = grefs[k];
-        });
 
-        Object.keys(zrefs).forEach((k : string) => {
-            ret[k] = zrefs[k];
-        });
-
-        Object.keys(crefs).forEach((k : string) => {
-            ret[k] = crefs[k];
-        });
-
-        this.refs = ret;
+    constructor(refs : Refs) {
+        this.refs = refs;
     }
+
 
     evalZone = () => {
 
@@ -42,8 +29,7 @@ export default class Parser {
 
 
     parseEvent = (event : Event) : Event => {
-        logParams("hydrateEvent", ["event"], [event.event]);
-
+        logParams("Parser.parseEvent", ["event"], [event.event]);
 
         if (!event?.event) throw new Error("Missing event name on Event obj");
 
@@ -71,7 +57,7 @@ export default class Parser {
     }
 
     parseTrigger = (trigger : Trigger) : Trigger => {
-        logParams("hydrateTrigger", ["trigger"], [trigger.on]);
+        logParams("Parser.parseTrigger", ["trigger"], [trigger.on]);
         if (!trigger?.on) throw new Error("Missing event trigger name");
         if (!trigger?.do) throw new Error("Missing do event trigger");
 
