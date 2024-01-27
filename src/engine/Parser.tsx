@@ -46,40 +46,26 @@ export default class Parser {
 
 
         if (!event?.event) throw new Error("Missing event name on Event obj");
+
         let ret : Event = {
             event : event.event
-        }       
+        };
 
-        if (event?.card) {
-            ret.card = this.readRefs(event.card) as Card;
-        }
+        let eventKeys : string[] = Object.keys(event);
 
-        if (event?.zone) {
-            ret.zone = this.readRefs(event.zone) as Zone;
-        }
-        if (event?.from) {
-            ret.from = this.readRefs(event.from) as Zone;
-        }
-        if (event?.to) {
-            ret.to = this.readRefs(event.to) as Zone;
-        }
+        eventKeys.forEach((eventKey : string) => {
+            if (eventKey === "event") return;
 
-        if (event?.update) {
-            ret.update = event.update;
-        }
-
-        if (event?.code) {
-            ret.code = event.code;
-        }
-
-        if (event?.in) {
-            ret.in = this.readRefs(event.in) as Zone;
-        }
-
-        if (event?.onSelf) {
-            ret.onSelf = event.onSelf;
-        }
-
+            if (["card"].includes(eventKey)) {
+                ret[eventKey] = this.readRefs(event[eventKey]) as Card;
+            } 
+            else if (["zone", "from", "to", "in"].includes(eventKey)) {
+                ret[eventKey] = this.readRefs(event[eventKey]) as Zone;
+            }
+            else {
+                ret[eventKey] = event[eventKey];
+            }
+        });
 
         return ret;
     }
@@ -104,4 +90,5 @@ export default class Parser {
 
         return ret;
     }
+
 }

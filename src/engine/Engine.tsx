@@ -29,6 +29,8 @@ export default class Engine  {
 
 	private cardList: Record<string, any> = {}; 
 
+	private eventDefs: Record<string, Event> = {}
+
 	refs: Record<string, any> = {};
 
 
@@ -166,6 +168,11 @@ export default class Engine  {
 		this.eval(target?.trigger?.do, target);	
 	}
 
+	// evalCustomEvent = (customEvent : Event) : Card[] => {
+	// 	let eventName : string = customEvent.event;	
+
+	// }
+
 	evalMove = (e: Event) : Card[] => {
 		let from : Zone = e.from;	
 		let to : Zone = e.to;	
@@ -174,7 +181,7 @@ export default class Engine  {
 		return this.moveCards(from.zoneId, card.cardId, to.zoneId);
 	}
 
-	evalDelete = (e: Event) => {
+	evalDelete = (e: Event) : Card[] => {
 
 		let card : Card = e.card;
 		let zone : Zone = card.zone!;
@@ -246,5 +253,9 @@ export default class Engine  {
 				})
 			})
 		});
+	}
+
+	defineEvent = (eventName: string, e : Event) => {
+		this.eventDefs[eventName] = e;
 	}
 }

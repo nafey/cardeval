@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-    if (context.task.name === "Move") {
+    if (context.task.name === "") {
         console.debug = consoleDebug;
     }
     else {
@@ -207,19 +207,13 @@ test ("Custom Events", () => {
     engine.refs.AREA2 = area2;
 
     let card : Card = new Card({a : 1});
+    area1.addCard(card);
 
-    engine.defineEvent({
-            eventName : "PLAY",
-            vars: [
-                {
-                    var: "card",
-                    type: "CARD"
-                },
-            ]
-        },
+    engine.defineEvent(
+        "PLAY", 
         {
             event: "MOVE",
-            card : "@event.card",
+            card : "#card",
             from: "@AREA1",
             to: "@AREA2"
         }
