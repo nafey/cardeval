@@ -113,15 +113,17 @@ export default class Engine  {
 		return new Card (this.cardList[code]);
 	}
 
-	moveCards = (fromZoneId: string, cardId: string, toZoneId: string, count: number = -1) => {
+	moveCards = (fromZoneId: string, cardId: string, toZoneId: string, count: number = -1) : Card[]=> {
+		logParams("moveCards", ["fromZoneId", "cardId", "toZoneId"], [fromZoneId, cardId, toZoneId]);
 		let from : Zone = this.getZoneById(fromZoneId);
 		let to : Zone = this.getZoneById(toZoneId);
 
 		let idx : number = from.getIndex(cardId); 
-		if (idx === -1) return;
+		if (idx === -1) return [];
+
 
 		let carr : Card[] = from.takeCards(idx, count);
-		to.addMany(carr);
+		return to.addMany(carr);
 	}
 
 	moveCard = (fromZone: string, cardId: string, toZone: string) => {
@@ -162,6 +164,14 @@ export default class Engine  {
 		}
 
 		this.eval(target?.trigger?.do, target);	
+	}
+
+	evalMove = (e: Event) : Card[] => {
+		let from : Zone = e.from;	
+		let to : Zone = e.to;	
+		let card: Card = e.card;
+
+		return this.moveCards(from.zoneId, card.cardId, to.zoneId);
 	}
 
 	evalDelete = (e: Event) => {
@@ -221,6 +231,9 @@ export default class Engine  {
 		}
 		else if (e.event === "DELETE") {
 			targets = this.evalDelete(e);
+		}
+		else if (e.event === "MOVE") {
+			targets = this.evalMove(e);
 		}
 		else {
 			throw new Error("Event type not implemented");

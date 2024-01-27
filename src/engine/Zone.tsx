@@ -73,10 +73,12 @@ export default class Zone {
 	}
 
 	addMany = (cards : Card[]) => {
+		let ret : Card[] = []
 		if (this.haveLimit) {
 			if (this.cards.length + cards.length <= this.limit) {
 				cards.forEach((c : Card) => {
 					this.addCard(c);
+					ret.push(c);
 				});
 			} 
 			else {
@@ -86,9 +88,10 @@ export default class Zone {
 		else {
 			cards.forEach((c : Card) => {
 				this.addCard(c);
+				ret.push(c);
 			});
 		}
-
+		return ret;
 	}
 
 	setLimit = (l : number) => {

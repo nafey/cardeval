@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-    if (context.task.name === "") {
+    if (context.task.name === "Move") {
         console.debug = consoleDebug;
     }
     else {
@@ -182,6 +182,7 @@ test ("Move", () => {
     engine.refs.AREA2 = area2;
 
     let card : Card = new Card({a : 1});
+    area1.addCard(card);
     engine.eval(
         {
             event: "MOVE",

@@ -57,6 +57,12 @@ export default class Parser {
         if (event?.zone) {
             ret.zone = this.readRefs(event.zone) as Zone;
         }
+        if (event?.from) {
+            ret.from = this.readRefs(event.from) as Zone;
+        }
+        if (event?.to) {
+            ret.to = this.readRefs(event.to) as Zone;
+        }
 
         if (event?.update) {
             ret.update = event.update;
@@ -73,6 +79,7 @@ export default class Parser {
         if (event?.onSelf) {
             ret.onSelf = event.onSelf;
         }
+
 
         return ret;
     }
