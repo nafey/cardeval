@@ -29,7 +29,7 @@ export default class Parser {
 
 
     parseEvent = (event : Event) : Event => {
-        logParams("Parser.parseEvent", ["event"], [event.event]);
+        // logParams("Parser.parseEvent", ["event"], [event.event]);
 
         if (!event?.event) throw new Error("Missing event name on Event obj");
 
@@ -41,12 +41,17 @@ export default class Parser {
 
         eventKeys.forEach((eventKey : string) => {
             if (eventKey === "event") return;
+            let eventVal = event[eventKey];
+            if (typeof eventVal !== "string") {
+                ret[eventKey] = eventVal;
+                return;
+            }
 
             if (["card"].includes(eventKey)) {
-                ret[eventKey] = this.readRefs(event[eventKey]) as Card;
+                ret[eventKey] = this.readRefs(eventVal) as Card;
             } 
             else if (["zone", "from", "to", "in"].includes(eventKey)) {
-                ret[eventKey] = this.readRefs(event[eventKey]) as Zone;
+                ret[eventKey] = this.readRefs(eventVal) as Zone;
             }
             else {
                 ret[eventKey] = event[eventKey];
@@ -73,6 +78,8 @@ export default class Parser {
         }       
 
         if (trigger?.onSelf) ret.onSelf = trigger.onSelf;
+
+        if (trigger?.ignore) this.readRefs(trigger.ignore) as Card;
 
         return ret;
     }

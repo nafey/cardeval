@@ -10,7 +10,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-    if (context.task.name === "Trigger on Create") {
+    if (context.task.name === "On Receive") {
         console.debug = consoleDebug;
     }
     else {
@@ -51,18 +51,7 @@ test ("Update Event", () => {
     z.addCard(c);
     expect(c.a).toBe(10);
 
-    // engine.eval({
-    //     event: "UPDATE", 
-    //     card : "@this", 
-    //     update : {
-    //         a : {
-    //             op : "sub", 
-    //             val : 1
-    //         }
-    //     }
-    // }, c);
-
-    engine.evalOnCard(c, {
+    engine.evalOnCard({
         event: "UPDATE", 
         card : "@this", 
         update : {
@@ -71,7 +60,7 @@ test ("Update Event", () => {
                 val : 1
             }
         }
-    });
+    }, c);
 
     expect(c.a).toBe(9);
 });
@@ -100,7 +89,7 @@ test ("Create Event", () => {
 
     zone.addCard(raiser);
     engine.addToList("A1", {a : 1});
-    engine.evalOnCard(raiser, event);
+    engine.evalOnCard(event, raiser);
 
     expect(zone.count()).toBe(2);
 });
@@ -111,10 +100,10 @@ test ("Delete Event", () => {
     let card : Card = new Card({a : 1});
     zone.addCard(card);
 
-    engine.evalOnCard(card, {
+    engine.evalOnCard({
         event : "DELETE", 
         card : "@this"
-    });
+    }, card);
 
     expect(zone.count()).toBe(0);
 });
@@ -183,8 +172,7 @@ test ("Dont Trigger on Self", () => {
     expect(zone.getArr()[0].a).toBe(10);
 });
 
-
-test ("Zone reference", () => {
+test("On Receive", () => {
     let engine : Engine = new Engine();   
     let zone : Zone = engine.newZone();
 
@@ -193,14 +181,11 @@ test ("Zone reference", () => {
     engine.addToList("A10" ,
     {
         a : 10,
-        trigger : {
+        onReceive : {
             on : "CREATE",
-            in : "@MAIN",
-            match : {card: "@this", zone : "@MAIN"},
             do : {
                event : "UPDATE",
                in : "@MAIN",
-               onSelf : "SKIP",
                update : {a : {op : "add", val : 1}}
             } 
         } 
@@ -209,7 +194,58 @@ test ("Zone reference", () => {
     let a1 : Card = zone.addCard(new Card({a : 1}));
     let a2 : Card = zone.addCard(new Card({a : 2}));
 
-    engine.eval({event : "CREATE", zone: "@MAIN", code : "A10"}, a1);
+    engine.eval({event : "CREATE", zone: "@MAIN", code : "A10"});
+    expect(a1.a).toBe(2);
+    expect(a2.a).toBe(3);
+    expect(zone.getArr()[2].a).toBe(11);
+});
+
+
+test("Skip", () => {
+    let engine : Engine = new Engine();   
+    let zone : Zone = engine.newZone();
+
+    engine.refs.MAIN = zone;
+
+    let a1 : Card = zone.addCard(new Card({a : 1}));
+    let a2 : Card = zone.addCard(new Card({a : 2}));
+
+    engine.eval({
+        event : "UPDATE",
+        skip : a2,
+        in : "@MAIN",
+        update : {a : {op : "add", val : 1}}
+    }) 
+    
+    expect(a1.a).toBe(2);
+    expect(a2.a).toBe(2);
+});
+
+
+test ("Update Others On Create", () => {
+    let engine : Engine = new Engine();   
+    let zone : Zone = engine.newZone();
+
+    engine.refs.MAIN = zone;
+
+    engine.addToList("A10" ,
+    {
+        a : 10,
+        onReceive : {
+            event : "CREATE",
+            in : "@MAIN",
+            do : {
+               event : "UPDATE",
+               in : "@MAIN",
+               update : {a : {op : "add", val : 1}}
+            } 
+        } 
+    });
+
+    let a1 : Card = zone.addCard(new Card({a : 1}));
+    let a2 : Card = zone.addCard(new Card({a : 2}));
+
+    engine.eval({event : "CREATE", zone: "@MAIN", code : "A10"});
     expect(a1.a).toBe(2);
     expect(a2.a).toBe(3);
     expect(zone.getArr()[2].a).toBe(10);

@@ -151,25 +151,27 @@ export default class Engine  {
 		throw new Error("Card Id is invalid");
 	}
 
-
-	triggerCard = (e: Event, source : Card, target : Card) => {
+	triggerCard = (e: Event, target : Card, source?: Card) => {
+		if (target === source) return;
 		if (target?.trigger?.on !== e.event) return;	
 
 		logParams("triggerCard", ["eventName"], [e.event]);
 		let parser : Parser = new Parser(this.makeCardRefs(target));
 		let trigger : Trigger = parser.parseTrigger(target.trigger);
 
-		if (trigger?.match && !source!.match(trigger.match)) return;
+		if (trigger?.match && source && !source!.match(trigger.match)) return;
 
-		if (trigger?.onSelf) {
+		if (trigger?.ignore && trigger.ignore === target) return;
+
+		if (trigger?.onSelf && source) {
 			if (trigger.onSelf === "SKIP" && source === target) return;
 		}
 
-		this.evalOnCard(target, target.trigger.do);
+		this.evalOnCard(target.trigger.do, target);
 	}
 
 	mergeRefs = (r1? : Refs, r2? : Refs) : Refs => {
-		logParams("mergeRefs");
+		// logParams("mergeRefs");
 		let ret : Refs = {};
 		r1 = r1 ? r1 : {};
 		r2 = r2 ? r2 : {};	
@@ -185,17 +187,23 @@ export default class Engine  {
 	}
 
 	makeCardRefs = (c : Card) : Refs => {
-		logParams("makeCardRefs");
+		// logParams("makeCardRefs");
 
 		let zRefs : Refs = c.zone ? this.makeZoneRefs(c.zone) : this.refs; 
 		let ret : Refs = this.mergeRefs(c.refs, zRefs);
 
 		return ret;
 	}
-	// evalCustomEvent = (customEvent : Event) : Card[] => {
-	// 	let eventName : string = customEvent.event;	
 
-	// }
+
+	onReceive = (e: Event, card : Card) => {
+		logParams("onReceive", ["eventType"], [e.event]);
+
+		if (!card?.onReceive) return;
+		if (e.event !== card?.onReceive?.on) return;
+
+		this.evalOnCard(card.onReceive.do, card);
+	}
 
 	evalMove = (e: Event) : Card[] => {
 		logParams("evalMove");
@@ -223,6 +231,7 @@ export default class Engine  {
 		return ret;
 	}
 
+
 	evalUpdate = (e: Event) : Card[] => {
 		logParams("evalUpdate");
 		let ret: Card[] = [];
@@ -237,11 +246,10 @@ export default class Engine  {
 			let zone : Zone = e.in;
 
 			zone.getArr().forEach((target : Card) => {
-
+				if (e?.skip && e.skip === target) return;	
 				target.update(e.update);
 				ret.push(target);
 			})	
-
 		}
 
 		return ret;
@@ -254,9 +262,7 @@ export default class Engine  {
 		let parser : Parser = new Parser(this.mergeRefs(refs, this.refs));
 		e = parser.parseEvent(e)
 
-
 		if (e.event === "UPDATE") {
-
 			targets = this.evalUpdate(e);
 		}
 		else if (e.event === "CREATE") {
@@ -272,18 +278,20 @@ export default class Engine  {
 			throw new Error("Event type not implemented");
 		}
 
+		targets.forEach((target : Card) => {
+			if (target?.onReceive && target.onReceive.on === e.event) this.onReceive(e, target);
+		})
+
 		this.zones.forEach((z : Zone) => {
 			z.getArr().forEach((target : Card) => {
 				targets.forEach((source: Card) => {
-					if (source === target) return;
-
-					this.triggerCard(e, source, target);
+					this.triggerCard(e, target, source);
 				})
 			})
 		});
 	}
 
-	evalOnCard = (c : Card, e : Event) => {
+	evalOnCard = (e : Event, c : Card) => {
 		let refs : Refs = this.makeCardRefs(c);	
 		this.eval(e, refs);
 	}
