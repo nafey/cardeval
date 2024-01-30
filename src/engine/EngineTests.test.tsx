@@ -10,7 +10,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-    if (context.task.name === "Move") {
+    if (context.task.name === "") {
         console.debug = consoleDebug;
     }
     else {
@@ -330,3 +330,49 @@ test ("Custom Events", () => {
     expect(area1.count()).toBe(0);
     expect(area2.count()).toBe(1);
 });
+
+
+test("Receive Custom Event", () => {
+    let engine : Engine = new Engine();   
+
+    let area1 : Zone = engine.newZone();
+    engine.refs.AREA1 = area1;
+
+    let area2 : Zone = engine.newZone();
+    engine.refs.AREA2 = area2;
+
+    engine.defineEvent(
+        "PLAY", 
+        {
+            event: "MOVE",
+            card : "@EVENT.card",
+            from: "@AREA1",
+            to: "@AREA2"
+        }
+    );
+
+    let cardDef = {
+        a : 1,
+        onReceive : {
+            on : "PLAY",
+            do : {
+                event : "UPDATE",
+                card: "@this",
+                update : {a : {op : "add", val : 1}}      
+            }
+        }
+    }
+
+    let card : Card = new Card(cardDef);
+    area1.addCard(card);
+
+    engine.eval({
+        event : "PLAY",
+        card : card
+    })
+
+    expect(area1.count()).toBe(0);
+    expect(area2.count()).toBe(1);
+    expect(card.a).toBe(2);
+
+})

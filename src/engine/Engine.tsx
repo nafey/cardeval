@@ -263,7 +263,7 @@ export default class Engine  {
 		return ret;
 	}
 
-	eval = (e : Event, refs? : Refs) => {
+	eval = (e : Event, refs? : Refs) : Card[] => {
 		logParams("eval", ["eventType"], [e.event]);
 		let targets : Card[] = [];
 
@@ -284,7 +284,7 @@ export default class Engine  {
 		}
 		else if (e.event in this.eventDefs) {
 			let nextEvent : Event = this.eventDefs[e.event];
-			this.eval(nextEvent, this.mergeRefs(this.makeEventRefs(e), refs));
+			targets = this.eval(nextEvent, this.mergeRefs(this.makeEventRefs(e), refs));
 		}
 		else {
 			throw new Error("Event type not implemented");
@@ -301,6 +301,8 @@ export default class Engine  {
 				})
 			})
 		});
+
+		return targets;
 	}
 
 	evalOnCard = (e : Event, c : Card) => {
@@ -310,4 +312,6 @@ export default class Engine  {
 
 	defineEvent = (eventName: string, e : Event) => {
 		this.eventDefs[eventName] = e;
-	} }
+	} 
+	
+}
