@@ -316,7 +316,7 @@ test ("Custom Events", () => {
         "PLAY", 
         {
             event: "MOVE",
-            card : "#card",
+            card : "@EVENT.card",
             from: "@AREA1",
             to: "@AREA2"
         }
@@ -325,7 +325,7 @@ test ("Custom Events", () => {
     engine.eval({
         event : "PLAY",
         card : card
-    }, card)
+    })
 
     expect(area1.count()).toBe(0);
     expect(area2.count()).toBe(1);

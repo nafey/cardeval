@@ -195,6 +195,14 @@ export default class Engine  {
 		return ret;
 	}
 
+	makeEventRefs = (e : Event) : Refs => {
+		let ret : Refs = {};	
+		Object.keys(e).forEach((k : string) => {
+			ret["EVENT." + k] = e[k];
+		});
+		return ret;
+	}
+
 
 	onReceive = (e: Event, card : Card) => {
 		logParams("onReceive", ["eventType"], [e.event]);
@@ -274,6 +282,10 @@ export default class Engine  {
 		else if (e.event === "MOVE") {
 			targets = this.evalMove(e);
 		}
+		else if (e.event in this.eventDefs) {
+			let nextEvent : Event = this.eventDefs[e.event];
+			this.eval(nextEvent, this.mergeRefs(this.makeEventRefs(e), refs));
+		}
 		else {
 			throw new Error("Event type not implemented");
 		}
@@ -298,5 +310,4 @@ export default class Engine  {
 
 	defineEvent = (eventName: string, e : Event) => {
 		this.eventDefs[eventName] = e;
-	}
-}
+	} }
