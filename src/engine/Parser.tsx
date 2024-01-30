@@ -47,7 +47,7 @@ export default class Parser {
                 return;
             }
 
-            if (["card"].includes(eventKey)) {
+            if (["card", "skip"].includes(eventKey)) {
                 ret[eventKey] = this.readRefs(eventVal) as Card;
             } 
             else if (["zone", "from", "to", "in"].includes(eventKey)) {

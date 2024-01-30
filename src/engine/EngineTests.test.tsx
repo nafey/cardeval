@@ -10,7 +10,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-    if (context.task.name === "On Receive") {
+    if (context.task.name === "Move") {
         console.debug = consoleDebug;
     }
     else {
@@ -216,10 +216,32 @@ test("Skip", () => {
         in : "@MAIN",
         update : {a : {op : "add", val : 1}}
     }) 
+
+    expect(a1.a).toBe(2);
+    expect(a2.a).toBe(2);
+});
+
+test("Skip On Self", () => {
+    let engine : Engine = new Engine();   
+    let zone : Zone = engine.newZone();
+
+    engine.refs.MAIN = zone;
+
+    let a1 : Card = zone.addCard(new Card({a : 1}));
+    let a2 : Card = zone.addCard(new Card({a : 2}));
+
+    engine.evalOnCard({
+        event : "UPDATE",
+        skip : "@this",
+        in : "@MAIN",
+        update : {a : {op : "add", val : 1}}
+    }, a2) 
     
     expect(a1.a).toBe(2);
     expect(a2.a).toBe(2);
 });
+
+
 
 
 test ("Update Others On Create", () => {
@@ -232,10 +254,11 @@ test ("Update Others On Create", () => {
     {
         a : 10,
         onReceive : {
-            event : "CREATE",
+            on : "CREATE",
             in : "@MAIN",
             do : {
                event : "UPDATE",
+               skip : "@this",
                in : "@MAIN",
                update : {a : {op : "add", val : 1}}
             } 
@@ -263,14 +286,14 @@ test ("Move", () => {
 
     let card : Card = new Card({a : 1});
     area1.addCard(card);
-    engine.eval(
-        {
+    engine.evalOnCard({
             event: "MOVE",
             card : "@this", 
             from: "@AREA1",
             to: "@AREA2"
-        }
-    , card);
+        }, 
+        card
+    );
 
     expect(area1.count()).toBe(0);
     expect(area2.count()).toBe(1);
