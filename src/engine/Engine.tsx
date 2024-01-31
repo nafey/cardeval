@@ -213,12 +213,7 @@ export default class Engine  {
 		this.evalOnCard(card.onReceive.do, card);
 	}
 
-	evalMove = (e: Event) : Card[] => {
-		logParams("evalMove");
-		let from : Zone = e.from;	
-		let to : Zone = e.to;	
-		let card: Card = e.card;
-
+	validateCard = (e: Event, card: Card) => {
 		if (e?.validate && !card.match(e.validate)) {
 			if (card?.validateError) {
 				throw new Error(card.validateError);
@@ -227,6 +222,15 @@ export default class Engine  {
 				throw new Error("Failed the validation - " + JSON.stringify(e.validate));
 			}
 		}
+	}
+
+	evalMove = (e: Event) : Card[] => {
+		logParams("evalMove");
+		let from : Zone = e.from;	
+		let to : Zone = e.to;	
+		let card: Card = e.card;
+
+		this.validateCard(e, card);
 
 		return this.moveCards(from.zoneId, card.cardId, to.zoneId);
 	}
@@ -248,15 +252,15 @@ export default class Engine  {
 		return ret;
 	}
 
-
 	evalUpdate = (e: Event) : Card[] => {
 		logParams("evalUpdate");
 		let ret: Card[] = [];
 
 		if (e?.card) {
 			let card : Card = e.card;
-			card.update(e.update);
 
+			this.validateCard(e, card);			
+			card.update(e.update);
 			ret.push(card);
 		}
 		else if (e?.in) {
