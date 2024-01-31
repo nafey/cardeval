@@ -219,6 +219,15 @@ export default class Engine  {
 		let to : Zone = e.to;	
 		let card: Card = e.card;
 
+		if (e?.validate && !card.match(e.validate)) {
+			if (card?.validateError) {
+				throw new Error(card.validateError);
+			}
+			else {
+				throw new Error("Failed the validation - " + JSON.stringify(e.validate));
+			}
+		}
+
 		return this.moveCards(from.zoneId, card.cardId, to.zoneId);
 	}
 
@@ -269,6 +278,7 @@ export default class Engine  {
 
 		let parser : Parser = new Parser(this.mergeRefs(refs, this.refs));
 		e = parser.parseEvent(e)
+
 
 		if (e.event === "UPDATE") {
 			targets = this.evalUpdate(e);

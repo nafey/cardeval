@@ -375,4 +375,32 @@ test("Receive Custom Event", () => {
     expect(area2.count()).toBe(1);
     expect(card.a).toBe(2);
 
-})
+});
+
+
+test ("Validate Update", () => {
+    let engine : Engine = new Engine();   
+
+    let area1 : Zone = engine.newZone();
+    engine.refs.AREA1 = area1;
+
+    let area2 : Zone = engine.newZone();
+    engine.refs.AREA2 = area2;
+
+    let card : Card = new Card({a : 1});
+    area1.addCard(card);
+    let testfn = () => engine.evalOnCard({
+            event: "MOVE",
+            card : "@this", 
+            validate : {a : {op: "gt", val : 5}},
+            validateError: "a val should be greater than 5",
+            from: "@AREA1",
+            to: "@AREA2"
+        }, 
+        card
+    );
+
+    expect(testfn).toThrowError("5");
+});
+
+
