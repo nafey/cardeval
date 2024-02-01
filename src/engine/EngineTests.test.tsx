@@ -404,3 +404,35 @@ test ("Validate Update", () => {
 });
 
 
+test ("Game Def", () => {
+    let engine : Engine = new Engine(); 
+    let gameDef = {
+        zones: 2,
+        refs: {
+            AREA1 : {type : "ZONE", index : 0},
+            AREA2 : {type : "ZONE", index : 1}
+        },
+        cardList: {
+            A1 : {
+                a : 1
+            },
+            B1 : {
+                b : 1
+            },
+            A2 : {
+                a : 2
+            },
+            B2 : {
+                b : 2
+            }
+        }
+    }
+
+    engine.loadGame(gameDef);
+
+    engine.eval({
+        event : "CREATE",
+        code : "A1",
+        zone : "@AREA1"
+    });
+})

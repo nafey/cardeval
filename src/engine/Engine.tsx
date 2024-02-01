@@ -81,6 +81,28 @@ export default class Engine  {
 		return this.zones;
 	}
 
+	loadGame = (gameDef : any) => {
+	 	for (let i = 0; i < gameDef.zones; i++) {
+	 		this.newZone();
+	 	}
+
+
+	 	let cardList = gameDef.cardList;
+	 	Object.keys(cardList).forEach((code : string) => {
+	 		this.addToList(code, cardList[code]);	
+	 	});
+
+	 	let refDefs = gameDef.refs;
+	 	Object.keys(refDefs).forEach((refName : string) => {
+	 		let refDef = refDefs[refName];
+
+	 		if (refDef.type === "ZONE") {
+	 			this.refs[refName] = this.zones[refDef.index];
+	 		}
+
+	 	});
+	}
+
 
 	getZoneById = (zoneId: string) : Zone => {
 		let idx = -1;
