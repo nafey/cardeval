@@ -412,20 +412,24 @@ test ("Game Def", () => {
             AREA1 : {type : "ZONE", index : 0},
             AREA2 : {type : "ZONE", index : 1}
         },
-        cardList: {
-            A1 : {
+        cardList: [
+            {
+                code : "A1",
                 a : 1
             },
-            B1 : {
+            {
+                code : "B1",
                 b : 1
             },
-            A2 : {
+            {
+                code : "A2",
                 a : 2
             },
-            B2 : {
+            {
+                code : "B2",
                 b : 2
             }
-        }
+        ]
     }
 
     engine.loadGame(gameDef);

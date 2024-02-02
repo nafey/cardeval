@@ -15,7 +15,7 @@ export interface Trigger {
 	[key: string] : any
 }
 
-export type Refs = Record<string, any>;
+export type Dict = Record<string, any>;
 
 export type Handler = (e : Event) => Event;
 
@@ -31,8 +31,9 @@ export default class Engine  {
 
 	private eventDefs: Record<string, Event> = {}
 
-	refs: Record<string, any> = {};
+	private cardList : Record<string, Event> = {}
 
+	refs: Record<string, any> = {};
 
 	newPlayer = () : Context => {
 		let p : Context = new Context();
@@ -82,15 +83,17 @@ export default class Engine  {
 	}
 
 	loadGame = (gameDef : any) => {
+
 	 	for (let i = 0; i < gameDef.zones; i++) {
 	 		this.newZone();
 	 	}
 
 
 	 	let cardList = gameDef.cardList;
-	 	Object.keys(cardList).forEach((code : string) => {
-	 		this.addToList(code, cardList[code]);	
-	 	});
+
+	 	cardList.forEach((item : Dict) => {
+	 		if (item?.code) this.cardList[item.code] = item;
+	 	})
 
 	 	let refDefs = gameDef.refs;
 	 	Object.keys(refDefs).forEach((refName : string) => {
@@ -192,9 +195,9 @@ export default class Engine  {
 		this.evalOnCard(target.trigger.do, target);
 	}
 
-	mergeRefs = (r1? : Refs, r2? : Refs) : Refs => {
+	mergeRefs = (r1? : Dict, r2? : Dict) : Dict => {
 		// logParams("mergeRefs");
-		let ret : Refs = {};
+		let ret : Dict = {};
 		r1 = r1 ? r1 : {};
 		r2 = r2 ? r2 : {};	
 
@@ -204,21 +207,21 @@ export default class Engine  {
 		return ret;
 	}
 
-	makeZoneRefs = (z : Zone) : Refs => {
+	makeZoneRefs = (z : Zone) : Dict => {
 		return this.mergeRefs(z.refs, this.refs);
 	}
 
-	makeCardRefs = (c : Card) : Refs => {
+	makeCardRefs = (c : Card) : Dict => {
 		// logParams("makeCardRefs");
 
-		let zRefs : Refs = c.zone ? this.makeZoneRefs(c.zone) : this.refs; 
-		let ret : Refs = this.mergeRefs(c.refs, zRefs);
+		let zRefs : Dict = c.zone ? this.makeZoneRefs(c.zone) : this.refs; 
+		let ret : Dict = this.mergeRefs(c.refs, zRefs);
 
 		return ret;
 	}
 
-	makeEventRefs = (e : Event) : Refs => {
-		let ret : Refs = {};	
+	makeEventRefs = (e : Event) : Dict => {
+		let ret : Dict = {};	
 		Object.keys(e).forEach((k : string) => {
 			ret["EVENT." + k] = e[k];
 		});
@@ -250,7 +253,26 @@ export default class Engine  {
 		logParams("evalMove");
 		let from : Zone = e.from;	
 		let to : Zone = e.to;	
-		let card: Card = e.card;
+
+		let card!: Card; 
+
+		if (e?.card) {
+			card = e.card;
+		}
+		else if (e?.at) {
+			if (typeof e.at === "string" && e.at === "TOP") {
+				card = from.getArr()[from.getArr().length - 1];
+			}
+			else if (typeof e.at === "string" && e.at === "BOT") {
+				card = from.getArr()[0];
+			}
+			else if (typeof e.at === "number") {
+				card = from.getArr()[e.at];
+			}
+			else {
+				throw new Error("Invalid position for Move");
+			}
+		}
 
 		this.validateCard(e, card);
 
@@ -298,7 +320,7 @@ export default class Engine  {
 		return ret;
 	}
 
-	eval = (e : Event, refs? : Refs) : Card[] => {
+	eval = (e : Event, refs? : Dict) : Card[] => {
 		logParams("eval", ["eventType"], [e.event]);
 		let targets : Card[] = [];
 
@@ -342,7 +364,7 @@ export default class Engine  {
 	}
 
 	evalOnCard = (e : Event, c : Card) => {
-		let refs : Refs = this.makeCardRefs(c);	
+		let refs : Dict = this.makeCardRefs(c);	
 		this.eval(e, refs);
 	}
 

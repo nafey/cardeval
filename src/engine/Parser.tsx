@@ -1,13 +1,13 @@
 import { logParams } from "./Logger";
-import { Event, Trigger, Refs } from "./Engine";
+import { Event, Trigger, Dict } from "./Engine";
 import Card from "./Card";
 import Zone from "./Zone";
 
 export default class Parser {
-    refs : Refs = {};
+    refs : Dict = {};
 
 
-    constructor(refs : Refs) {
+    constructor(refs : Dict) {
         this.refs = refs;
     }
 
