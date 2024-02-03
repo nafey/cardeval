@@ -1,5 +1,4 @@
 import { test, expect } from "vitest";
-import SolitaireEngine from "src/demo/solitaire/SolitaireEngine";
 import Card from "src/engine/Card";
 import Engine from "src/engine/Engine";
 
