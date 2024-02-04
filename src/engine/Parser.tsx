@@ -4,84 +4,96 @@ import Card from "./Card";
 import Zone from "./Zone";
 
 export default class Parser {
-    refs : Dict = {};
+	refs: Dict = {};
 
 
-    constructor(refs : Dict) {
-        this.refs = refs;
-    }
+	constructor(refs: Dict) {
+		this.refs = refs;
+	}
 
 
-    evalZone = () => {
+	evalZone = () => {
 
-    }
+	}
 
-    evalCardId = () => {
+	evalCardId = () => {
 
-    }
-
-    readRefs = (lookup : string) : any => {
-        if (!lookup.startsWith("@")) throw new Error("Invalid lookup string for refs");
-
-        if (lookup === "@this.zone") return this.refs["this"].zone;
-        return this.refs[lookup.substring(1)];
-    }
+	}
 
 
-    parseEvent = (event : Event) : Event => {
-        // logParams("Parser.parseEvent", ["event"], [event.event]);
+	lookup = (key: string): any => {
+		if (!key.startsWith("@")) throw new Error("Invalid lookup string for refs");
 
-        if (!event?.event) throw new Error("Missing event name on Event obj");
+		key = key.substring(1);
 
-        let ret : Event = {
-            event : event.event
-        };
+		let path : string[] = key.split(".");
+		let obj = this.refs;
+		for (let i = 0; i < path.length; i++) {
+			let nextKey = path[i];	
+			obj = obj[nextKey];
+		}
 
-        let eventKeys : string[] = Object.keys(event);
+		return obj;
+	}
 
-        eventKeys.forEach((eventKey : string) => {
-            if (eventKey === "event") return;
-            let eventVal = event[eventKey];
-            if (typeof eventVal !== "string") {
-                ret[eventKey] = eventVal;
-                return;
-            }
 
-            if (["card", "skip"].includes(eventKey)) {
-                ret[eventKey] = this.readRefs(eventVal) as Card;
-            } 
-            else if (["zone", "from", "to", "in"].includes(eventKey)) {
-                ret[eventKey] = this.readRefs(eventVal) as Zone;
-            }
-            else {
-                ret[eventKey] = event[eventKey];
-            }
-        });
+	parseEvent = (event: Event): Event => {
+		// logParams("Parser.parseEvent", ["event"], [event.event]);
 
-        return ret;
-    }
+		if (!event?.event) throw new Error("Missing event name on Event obj");
 
-    parseTrigger = (trigger : Trigger) : Trigger => {
-        logParams("Parser.parseTrigger", ["trigger"], [trigger.on]);
-        if (!trigger?.on) throw new Error("Missing event trigger name");
-        if (!trigger?.do) throw new Error("Missing do event trigger");
+		let ret: Event = {
+			event: event.event
+		};
 
-        let doEvent : Event = this.parseEvent(trigger.do);      
+		let eventKeys: string[] = Object.keys(event);
 
-        let ret : Trigger = {
-            on : trigger.on,
-            do : doEvent
-        }
+		eventKeys.forEach((eventKey: string) => {
+			if (eventKey === "event") return;
+			let eventVal = event[eventKey];
+			if (typeof eventVal !== "string") {
+				ret[eventKey] = eventVal;
+				return;
+			}
 
-        if (trigger?.zone) {
-            ret.zone = this.readRefs(trigger.zone) as Zone;
-        }       
+			if (["card", "skip"].includes(eventKey)) {
+				ret[eventKey] = this.lookup(eventVal) as Card;
+			} 
+			else if (["zone", "from", "to", "in"].includes(eventKey)) {
+				ret[eventKey] = this.lookup(eventVal) as Zone;
+			}
+			else if (typeof eventVal === "string" && eventVal.startsWith("@")) {
+				ret[eventKey] = this.lookup(eventVal);
+			}
+			else {
+				ret[eventKey] = event[eventKey];
+			}
+		});
 
-        if (trigger?.onSelf) ret.onSelf = trigger.onSelf;
+		return ret;
+	}
 
-        if (trigger?.ignore) this.readRefs(trigger.ignore) as Card;
+	parseTrigger = (trigger: Trigger): Trigger => {
+		logParams("Parser.parseTrigger", ["trigger"], [trigger.on]);
+		if (!trigger?.on) throw new Error("Missing event trigger name");
+		if (!trigger?.do) throw new Error("Missing do event trigger");
 
-        return ret;
-    }
+		let doEvent: Event = this.parseEvent(trigger.do);      
+
+		let ret: Trigger = {
+			on: trigger.on,
+			do: doEvent
+		}
+
+		if (trigger?.zone) {
+			ret.zone = this.lookup(trigger.zone) as Zone;
+		}       
+
+		if (trigger?.onSelf) ret.onSelf = trigger.onSelf;
+
+		if (trigger?.ignore) this.lookup(trigger.ignore) as Card;
+
+		return ret;
+	}
 
 }

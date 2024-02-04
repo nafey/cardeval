@@ -3,6 +3,7 @@ import Context from "./Context";
 import Zone from "./Zone";
 import { logParams } from "./Logger";
 import Parser from "./Parser";
+import { assert } from "vitest";
 
 export interface Event {
 	event: string,
@@ -231,8 +232,9 @@ export default class Engine {
 
 	makeEventRefs = (e: Event): Dict => {
 		let ret: Dict = {};	
+		ret["EVENT"] = {}
 		Object.keys(e).forEach((k: string) => {
-			ret["EVENT." + k] = e[k];
+			ret["EVENT"][k] = e[k];
 		});
 		return ret;
 	}
@@ -357,8 +359,45 @@ export default class Engine {
 				return this.eval(e.else);
 			}
 		}		
+		else if (e.type === "COMPARE_VAL") {
+
+		}
+
+		throw new Error ("Not implemented type");
+	}
+
+	evalSet = (e : Event) : Card[] => {
+		logParams("evalSet");
+
+		let refName : string = e.ref;
+		let val : any = e.val;
+
+		this.refs[refName] = val;
+
+		return [];
+	}
+
+	evalValidate = (e : Event) => {
+		logParams("evalValidate");
+			
+		if (e.type === "COMPARE_VALS") {
+
+			let val1 = e.val1;
+			let val2 = e.val2;
+
+			console.debug(val1);
+			console.debug(val2);
+
+			if (e.op === "EQ") {
+				if (val1 === val2) return;
+				else throw new Error("The values are not equal");
+			}
+			else {
+				throw new Error("Unknown operation type");
+			}
+		}	
 		else {
-			throw new Error ("Not implemented type");
+			throw new Error ("Unknown validation type");
 		}
 	}
 
@@ -398,12 +437,18 @@ export default class Engine {
 			zone.reverse();		
 		}
 		else if (e.event === "MOVE_ALL") {
+
 			targets = this.evalMoveAll(e);
 		}
 		else if (e.event === "IF") {
 			targets = this.evalIf(e);
 		}
-
+		else if (e.event === "SET") {
+			targets = this.evalSet(e);
+		}
+		else if (e.event === "VALIDATE") {
+			this.evalValidate(e);
+		}
 		else if (e.event in this.eventDefs) {
 			let nextEvent: Event = this.eventDefs[e.event];
 			targets = this.eval(nextEvent, this.mergeRefs(this.makeEventRefs(e), refs));
