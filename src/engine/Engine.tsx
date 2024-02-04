@@ -15,6 +15,12 @@ export interface Trigger {
 	[key: string]: any
 }
 
+export interface EventDef {
+	event : string,
+	def : Event
+}
+
+
 export type Dict = Record<string, any>;
 
 export type Handler = (e: Event) => Event;
@@ -101,6 +107,11 @@ export default class Engine {
 				this.refs[refName] = this.zones[refDef.index];
 			}
 
+		});
+
+		let eventDefs = gameDef.eventDefs;
+		eventDefs.forEach((eventDef : EventDef) => {
+			this.eventDefs[eventDef.event] = eventDef.def;	
 		});
 	}
 
@@ -247,6 +258,22 @@ export default class Engine {
 		}
 	}
 
+	evalMoveAll = (e: Event) : Card[] => {
+		logParams("evalMoveAll");	
+		let ret : Card[] = [];
+
+		let from : Zone = e.from;
+		let to : Zone = e.to;
+
+		from.cards.forEach(() => {
+			let card = from.takeFirst();	
+			ret.push(card);
+			to.push(card);
+		});
+
+		return ret;
+	}
+
 	evalMove = (e: Event): Card[] => {
 		logParams("evalMove");
 		let from: Zone = e.from;	
@@ -360,7 +387,18 @@ export default class Engine {
 			let events = e.events;
 			events.forEach((i : Event) => {
 				targets = targets.concat(this.eval(i, refs));		
-			})	
+			});
+		}
+		else if (e.event === "SHUFFLE") {
+			let zone : Zone = e.zone;	
+			zone.shuffle();
+		}
+		else if (e.event === "REVERSE") {
+			let zone : Zone = e.zone;
+			zone.reverse();		
+		}
+		else if (e.event === "MOVE_ALL") {
+			targets = this.evalMoveAll(e);
 		}
 		else if (e.event === "IF") {
 			targets = this.evalIf(e);

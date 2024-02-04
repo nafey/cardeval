@@ -6,7 +6,6 @@ import Card from "./Card";
 
 const consoleDebug: any = console.debug;
 
-
 console.debug = () => {};
 
 beforeEach((context: any) => {
@@ -409,6 +408,16 @@ let gameDef = {
         AREA1: { type: "ZONE", index: 0 },
         AREA2: { type: "ZONE", index: 1 }
     },
+    eventDefs: [
+        {
+            event: "MAKEA1",
+            def: {
+                event: "CREATE",
+                code: "A1",
+                zone: "@AREA1"
+            } 
+        }
+    ],
     cardList: [
         {
             code: "A1",
@@ -534,3 +543,36 @@ test("Else event", () => {
 
     expect(engine.refs.AREA1.cards[0].code).toBe("B1");
 });
+
+test("Event Def", () => {
+    let engine: Engine = new Engine();
+    
+    engine.loadGame(gameDef); 
+
+    let area1 : Zone = engine.refs.AREA1;
+    expect(area1.count()).toBe(0);
+
+    engine.eval({event: "MAKEA1"});
+    expect(area1.count()).toBe(1);
+})
+
+test("Move all", () => {
+    let engine: Engine = new Engine();
+    
+    engine.loadGame(gameDef); 
+
+    let area1 : Zone = engine.refs.AREA1;
+    let area2 : Zone = engine.refs.AREA2;
+
+    engine.eval({event: "MAKEA1"});
+    engine.eval({event: "MAKEA1"});
+    expect(area1.count()).toBe(2);
+
+    engine.eval({
+        event : "MOVE_ALL",
+        from: "@AREA1",
+        to : "@AREA2"
+    }); 
+    
+    expect(area2.count()).toBe(2);
+})

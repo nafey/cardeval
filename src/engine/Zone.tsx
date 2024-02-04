@@ -3,41 +3,39 @@ import Context from "./Context";
 import { generateId, match } from "./Utils";
 
 export default class Zone {
-	zoneId : string = generateId();
+	zoneId: string = generateId();
 	cards: Card[] = [];
 	private lookup: Record<string, number> = {};
-	context : Context = new Context();
-	playerId? : string = ""; 
-	limit : number = 0;
-	haveLimit : boolean = false;
-	refs : Record<string, any> = {};
+	context: Context = new Context();
+	playerId?: string = ""; 
+	limit: number = 0;
+	haveLimit: boolean = false;
+	refs: Record<string, any> = {};
 
 	at = (index: number) => this.cards[index];
 
-
-	
 	first = (): Card => this.cards[0];
 
 	last = (): Card => this.cards[this.cards.length - 1];
 
-	forEach = (fn : (c : Card) => any) => {
+	forEach = (fn: (c: Card) => any) => {
 		this.cards.forEach(fn);	
 	}
 
 	reIndex = () => {
 		this.lookup = {};
 		for (let i = 0; i < this.cards.length; i++) {
-			let c : Card = this.cards[i];	
+			let c: Card = this.cards[i];	
 			this.lookup[c.cardId] = i;	
 		}	
 	}
 
-	getArr = () : Card[] => {
+	getArr = (): Card[] => {
 		return this.cards;
 	}
 
 
-	count = (obj : any = null): number => {
+	count = (obj: any = null): number => {
 		if (!obj) return this.cards.length;
 
 		let count = 0;
@@ -48,7 +46,7 @@ export default class Zone {
 		return count;
 	}
 
-	push = (card : Card) => {
+	push = (card: Card) => {
 		card.zoneId = this.zoneId;
 		card.playerId = this.playerId;
 		this.lookup[card.cardId] = this.cards.length;
@@ -56,7 +54,7 @@ export default class Zone {
 		this.cards.push(card);
 	}
 
-	addCard = (card: Card) : Card => {
+	addCard = (card: Card): Card => {
 		if (this.haveLimit) {
 			if (this.cards.length < this.limit) {
 				this.push(card);
@@ -72,11 +70,11 @@ export default class Zone {
 		return card;
 	}
 
-	addMany = (cards : Card[]) => {
-		let ret : Card[] = []
+	addMany = (cards: Card[]) => {
+		let ret: Card[] = []
 		if (this.haveLimit) {
 			if (this.cards.length + cards.length <= this.limit) {
-				cards.forEach((c : Card) => {
+				cards.forEach((c: Card) => {
 					this.addCard(c);
 					ret.push(c);
 				});
@@ -86,7 +84,7 @@ export default class Zone {
 			}
 		}
 		else {
-			cards.forEach((c : Card) => {
+			cards.forEach((c: Card) => {
 				this.addCard(c);
 				ret.push(c);
 			});
@@ -94,13 +92,13 @@ export default class Zone {
 		return ret;
 	}
 
-	setLimit = (l : number) => {
+	setLimit = (l: number) => {
 		if (!this.haveLimit) this.haveLimit = true;
 		this.limit = l;
 	}
 
 
-	flip = (index: number)  => {
+	flip = (index: number) => {
 		this.cards[index].visible = !this.cards[index].visible;
 	}
 
@@ -127,7 +125,7 @@ export default class Zone {
 		return ret;
 	}
 
-	takeAt = (index: number) : Card => {
+	takeAt = (index: number): Card => {
 		if (this.count() > index) {
 			return this.takeCards(index, 1)[0];
 
@@ -145,15 +143,15 @@ export default class Zone {
 		return this.takeAt(0); 
 	}
 
-	take = (cardId : string) : Card => {
+	take = (cardId: string): Card => {
 		let idx = this.getIndex(cardId);
 		return this.takeAt(idx);
 	}
 
-	selectCards = (selector : Record<string, any>) : Card[] => {
-		let selected : Card[] = [];
+	selectCards = (selector: Record<string, any>): Card[] => {
+		let selected: Card[] = [];
 		for (let i = 0; i < this.cards.length; i++) {
-			let c : Card = this.cards[i];
+			let c: Card = this.cards[i];
 
 			if (c.match(selector)) {
 				selected.push(c);
@@ -163,7 +161,7 @@ export default class Zone {
 		return selected;
 	}
 
-	modifyCards = (selector : Record<string, any>, updater : Record<string, any>) => {
+	modifyCards = (selector: Record<string, any>, updater: Record<string, any>) => {
 		this.cards.forEach((c: Card) => {
 			if (c.match(selector)) {
 				c.update(updater);
@@ -171,39 +169,62 @@ export default class Zone {
 		})		
 	}
 
-	hasCard = (c : Card) => {
+	hasCard = (c: Card) => {
 		return this.getIndex(c.cardId) === -1 ? false : true;
 	}
 
-	match = (selector : any) : Card[] => {
-		let matchedCards : Card[] = []
+	match = (selector: any): Card[] => {
+		let matchedCards: Card[] = []
 		this.cards.forEach((c: Card) => {
 			if (match(c, selector)) matchedCards.push(c);
 		})
 		return matchedCards;
 	}
 	
-	getById = (cardId: string) : Card => {
-		let ret : Card = this.cards[this.lookup[cardId]];
+	getById = (cardId: string): Card => {
+		let ret: Card = this.cards[this.lookup[cardId]];
 		if (!ret) throw new Error("Not found cardId in zone");
 
 		return ret;
 	}
 
-	getIndex = (cardId: string) : number => {
+	getIndex = (cardId: string): number => {
 		return this.lookup[cardId];
 	}
 
 	removeById = (cardId: string) => {
 		let index = this.getIndex(cardId);
-		if (index >=0) {
+		if (index >= 0) {
 			this.takeAt(index);
 		}
 	}
 
-	toString = () : string => {
+	shuffle = () => {
+		let array = this.cards;
+		let currentIndex = array.length, randomIndex;
+
+		// While there remain elements to shuffle.
+		while (currentIndex > 0) {
+
+			// Pick a remaining element.
+			randomIndex = Math.floor(Math.random() * currentIndex);
+			currentIndex--;
+
+			// And swap it with the current element.
+			[array[currentIndex], array[randomIndex]] = [
+				array[randomIndex], array[currentIndex]];
+		}
+
+		return array;	
+	}
+
+	reverse = () => {
+		this.cards.reverse();
+	}
+
+	toString = (): string => {
 		let ret = "";	
-		this.cards.forEach((c : Card) => {
+		this.cards.forEach((c: Card) => {
 			ret += c.cardId;
 		})
 
