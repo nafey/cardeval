@@ -467,3 +467,70 @@ test("Event Array", () => {
 
     expect(engine.refs.AREA1.getArr().length).toBe(2);
 });
+
+
+test("Game Def", () => {
+    let engine: Engine = new Engine(); 
+
+    engine.loadGame(gameDef);
+
+    engine.eval({
+        event: "CREATE",
+        code: "A1",
+        zone: "@AREA1"
+    });
+
+    expect(engine.refs.AREA1.getArr().length).toBe(1);
+});
+
+
+test("If event", () => {
+    let engine: Engine = new Engine();
+    
+    engine.loadGame(gameDef); 
+
+    engine.eval({
+        event: "IF",
+        type: "ZONE_COUNT",
+        zone: "@AREA1",
+        val: 0,
+        then: {
+            event: "CREATE",
+            code: "A1",
+            zone: "@AREA1",
+        },
+        else: {
+            event: "CREATE",
+            code: "B1",
+            zone: "@AREA1",
+        }
+    });
+
+    expect(engine.refs.AREA1.cards[0].code).toBe("A1");
+});
+
+
+test("Else event", () => {
+    let engine: Engine = new Engine();
+    
+    engine.loadGame(gameDef); 
+
+    engine.eval({
+        event: "IF",
+        type: "ZONE_COUNT",
+        zone: "@AREA1",
+        val: 1,
+        then: {
+            event: "CREATE",
+            code: "A1",
+            zone: "@AREA1",
+        },
+        else: {
+            event: "CREATE",
+            code: "B1",
+            zone: "@AREA1",
+        }
+    });
+
+    expect(engine.refs.AREA1.cards[0].code).toBe("B1");
+});

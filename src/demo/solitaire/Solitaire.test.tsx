@@ -1,5 +1,4 @@
 import { test, expect } from "vitest";
-import Card from "src/engine/Card";
 import Engine from "src/engine/Engine";
 
 let gameDef = {
@@ -9,9 +8,20 @@ let gameDef = {
 		PILE : {type : "ZONE", index : 1},
 		Z1 : {type : "ZONE", index : 2}
 	},
-	eventDef : {
+	eventDef : [
+		{
+			event : "DRAW",
+			def : {
+				event :	"SEQUENCE",
+				events: [
+				{
+					event: ""
+				}
+				]
+			}	
 
-	},
+		}
+	],
 	cardList : [
 		{
 			code : "H3",

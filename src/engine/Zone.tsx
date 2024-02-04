@@ -4,7 +4,7 @@ import { generateId, match } from "./Utils";
 
 export default class Zone {
 	zoneId : string = generateId();
-	private cards: Card[] = [];
+	cards: Card[] = [];
 	private lookup: Record<string, number> = {};
 	context : Context = new Context();
 	playerId? : string = ""; 

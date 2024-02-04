@@ -318,6 +318,23 @@ export default class Engine {
 		return ret;
 	}
 
+	evalIf = (e: Event) : Card[] => {
+		logParams("evalIf");
+
+		if (e.type === "ZONE_COUNT") {
+			let zone : Zone = e.zone;	
+			if (zone.count() === e.val) {
+				return this.eval(e.then);
+			}
+			else {
+				return this.eval(e.else);
+			}
+		}		
+		else {
+			throw new Error ("Not implemented type");
+		}
+	}
+
 	eval = (e: Event, refs?: Dict): Card[] => {
 		logParams("eval");
 
@@ -345,6 +362,10 @@ export default class Engine {
 				targets = targets.concat(this.eval(i, refs));		
 			})	
 		}
+		else if (e.event === "IF") {
+			targets = this.evalIf(e);
+		}
+
 		else if (e.event in this.eventDefs) {
 			let nextEvent: Event = this.eventDefs[e.event];
 			targets = this.eval(nextEvent, this.mergeRefs(this.makeEventRefs(e), refs));
