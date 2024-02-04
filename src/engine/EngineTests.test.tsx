@@ -9,7 +9,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "Validate Update 2") {
+	if (context.task.name === "Common Functions") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -55,8 +55,9 @@ test("Update Event", () => {
 		card: "@this", 
 		update: {
 			a: {
-				op: "sub", 
-				val: 1
+				op: "DIFF", 
+				val1: "@this.a",
+				val2: 1
 			}
 		}
 	}, c);
@@ -123,7 +124,7 @@ test("Trigger on Create", () => {
 			do: {
 				event: "UPDATE",
 				card: "@this",
-				update: { a: { op: "add", val: 1 } }
+				update: { a: { op: "SUM", val1: 1, val2: "@this.a"} }
 			} 
 		} 
 	}
@@ -155,7 +156,7 @@ test("Dont Trigger on Self", () => {
 			do: {
 				event: "UPDATE",
 				card: "@this",
-				update: { a: { op: "add", val: 1 } }
+				update: { a: { op: "SUM", val1: 1, val2: "@this.a"} }
 			} 
 		} 
 	}
@@ -185,7 +186,7 @@ test("On Receive", () => {
 				do: {
 					event: "UPDATE",
 					in: "@MAIN",
-					update: { a: { op: "add", val: 1 } }
+					update: { a: { op: "SUM", val: 1}}
 				} 
 			} 
 		});
@@ -239,8 +240,6 @@ test("Skip On Self", () => {
 	expect(a1.a).toBe(2);
 	expect(a2.a).toBe(2);
 });
-
-
 
 
 test("Update Others On Create", () => {
@@ -390,7 +389,8 @@ let gameDef = {
 			def: {
 				event: "CREATE",
 				code: "A1",
-				zone: "@AREA1"
+				zone: "@AREA1",
+				set: "A1"
 			} 
 		},
 		{
@@ -398,7 +398,8 @@ let gameDef = {
 			def: {
 				event: "CREATE",
 				code: "A2",
-				zone: "@AREA1"
+				zone: "@AREA1",
+				set: "A2"
 			} 
 		}
 	],
@@ -670,4 +671,21 @@ test("Validate Update Pass", () => {
 	engine.evalOnCard(event, card);
 
 	expect(engine.refs.AREA2.count()).toBe(1);
+});
+
+test("Common Functions", () => {
+	let engine: Engine = new Engine(); 
+
+	engine.loadGame(gameDef);
+
+	engine.eval({event: "MAKEA1"});
+	engine.eval({event: "MAKEA2"});
+
+	engine.eval({
+		event: "VALIDATE",
+		type: "COMPARE_VALS",
+		op : "EQ",
+		val1 : {op : "DIFF", val1 : "@A2.a", val2 : "@A1.a"},
+		val2 : 1
+	})	
 });

@@ -21,6 +21,12 @@ export interface EventDef {
 	def : Event
 }
 
+export interface Func {
+	op : string,
+	val1 : any,
+	val2 : any,
+}
+
 
 export type Dict = Record<string, any>;
 
@@ -306,6 +312,12 @@ export default class Engine {
 		let ret: Card[] = []
 		let zone: Zone = e.zone;
 		let card: Card = this.createCardFromList(e.code);
+
+		if (e?.set) {
+			let refName : string = e.set;
+			this.refs[refName] = card;
+		}
+
 		ret.push(zone.addCard(card))
 		return ret;
 	}
@@ -367,15 +379,12 @@ export default class Engine {
 		logParams("evalValidate");
 			
 		if (e.type === "COMPARE_VALS") {
-			console.debug(e);
 
 			let errorMsg = e?.errorMsg ? e.errorMsg : "Val comparison failed";
 
 			let val1 = e.val1;
 			let val2 = e.val2;
 
-			console.debug(val1);
-			console.debug(val2);
 
 			if (e.op === "EQ") {
 				if (val1 === val2) return;
@@ -418,7 +427,6 @@ export default class Engine {
 		else if (e.event === "SEQUENCE") {
 			let events = e.events;
 			events.forEach((i : Event) => {
-				// console.debug((refs? refs : {}));	
 				targets = targets.concat(this.eval(i, refs));		
 			});
 		}

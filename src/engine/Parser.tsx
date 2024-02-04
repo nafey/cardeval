@@ -1,9 +1,10 @@
 import { logParams } from "./Logger";
-import { Event, Trigger, Dict } from "./Engine";
+import { Event, Trigger, Dict, Func } from "./Engine";
 import Card from "./Card";
 import Zone from "./Zone";
 
 export default class Parser {
+
 	refs: Dict = {};
 
 
@@ -36,6 +37,53 @@ export default class Parser {
 		return obj;
 	}
 
+	parseVal = (val: any) : any => {
+		let ret;
+		if (typeof val === "object") {
+			ret = this.parseFunc(val);
+		}
+		else if (typeof val === "string" && val.startsWith("@") ) {
+			ret = this.lookup(val);
+		}
+		else {
+			ret = val;
+		}
+
+		return ret;
+	}
+
+	parseFunc = (func: Func) : any => {
+		let val1 : any = this.parseVal(func.val1); 
+		let val2 : any = this.parseVal(func.val2);
+
+		if (func.op === "DIFF") {
+			return val1 - val2;
+		}	
+		else if (func.op === "SUM") {
+			return val1 + val2;	
+		}
+
+		throw new Error("Invalid Operation type for function");
+	}	
+
+	parseObject = (obj : any) : any => {
+		if (obj?.op) {
+			return this.parseFunc(obj);
+		}	
+
+
+		let ret : any = {};
+		for (const [key, val] of Object.entries(obj)) {
+			if (typeof val === "object") {
+				ret[key] = this.parseObject(val);	
+			}	
+			else {
+				ret[key] = this.parseVal(val);
+			}
+		}
+
+		return ret;
+	}
 
 	parseEvent = (event: Event): Event => {
 		// logParams("Parser.parseEvent", ["event"], [event.event]);
@@ -51,10 +99,10 @@ export default class Parser {
 		eventKeys.forEach((eventKey: string) => {
 			if (eventKey === "event") return;
 			let eventVal = event[eventKey];
-			if (typeof eventVal !== "string") {
-				ret[eventKey] = eventVal;
-				return;
-			}
+			// if (typeof eventVal !== "string") {
+			// 	ret[eventKey] = eventVal;
+			// 	return;
+			// }
 
 			if (["card", "skip"].includes(eventKey)) {
 				ret[eventKey] = this.lookup(eventVal) as Card;
@@ -62,9 +110,13 @@ export default class Parser {
 			else if (["zone", "from", "to", "in"].includes(eventKey)) {
 				ret[eventKey] = this.lookup(eventVal) as Zone;
 			}
+			else if (typeof eventVal === "object") {
+				ret[eventKey] = this.parseObject(eventVal);
+			}
 			else if (typeof eventVal === "string" && eventVal.startsWith("@")) {
 				ret[eventKey] = this.lookup(eventVal);
 			}
+
 			else {
 				ret[eventKey] = event[eventKey];
 			}
