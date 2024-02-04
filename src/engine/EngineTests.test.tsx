@@ -9,7 +9,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "") {
+	if (context.task.name === "Validate Update 2") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -377,30 +377,6 @@ test("Receive Custom Event", () => {
 });
 
 
-test("Validate Update", () => {
-	let engine: Engine = new Engine();   
-
-	let area1: Zone = engine.newZone();
-	engine.refs.AREA1 = area1;
-
-	let area2: Zone = engine.newZone();
-	engine.refs.AREA2 = area2;
-
-	let card: Card = new Card({ a: 1 });
-	area1.addCard(card);
-	let testfn = () => engine.evalOnCard({
-		event: "MOVE",
-		card: "@this", 
-		validate: { a: { op: "gt", val: 5 } },
-		validateError: "a val should be greater than 5",
-		from: "@AREA1",
-		to: "@AREA2"
-	}, 
-		card
-	);
-
-	expect(testfn).toThrowError("5");
-});
 
 let gameDef = {
 	zones: 2,
@@ -616,9 +592,82 @@ test ("Validate", () => {
 		type: "COMPARE_VALS",
 		op : "EQ",
 		val1 : "@TEST",
-		val2 : 2
-	})).toThrowError();
+		val2 : 2,
+		errorMsg : "Custom"
+	})).toThrowError("Custom");
+});
+
+test("Validate Update", () => {
+	let engine: Engine = new Engine();   
+
+	let area1: Zone = engine.newZone();
+	engine.refs.AREA1 = area1;
+
+	let area2: Zone = engine.newZone();
+	engine.refs.AREA2 = area2;
+
+	let card: Card = new Card({ a: 1 });
+	area1.addCard(card);
+	
+	let event = {
+		event : "SEQUENCE",
+		events : [
+			{
+				event : "VALIDATE",
+				type : "COMPARE_VALS",
+				op : "GT",
+				va1 : "@this.a",
+				val2 : 5,
+				errorMsg: "a val should be greater than 5",
+			},
+			{
+				event : "MOVE",
+				card : "@this",
+				from : "@AREA1",
+				to : "@AREA2"
+			}
+		]
+	}
+
+	let testfn = () => engine.evalOnCard(event, card );
+
+	expect(testfn).toThrowError("5");
 });
 
 
+test("Validate Update Pass", () => {
+	let engine: Engine = new Engine();   
 
+	let area1: Zone = engine.newZone();
+	engine.refs.AREA1 = area1;
+
+	let area2: Zone = engine.newZone();
+	engine.refs.AREA2 = area2;
+
+	let card: Card = new Card({ a: 6});
+	area1.addCard(card);
+	
+	let event = {
+		event : "SEQUENCE",
+		events : [
+			{
+				event : "VALIDATE",
+				type : "COMPARE_VALS",
+				op : "GT",
+				val1 : "@this.a",
+				val2 : 5,
+				errorMsg: "a val should be greater than 5",
+			},
+			{
+				event : "MOVE",
+				card : "@this",
+				from : "@AREA1",
+				to : "@AREA2"
+			}
+		]
+	}
+
+	engine.evalOnCard(event, card);
+
+	expect(engine.refs.AREA2.count()).toBe(1);
+});

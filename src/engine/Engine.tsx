@@ -249,17 +249,6 @@ export default class Engine {
 		this.evalOnCard(card.onReceive.do, card);
 	}
 
-	validateCard = (e: Event, card: Card) => {
-		if (e?.validate && !card.match(e.validate)) {
-			if (card?.validateError) {
-				throw new Error(card.validateError);
-			}
-			else {
-				throw new Error("Failed the validation - " + JSON.stringify(e.validate));
-			}
-		}
-	}
-
 	evalMoveAll = (e: Event) : Card[] => {
 		logParams("evalMoveAll");	
 		let ret : Card[] = [];
@@ -301,8 +290,6 @@ export default class Engine {
 			}
 		}
 
-		this.validateCard(e, card);
-
 		return this.moveCards(from.zoneId, card.cardId, to.zoneId);
 	}
 
@@ -330,7 +317,6 @@ export default class Engine {
 		if (e?.card) {
 			let card: Card = e.card;
 
-			this.validateCard(e, card);			
 			card.update(e.update);
 			ret.push(card);
 		}
@@ -381,6 +367,9 @@ export default class Engine {
 		logParams("evalValidate");
 			
 		if (e.type === "COMPARE_VALS") {
+			console.debug(e);
+
+			let errorMsg = e?.errorMsg ? e.errorMsg : "Val comparison failed";
 
 			let val1 = e.val1;
 			let val2 = e.val2;
@@ -390,7 +379,11 @@ export default class Engine {
 
 			if (e.op === "EQ") {
 				if (val1 === val2) return;
-				else throw new Error("The values are not equal");
+				throw new Error(errorMsg);	
+			}
+			if (e.op === "GT") {
+				if (val1 > val2) return;
+				throw new Error(errorMsg);
 			}
 			else {
 				throw new Error("Unknown operation type");
@@ -425,6 +418,7 @@ export default class Engine {
 		else if (e.event === "SEQUENCE") {
 			let events = e.events;
 			events.forEach((i : Event) => {
+				// console.debug((refs? refs : {}));	
 				targets = targets.concat(this.eval(i, refs));		
 			});
 		}
