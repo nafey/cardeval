@@ -22,16 +22,21 @@ export default class Parser {
 	}
 
 
-	lookup = (key: string): any => {
-		if (!key.startsWith("@")) throw new Error("Invalid lookup string for refs");
+	lookup = (k: string): any => {
+		if (!k.startsWith("@")) throw new Error("Invalid lookup string for refs");
 
-		key = key.substring(1);
+		let key : string = k.substring(1);
 
 		let path : string[] = key.split(".");
 		let obj = this.refs;
 		for (let i = 0; i < path.length; i++) {
 			let nextKey = path[i];	
-			obj = obj[nextKey];
+			if (nextKey in obj) {
+				obj = obj[nextKey];
+			}
+			else {
+				return key;
+			}
 		}
 
 		return obj;

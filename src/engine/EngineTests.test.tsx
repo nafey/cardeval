@@ -52,18 +52,34 @@ test("Update Event", () => {
 
 	engine.evalOnCard({
 		event: "UPDATE", 
-		card: "@this", 
-		update: {
-			a: {
-				op: "DIFF", 
-				val1: "@this.a",
-				val2: 1
-			}
-		}
+		card : "@this",
+		key : "a",
+		val :  9,
 	}, c);
 
 	expect(c.a).toBe(9);
 });
+
+test("Add Event", () => {
+	let engine: Engine = new Engine();   
+	let z: Zone = engine.newZone();
+	let c: Card = new Card({ a: 10 });
+
+	z.addCard(c);
+	expect(c.a).toBe(10);
+
+	engine.evalOnCard({
+		event: "UPDATE", 
+		card : "@this",
+		key : "a",
+		op : "ADD",
+		val :  1,
+	}, c);
+
+	expect(c.a).toBe(11);
+});
+
+
 
 test("Create Card from List", () => {
 	let engine: Engine = new Engine();   
@@ -124,7 +140,9 @@ test("Trigger on Create", () => {
 			do: {
 				event: "UPDATE",
 				card: "@this",
-				update: { a: { op: "SUM", val1: 1, val2: "@this.a"} }
+				op : "ADD",
+				key: "a",
+				val : 1,
 			} 
 		} 
 	}
@@ -156,7 +174,9 @@ test("Dont Trigger on Self", () => {
 			do: {
 				event: "UPDATE",
 				card: "@this",
-				update: { a: { op: "SUM", val1: 1, val2: "@this.a"} }
+				op : "ADD",
+				key : "a",
+				val : 1,
 			} 
 		} 
 	}
@@ -186,7 +206,7 @@ test("On Receive", () => {
 				do: {
 					event: "UPDATE",
 					in: "@MAIN",
-					update: { a: { op: "SUM", val: 1}}
+					update: { a: { op: "SUM", val1: 1, val2: "@that.a"}}
 				} 
 			} 
 		});

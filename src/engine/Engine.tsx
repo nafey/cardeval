@@ -3,7 +3,6 @@ import Context from "./Context";
 import Zone from "./Zone";
 import { logParams } from "./Logger";
 import Parser from "./Parser";
-import { assert } from "vitest";
 
 export interface Event {
 	event: string,
@@ -329,13 +328,21 @@ export default class Engine {
 		if (e?.card) {
 			let card: Card = e.card;
 
-			card.update(e.update);
+			let key : string = e.key;
+			let val = e.val;
+
+			if (e?.op === "ADD") {
+				card[key] += e.val;
+			}
+			else {
+				card[key] = val;
+			}
 			ret.push(card);
 		}
 		else if (e?.in) {
 			let zone: Zone = e.in;
 
-			zone.getArr().forEach((target: Card) => {
+			zone.cards.forEach((target: Card) => {
 				if (e?.skip && e.skip === target) return;	
 				target.update(e.update);
 				ret.push(target);
