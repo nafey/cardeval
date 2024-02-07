@@ -115,6 +115,9 @@ export default class Parser {
 			else if (["zone", "from", "to", "in"].includes(eventKey)) {
 				ret[eventKey] = this.lookup(eventVal) as Zone;
 			}
+			else if (eventKey === "do") {
+				ret [eventKey] = eventVal;
+			}
 			else if (typeof eventVal === "object") {
 				ret[eventKey] = this.parseObject(eventVal);
 			}
@@ -123,7 +126,7 @@ export default class Parser {
 			}
 
 			else {
-				ret[eventKey] = event[eventKey];
+				ret[eventKey] = eventVal;
 			}
 		});
 

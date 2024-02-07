@@ -21,8 +21,6 @@ export default class Card {
 			if (k === "cardId" || k === "visible") return;
 			this[k] = vals[k];
 		});
-
-		this.refs.this = this;
 	}
 
 	toString = () : string => {

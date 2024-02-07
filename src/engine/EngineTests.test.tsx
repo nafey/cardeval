@@ -9,7 +9,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "Common Functions") {
+	if (context.task.name === "") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -192,6 +192,31 @@ test("Dont Trigger on Self", () => {
 	expect(zone.getArr()[0].a).toBe(10);
 });
 
+test ("For Each", () => {
+	let engine: Engine = new Engine();   
+	let zone: Zone = engine.newZone();
+
+	engine.refs.MAIN = zone;
+
+	let a1: Card = zone.addCard(new Card({ a: 1 }));
+	let a2: Card = zone.addCard(new Card({ a: 2 }));
+
+	engine.eval({
+		event : "FOREACH",
+		in : "@MAIN",
+		do: {
+			event : "UPDATE",
+			op : "ADD",
+			key : "a",
+			val : 1,
+		}
+	})
+
+
+	expect(a1.a).toBe(2);
+	expect(a2.a).toBe(3);
+})
+
 test("On Receive", () => {
 	let engine: Engine = new Engine();   
 	let zone: Zone = engine.newZone();
@@ -205,8 +230,10 @@ test("On Receive", () => {
 				on: "CREATE",
 				do: {
 					event: "UPDATE",
-					in: "@MAIN",
-					update: { a: { op: "SUM", val1: 1, val2: "@that.a"}}
+					zone: "@MAIN",
+					op : "ADD",
+					key : "a",
+					val : 1
 				} 
 			} 
 		});

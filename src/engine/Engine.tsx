@@ -211,6 +211,7 @@ export default class Engine {
 	}
 
 	mergeRefs = (r1?: Dict, r2?: Dict): Dict => {
+		// r1 overwrites r2
 		// logParams("mergeRefs");
 		let ret: Dict = {};
 		r1 = r1 ? r1 : {};
@@ -231,6 +232,7 @@ export default class Engine {
 
 		let zRefs: Dict = c.zone ? this.makeZoneRefs(c.zone) : this.refs; 
 		let ret: Dict = this.mergeRefs(c.refs, zRefs);
+		ret.this = c;
 
 		return ret;
 	}
@@ -339,8 +341,8 @@ export default class Engine {
 			}
 			ret.push(card);
 		}
-		else if (e?.in) {
-			let zone: Zone = e.in;
+		else if (e?.zone) {
+			let zone: Zone = e.zone;
 
 			zone.cards.forEach((target: Card) => {
 				if (e?.skip && e.skip === target) return;	
@@ -369,6 +371,20 @@ export default class Engine {
 		}
 
 		throw new Error ("Not implemented type");
+	}
+
+	evalForEach = (e: Event) : Card[] => {
+		logParams("evalForEach");	
+
+		let zone : Zone = e.in;
+
+		zone.cards.forEach((c : Card) => {
+			let nextEvent : Event = {...e.do};
+			nextEvent.card = "@this";
+			this.evalOnCard(nextEvent, c);
+		});
+
+		return zone.cards;
 	}
 
 	evalSet = (e : Event) : Card[] => {
@@ -452,6 +468,9 @@ export default class Engine {
 		else if (e.event === "IF") {
 			targets = this.evalIf(e);
 		}
+		else if (e.event === "FOREACH") {
+			targets = this.evalForEach(e);	
+		}
 		else if (e.event === "SET") {
 			targets = this.evalSet(e);
 		}
@@ -481,8 +500,17 @@ export default class Engine {
 		return targets;
 	}
 
-	evalOnCard = (e: Event, c: Card) => {
+	evalOnCard = (e: Event, c: Card, that?: Card, otherRefs? : Dict) => {
 		let refs: Dict = this.makeCardRefs(c);	
+
+		if (that) {
+			refs.that = that;	
+		}
+
+		if (otherRefs) {
+			refs = this.mergeRefs(refs, otherRefs);
+		}
+
 		this.eval(e, refs);
 	}
 
