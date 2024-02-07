@@ -229,11 +229,48 @@ test("On Receive", () => {
 			onReceive: {
 				on: "CREATE",
 				do: {
-					event: "UPDATE",
-					zone: "@MAIN",
-					op : "ADD",
-					key : "a",
-					val : 1
+					event : "FOREACH",
+					in : "@MAIN",
+					do : {
+						event : "UPDATE",
+						op : "ADD",
+						key : "a",
+						val : 1
+					}
+				} 
+			} 
+		});
+
+	let a1: Card = zone.addCard(new Card({ a: 1 }));
+	let a2: Card = zone.addCard(new Card({ a: 2 }));
+
+	engine.eval({ event: "CREATE", zone: "@MAIN", code: "A10" });
+	expect(a1.a).toBe(2);
+	expect(a2.a).toBe(3);
+	expect(zone.getArr()[2].a).toBe(11);
+});
+
+test("On Receive", () => {
+	let engine: Engine = new Engine();   
+	let zone: Zone = engine.newZone();
+
+	engine.refs.MAIN = zone;
+
+	engine.addToList("A10",
+		{
+			a: 10,
+			onReceive: {
+				on: "CREATE",
+				do: {
+					event : "FOREACH",
+					skip : "@this",
+					in : "@MAIN",
+					do : {
+						event : "UPDATE",
+						op : "ADD",
+						key : "a",
+						val : 1
+					}
 				} 
 			} 
 		});
