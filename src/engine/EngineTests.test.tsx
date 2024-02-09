@@ -50,12 +50,12 @@ test("Update Event", () => {
 	z.addCard(c);
 	expect(c.a).toBe(10);
 
-	engine.evalOnCard({
+	engine.eval({
 		event: "UPDATE", 
 		card : "@this",
 		key : "a",
 		val :  9,
-	}, c);
+	}, {this : c});
 
 	expect(c.a).toBe(9);
 });
@@ -68,13 +68,13 @@ test("Add Event", () => {
 	z.addCard(c);
 	expect(c.a).toBe(10);
 
-	engine.evalOnCard({
+	engine.eval({
 		event: "UPDATE", 
 		card : "@this",
 		key : "a",
 		op : "ADD",
 		val :  1,
-	}, c);
+	}, {this: c});
 
 	expect(c.a).toBe(11);
 });
@@ -105,7 +105,7 @@ test("Create Event", () => {
 
 	zone.addCard(raiser);
 	engine.addToList("A1", { a: 1 });
-	engine.evalOnCard(event, raiser);
+	engine.eval(event, {this: raiser});
 
 	expect(zone.count()).toBe(2);
 });
@@ -116,10 +116,10 @@ test("Delete Event", () => {
 	let card: Card = new Card({ a: 1 });
 	zone.addCard(card);
 
-	engine.evalOnCard({
+	engine.eval({
 		event: "DELETE", 
 		card: "@this"
-	}, card);
+	}, {this: card});
 
 	expect(zone.count()).toBe(0);
 });
@@ -234,6 +234,7 @@ test("On Receive", () => {
 					in : "@MAIN",
 					do : {
 						event : "UPDATE",
+						card : "@each",
 						op : "ADD",
 						key : "a",
 						val : 1
@@ -267,6 +268,7 @@ test("On Receive This", () => {
 					in : "@MAIN",
 					do : {
 						event : "UPDATE",
+						card : "@each",
 						op : "ADD",
 						key : "a",
 						val : "@this.a"
@@ -284,6 +286,59 @@ test("On Receive This", () => {
 	expect(zone.getArr()[2].a).toBe(20);
 });
 
+test("On Receive Each", () => {
+	let engine: Engine = new Engine();   
+	let zone: Zone = engine.newZone();
+
+	engine.refs.MAIN = zone;
+
+	engine.addToList("A10",
+		{
+			a: 10,
+			onReceive: {
+				on: "CREATE",
+				do: {
+					event : "FOREACH",
+					in : "@MAIN",
+					do : {
+						event : "UPDATE",
+						card : "@each",
+						op : "ADD",
+						key : "a",
+						val : "@each.a"
+					}
+				} 
+			} 
+		});
+
+	let a1: Card = zone.addCard(new Card({ a: 1 }));
+	let a2: Card = zone.addCard(new Card({ a: 2 }));
+
+	engine.eval({ event: "CREATE", zone: "@MAIN", code: "A10" });
+	expect(a1.a).toBe(2);
+	expect(a2.a).toBe(4);
+	expect(zone.getArr()[2].a).toBe(20);
+});
+
+test ("Direct Ref", () => {
+	let engine : Engine = new Engine();
+	let zone : Zone = engine.newZone();
+
+	engine.refs.MAIN = zone;
+
+	let a1: Card = zone.addCard(new Card({ a: 1 }));
+
+	engine.eval({
+		event : "UPDATE",
+		card : a1,
+		op : "ADD",
+		key : "a",
+		val : 1
+	});
+
+	expect(a1.a).toBe(2);
+
+})
 
 test("Skip", () => {
 	let engine: Engine = new Engine();   
@@ -294,12 +349,25 @@ test("Skip", () => {
 	let a1: Card = zone.addCard(new Card({ a: 1 }));
 	let a2: Card = zone.addCard(new Card({ a: 2 }));
 
+	// engine.eval({
+	// 	event: "UPDATE",
+	// 	skip: a2,
+	// 	in: "@MAIN",
+	// 	update: { a: { op: "add", val: 1 } }
+	// }) 
+
 	engine.eval({
-		event: "UPDATE",
-		skip: a2,
-		in: "@MAIN",
-		update: { a: { op: "add", val: 1 } }
-	}) 
+		event : "FOREACH",
+		skip : a2,
+		in : "@MAIN",
+		do : {
+			event : "UPDATE",
+			card : "@each",
+			op : "ADD",
+			key : "a",
+			val : 1,
+		}
+	})
 
 	expect(a1.a).toBe(2);
 	expect(a2.a).toBe(2);

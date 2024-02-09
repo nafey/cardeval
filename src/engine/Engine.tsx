@@ -207,7 +207,7 @@ export default class Engine {
 			if (trigger.onSelf === "SKIP" && source === target) return;
 		}
 
-		this.evalOnCard(target.trigger.do, target);
+		this.eval(target.trigger.do, {this: target});
 	}
 
 	mergeRefs = (r1?: Dict, r2?: Dict): Dict => {
@@ -341,15 +341,15 @@ export default class Engine {
 			}
 			ret.push(card);
 		}
-		else if (e?.zone) {
-			let zone: Zone = e.zone;
+		// else if (e?.zone) {
+		// 	let zone: Zone = e.zone;
 
-			zone.cards.forEach((target: Card) => {
-				if (e?.skip && e.skip === target) return;	
-				target.update(e.update);
-				ret.push(target);
-			})	
-		}
+		// 	zone.cards.forEach((target: Card) => {
+		// 		if (e?.skip && e.skip === target) return;	
+		// 		target.update(e.update);
+		// 		ret.push(target);
+		// 	})	
+		// }
 
 		return ret;
 	}
@@ -379,11 +379,12 @@ export default class Engine {
 		let zone : Zone = e.in;
 
 		zone.cards.forEach((c : Card) => {
+			if (e?.skip && c === e.skip) return;
+
 			let nextEvent : Event = {...e.do};
-			if (!nextEvent?.card) {
-				nextEvent.card = "@each";
-			}
+
 			if (!refs) refs = {};
+
 			refs["each"] = c;
 			this.eval(nextEvent, refs);
 		});
@@ -504,10 +505,10 @@ export default class Engine {
 		return targets;
 	}
 
-	evalOnCard = (e: Event, c: Card) => {
-		let refs: Dict = this.makeCardRefs(c);	
-		this.eval(e, refs);
-	}
+	// evalOnCard = (e: Event, c: Card) => {
+	// 	let refs: Dict = this.makeCardRefs(c);	
+	// 	this.eval(e, refs);
+	// }
 
 	defineEvent = (eventName: string, e: Event) => {
 		this.eventDefs[eventName] = e;
