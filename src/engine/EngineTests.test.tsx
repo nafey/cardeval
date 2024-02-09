@@ -52,10 +52,10 @@ test("Update Event", () => {
 
 	engine.eval({
 		event: "UPDATE", 
-		card : "@this",
-		key : "a",
-		val :  9,
-	}, {this : c});
+		card: "@this",
+		key: "a",
+		val: 9,
+	}, { this: c });
 
 	expect(c.a).toBe(9);
 });
@@ -70,11 +70,11 @@ test("Add Event", () => {
 
 	engine.eval({
 		event: "UPDATE", 
-		card : "@this",
-		key : "a",
-		op : "ADD",
-		val :  1,
-	}, {this: c});
+		card: "@this",
+		key: "a",
+		op: "ADD",
+		val: 1,
+	}, { this: c });
 
 	expect(c.a).toBe(11);
 });
@@ -105,7 +105,7 @@ test("Create Event", () => {
 
 	zone.addCard(raiser);
 	engine.addToList("A1", { a: 1 });
-	engine.eval(event, {this: raiser});
+	engine.eval(event, { this: raiser });
 
 	expect(zone.count()).toBe(2);
 });
@@ -119,7 +119,7 @@ test("Delete Event", () => {
 	engine.eval({
 		event: "DELETE", 
 		card: "@this"
-	}, {this: card});
+	}, { this: card });
 
 	expect(zone.count()).toBe(0);
 });
@@ -140,9 +140,9 @@ test("Trigger on Create", () => {
 			do: {
 				event: "UPDATE",
 				card: "@this",
-				op : "ADD",
+				op: "ADD",
 				key: "a",
-				val : 1,
+				val: 1,
 			} 
 		} 
 	}
@@ -174,9 +174,9 @@ test("Dont Trigger on Self", () => {
 			do: {
 				event: "UPDATE",
 				card: "@this",
-				op : "ADD",
-				key : "a",
-				val : 1,
+				op: "ADD",
+				key: "a",
+				val: 1,
 			} 
 		} 
 	}
@@ -192,7 +192,7 @@ test("Dont Trigger on Self", () => {
 	expect(zone.getArr()[0].a).toBe(10);
 });
 
-test ("For Each", () => {
+test("For Each", () => {
 	let engine: Engine = new Engine();   
 	let zone: Zone = engine.newZone();
 
@@ -202,14 +202,14 @@ test ("For Each", () => {
 	let a2: Card = zone.addCard(new Card({ a: 2 }));
 
 	engine.eval({
-		event : "FOREACH",
-		in : "@MAIN",
+		event: "FOREACH",
+		in: "@MAIN",
 		do: {
-			event : "UPDATE",
-			card : "@each",
-			op : "ADD",
-			key : "a",
-			val : 1,
+			event: "UPDATE",
+			card: "@each",
+			op: "ADD",
+			key: "a",
+			val: 1,
 		}
 	})
 
@@ -230,14 +230,14 @@ test("On Receive", () => {
 			onReceive: {
 				on: "CREATE",
 				do: {
-					event : "FOREACH",
-					in : "@MAIN",
-					do : {
-						event : "UPDATE",
-						card : "@each",
-						op : "ADD",
-						key : "a",
-						val : 1
+					event: "FOREACH",
+					in: "@MAIN",
+					do: {
+						event: "UPDATE",
+						card: "@each",
+						op: "ADD",
+						key: "a",
+						val: 1
 					}
 				} 
 			} 
@@ -264,14 +264,14 @@ test("On Receive This", () => {
 			onReceive: {
 				on: "CREATE",
 				do: {
-					event : "FOREACH",
-					in : "@MAIN",
-					do : {
-						event : "UPDATE",
-						card : "@each",
-						op : "ADD",
-						key : "a",
-						val : "@this.a"
+					event: "FOREACH",
+					in: "@MAIN",
+					do: {
+						event: "UPDATE",
+						card: "@each",
+						op: "ADD",
+						key: "a",
+						val: "@this.a"
 					}
 				} 
 			} 
@@ -298,14 +298,14 @@ test("On Receive Each", () => {
 			onReceive: {
 				on: "CREATE",
 				do: {
-					event : "FOREACH",
-					in : "@MAIN",
-					do : {
-						event : "UPDATE",
-						card : "@each",
-						op : "ADD",
-						key : "a",
-						val : "@each.a"
+					event: "FOREACH",
+					in: "@MAIN",
+					do: {
+						event: "UPDATE",
+						card: "@each",
+						op: "ADD",
+						key: "a",
+						val: "@each.a"
 					}
 				} 
 			} 
@@ -320,20 +320,20 @@ test("On Receive Each", () => {
 	expect(zone.getArr()[2].a).toBe(20);
 });
 
-test ("Direct Ref", () => {
-	let engine : Engine = new Engine();
-	let zone : Zone = engine.newZone();
+test("Direct Ref", () => {
+	let engine: Engine = new Engine();
+	let zone: Zone = engine.newZone();
 
 	engine.refs.MAIN = zone;
 
 	let a1: Card = zone.addCard(new Card({ a: 1 }));
 
 	engine.eval({
-		event : "UPDATE",
-		card : a1,
-		op : "ADD",
-		key : "a",
-		val : 1
+		event: "UPDATE",
+		card: a1,
+		op: "ADD",
+		key: "a",
+		val: 1
 	});
 
 	expect(a1.a).toBe(2);
@@ -357,15 +357,15 @@ test("Skip", () => {
 	// }) 
 
 	engine.eval({
-		event : "FOREACH",
-		skip : a2,
-		in : "@MAIN",
-		do : {
-			event : "UPDATE",
-			card : "@each",
-			op : "ADD",
-			key : "a",
-			val : 1,
+		event: "FOREACH",
+		skip: a2,
+		in: "@MAIN",
+		do: {
+			event: "UPDATE",
+			card: "@each",
+			op: "ADD",
+			key: "a",
+			val: 1,
 		}
 	})
 
@@ -387,20 +387,20 @@ test("Skip On Self", () => {
 		skip: "@this",
 		in: "@MAIN",
 		update: { a: { op: "add", val: 1 } }
-	}, {this: a2}) 
+	}, { this: a2 }) 
 	
 	engine.eval({
-		event : "FOREACH",
-		skip : "@this",
-		in : "@MAIN",
-		do : {
-			event : "UPDATE",
-			card : "@each",
-			op : "ADD",
-			key : "a",
-			val : 1,
+		event: "FOREACH",
+		skip: "@this",
+		in: "@MAIN",
+		do: {
+			event: "UPDATE",
+			card: "@each",
+			op: "ADD",
+			key: "a",
+			val: 1,
 		}
-	}, {this : a2});
+	}, { this: a2 });
 
 
 	expect(a1.a).toBe(2);
@@ -424,7 +424,7 @@ test("Move", () => {
 		from: "@AREA1",
 		to: "@AREA2"
 	}, 
-		{this: card}
+		{ this: card }
 	);
 
 	expect(area1.count()).toBe(0);
@@ -490,9 +490,9 @@ test("Receive Custom Event", () => {
 			do: {
 				event: "UPDATE",
 				card: "@this",
-				op : "ADD",
-				key : "a",
-				val : 1
+				op: "ADD",
+				key: "a",
+				val: 1
 			}
 		}
 	}
@@ -670,10 +670,10 @@ test("Event Def", () => {
 	
 	engine.loadGame(gameDef); 
 
-	let area1 : Zone = engine.refs.AREA1;
+	let area1: Zone = engine.refs.AREA1;
 	expect(area1.count()).toBe(0);
 
-	engine.eval({event: "MAKEA1"});
+	engine.eval({ event: "MAKEA1" });
 	expect(area1.count()).toBe(1);
 })
 
@@ -682,55 +682,55 @@ test("Move all", () => {
 	
 	engine.loadGame(gameDef); 
 
-	let area1 : Zone = engine.refs.AREA1;
-	let area2 : Zone = engine.refs.AREA2;
+	let area1: Zone = engine.refs.AREA1;
+	let area2: Zone = engine.refs.AREA2;
 
-	engine.eval({event: "MAKEA1"});
-	engine.eval({event: "MAKEA1"});
+	engine.eval({ event: "MAKEA1" });
+	engine.eval({ event: "MAKEA1" });
 	expect(area1.count()).toBe(2);
 
 	engine.eval({
-		event : "MOVE_ALL",
+		event: "MOVE_ALL",
 		from: "@AREA1",
-		to : "@AREA2"
+		to: "@AREA2"
 	}); 
 
 	expect(area2.count()).toBe(2);
 });
 
 
-test ("Set Ref", () => {
-	let engine : Engine = new Engine();
+test("Set Ref", () => {
+	let engine: Engine = new Engine();
 
 	engine.eval({
-		event : "SET",
-		ref : "TESTVAL",
-		val : 44
+		event: "SET",
+		ref: "TESTVAL",
+		val: 44
 	});
 
 	expect(engine.refs.TESTVAL).toBe(44);
 });
 
 
-test ("Validate", () => {
-	let engine : Engine = new Engine(); 
+test("Validate", () => {
+	let engine: Engine = new Engine(); 
 	engine.loadGame(gameDef);
 
-	engine.eval({event : "MAKEA1"})[0];
+	engine.eval({ event: "MAKEA1" })[0];
 
 	engine.eval({
-		event : "SET",
+		event: "SET",
 		ref: "TEST",
-		val : 1
+		val: 1
 	})
 
 	expect(() => engine.eval({
-		event : "VALIDATE",
+		event: "VALIDATE",
 		type: "COMPARE_VALS",
-		op : "EQ",
-		val1 : "@TEST",
-		val2 : 2,
-		errorMsg : "Custom"
+		op: "EQ",
+		val1: "@TEST",
+		val2: 2,
+		errorMsg: "Custom"
 	})).toThrowError("Custom");
 });
 
@@ -747,26 +747,26 @@ test("Validate Update", () => {
 	area1.addCard(card);
 	
 	let event = {
-		event : "SEQUENCE",
-		events : [
+		event: "SEQUENCE",
+		events: [
 			{
-				event : "VALIDATE",
-				type : "COMPARE_VALS",
-				op : "GT",
-				va1 : "@this.a",
-				val2 : 5,
+				event: "VALIDATE",
+				type: "COMPARE_VALS",
+				op: "GT",
+				va1: "@this.a",
+				val2: 5,
 				errorMsg: "a val should be greater than 5",
 			},
 			{
-				event : "MOVE",
-				card : "@this",
-				from : "@AREA1",
-				to : "@AREA2"
+				event: "MOVE",
+				card: "@this",
+				from: "@AREA1",
+				to: "@AREA2"
 			}
 		]
 	}
 
-	let testfn = () => engine.eval(event, {this:card});
+	let testfn = () => engine.eval(event, { this: card });
 
 	expect(testfn).toThrowError("5");
 });
@@ -781,32 +781,69 @@ test("Validate Update Pass", () => {
 	let area2: Zone = engine.newZone();
 	engine.refs.AREA2 = area2;
 
-	let card: Card = new Card({ a: 6});
+	let card: Card = new Card({ a: 6 });
 	area1.addCard(card);
 	
 	let event = {
-		event : "SEQUENCE",
-		events : [
+		event: "SEQUENCE",
+		events: [
 			{
-				event : "VALIDATE",
-				type : "COMPARE_VALS",
-				op : "GT",
-				val1 : "@this.a",
-				val2 : 5,
+				event: "VALIDATE",
+				type: "COMPARE_VALS",
+				op: "GT",
+				val1: "@this.a",
+				val2: 5,
 				errorMsg: "a val should be greater than 5",
 			},
 			{
-				event : "MOVE",
-				card : "@this",
-				from : "@AREA1",
-				to : "@AREA2"
+				event: "MOVE",
+				card: "@this",
+				from: "@AREA1",
+				to: "@AREA2"
 			}
 		]
 	}
 
-	engine.eval(event, {this: card});
+	engine.eval(event, { this: card });
 
 	expect(engine.refs.AREA2.count()).toBe(1);
+});
+
+test("Calc Sum", () => {
+	let engine: Engine = new Engine(); 
+
+	engine.loadGame(gameDef);
+
+	engine.eval({ event: "MAKEA1" });
+	engine.eval({ event: "MAKEA2" });
+
+	engine.eval({
+		event: "CALC",
+		op: "SUM",
+		val1: "@A1.a",
+		val2: "@A2.a",
+	});
+
+	expect(engine.refs.calc).toBe(3);
+});
+
+
+test("Calc Diff", () => {
+	let engine: Engine = new Engine(); 
+
+	engine.loadGame(gameDef);
+
+	engine.eval({ event: "MAKEA1" });
+	engine.eval({ event: "MAKEA2" });
+
+	engine.eval({
+		event: "CALC",
+		op: "DIFF",
+		val1: "@A1.a",
+		val2: "@A2.a",
+	});
+
+	expect(engine.refs.calc).toBe(-1);
 });
 
 test("Common Functions", () => {
@@ -814,14 +851,25 @@ test("Common Functions", () => {
 
 	engine.loadGame(gameDef);
 
-	engine.eval({event: "MAKEA1"});
-	engine.eval({event: "MAKEA2"});
+	engine.eval({ event: "MAKEA1" });
+	engine.eval({ event: "MAKEA2" });
 
-	engine.eval({
-		event: "VALIDATE",
-		type: "COMPARE_VALS",
-		op : "EQ",
-		val1 : {op : "DIFF", val1 : "@A2.a", val2 : "@A1.a"},
-		val2 : 1
-	})	
+	let testfn = () => engine.eval({
+
+		event: "SEQUENCE",
+		events: [{
+			event: "CALC",
+			op: "DIFF",
+			val1: "@A2.a",
+			val2: "@A1.a",
+		},
+		{
+			event: "VALIDATE",
+			op: "EQ",
+			val1: "@calc",
+			val2: 2	
+		}]	
+	});	
+
+	expect(testfn).toThrowError();
 });

@@ -406,28 +406,32 @@ export default class Engine {
 	evalValidate = (e : Event) => {
 		logParams("evalValidate");
 			
-		if (e.type === "COMPARE_VALS") {
 
-			let errorMsg = e?.errorMsg ? e.errorMsg : "Val comparison failed";
+		let errorMsg = e?.errorMsg ? e.errorMsg : "Val comparison failed";
 
-			let val1 = e.val1;
-			let val2 = e.val2;
+		let val1 = e.val1;
+		let val2 = e.val2;
 
 
-			if (e.op === "EQ") {
-				if (val1 === val2) return;
-				throw new Error(errorMsg);	
-			}
-			if (e.op === "GT") {
-				if (val1 > val2) return;
-				throw new Error(errorMsg);
-			}
-			else {
-				throw new Error("Unknown operation type");
-			}
-		}	
+		if (e.op === "EQ") {
+			if (val1 === val2) return;
+			throw new Error(errorMsg);	
+		}
+		if (e.op === "GT") {
+			if (val1 > val2) return;
+			throw new Error(errorMsg);
+		}
 		else {
-			throw new Error ("Unknown validation type");
+			throw new Error("Unknown operation type");
+		}
+	}
+
+	evalCalc = (e : Event) => {
+		if (e.op === "SUM") {
+			this.refs.calc = e.val1 + e.val2;	
+		}		
+		else if (e.op === "DIFF") {
+			this.refs.calc = e.val1 - e.val2;	
 		}
 	}
 
@@ -478,6 +482,9 @@ export default class Engine {
 		}
 		else if (e.event === "SET") {
 			targets = this.evalSet(e);
+		}
+		else if (e.event === "CALC") {
+			this.evalCalc(e);
 		}
 		else if (e.event === "VALIDATE") {
 			this.evalValidate(e);
