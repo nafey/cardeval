@@ -206,6 +206,7 @@ test ("For Each", () => {
 		in : "@MAIN",
 		do: {
 			event : "UPDATE",
+			card : "@each",
 			op : "ADD",
 			key : "a",
 			val : 1,
@@ -250,7 +251,7 @@ test("On Receive", () => {
 	expect(zone.getArr()[2].a).toBe(11);
 });
 
-test("On Receive", () => {
+test("On Receive This", () => {
 	let engine: Engine = new Engine();   
 	let zone: Zone = engine.newZone();
 
@@ -263,13 +264,12 @@ test("On Receive", () => {
 				on: "CREATE",
 				do: {
 					event : "FOREACH",
-					skip : "@this",
 					in : "@MAIN",
 					do : {
 						event : "UPDATE",
 						op : "ADD",
 						key : "a",
-						val : 1
+						val : "@this.a"
 					}
 				} 
 			} 
@@ -279,9 +279,9 @@ test("On Receive", () => {
 	let a2: Card = zone.addCard(new Card({ a: 2 }));
 
 	engine.eval({ event: "CREATE", zone: "@MAIN", code: "A10" });
-	expect(a1.a).toBe(2);
-	expect(a2.a).toBe(3);
-	expect(zone.getArr()[2].a).toBe(11);
+	expect(a1.a).toBe(11);
+	expect(a2.a).toBe(12);
+	expect(zone.getArr()[2].a).toBe(20);
 });
 
 

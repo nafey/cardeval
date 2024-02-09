@@ -109,7 +109,7 @@ export default class Parser {
 			// 	return;
 			// }
 
-			if (["card", "skip"].includes(eventKey)) {
+			if (["card", "skip",].includes(eventKey)) {
 				ret[eventKey] = this.lookup(eventVal) as Card;
 			} 
 			else if (["zone", "from", "to", "in"].includes(eventKey)) {
