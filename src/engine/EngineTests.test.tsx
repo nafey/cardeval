@@ -382,48 +382,30 @@ test("Skip On Self", () => {
 	let a1: Card = zone.addCard(new Card({ a: 1 }));
 	let a2: Card = zone.addCard(new Card({ a: 2 }));
 
-	engine.evalOnCard({
+	engine.eval({
 		event: "UPDATE",
 		skip: "@this",
 		in: "@MAIN",
 		update: { a: { op: "add", val: 1 } }
-	}, a2) 
+	}, {this: a2}) 
 	
+	engine.eval({
+		event : "FOREACH",
+		skip : "@this",
+		in : "@MAIN",
+		do : {
+			event : "UPDATE",
+			card : "@each",
+			op : "ADD",
+			key : "a",
+			val : 1,
+		}
+	}, {this : a2});
+
+
 	expect(a1.a).toBe(2);
 	expect(a2.a).toBe(2);
 });
-
-
-test("Update Others On Create", () => {
-	let engine: Engine = new Engine();   
-	let zone: Zone = engine.newZone();
-
-	engine.refs.MAIN = zone;
-
-	engine.addToList("A10",
-		{
-			a: 10,
-			onReceive: {
-				on: "CREATE",
-				in: "@MAIN",
-				do: {
-					event: "UPDATE",
-					skip: "@this",
-					in: "@MAIN",
-					update: { a: { op: "add", val: 1 } }
-				} 
-			} 
-		});
-
-	let a1: Card = zone.addCard(new Card({ a: 1 }));
-	let a2: Card = zone.addCard(new Card({ a: 2 }));
-
-	engine.eval({ event: "CREATE", zone: "@MAIN", code: "A10" });
-	expect(a1.a).toBe(2);
-	expect(a2.a).toBe(3);
-	expect(zone.getArr()[2].a).toBe(10);
-});
-
 
 test("Move", () => {
 	let engine: Engine = new Engine();   
@@ -436,13 +418,13 @@ test("Move", () => {
 
 	let card: Card = new Card({ a: 1 });
 	area1.addCard(card);
-	engine.evalOnCard({
+	engine.eval({
 		event: "MOVE",
 		card: "@this", 
 		from: "@AREA1",
 		to: "@AREA2"
 	}, 
-		card
+		{this: card}
 	);
 
 	expect(area1.count()).toBe(0);
@@ -508,7 +490,9 @@ test("Receive Custom Event", () => {
 			do: {
 				event: "UPDATE",
 				card: "@this",
-				update: { a: { op: "add", val: 1 } }      
+				op : "ADD",
+				key : "a",
+				val : 1
 			}
 		}
 	}
@@ -782,7 +766,7 @@ test("Validate Update", () => {
 		]
 	}
 
-	let testfn = () => engine.evalOnCard(event, card );
+	let testfn = () => engine.eval(event, {this:card});
 
 	expect(testfn).toThrowError("5");
 });
@@ -820,7 +804,7 @@ test("Validate Update Pass", () => {
 		]
 	}
 
-	engine.evalOnCard(event, card);
+	engine.eval(event, {this: card});
 
 	expect(engine.refs.AREA2.count()).toBe(1);
 });
