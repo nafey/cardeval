@@ -537,7 +537,25 @@ let gameDef = {
 				zone: "@AREA1",
 				set: "A2"
 			} 
-		}
+		},
+		{
+			event: "MAKEB1",
+			def: {
+				event: "CREATE",
+				code: "B1",
+				zone: "@AREA2",
+				set: "B1"
+			} 
+		},
+		{
+			event: "MAKEB2",
+			def: {
+				event: "CREATE",
+				code: "B2",
+				zone: "@AREA2",
+				set: "B2"
+			} 
+		},
 	],
 	cardList: [
 		{
@@ -873,3 +891,27 @@ test("Common Functions", () => {
 
 	expect(testfn).toThrowError();
 });
+
+test("If zone count", () => {
+	let engine: Engine = new Engine(); 
+
+	engine.loadGame(gameDef);
+
+	engine.eval({ event: "MAKEA1" });
+	engine.eval({ event: "MAKEA2" });
+
+	engine.eval({
+		event: "IF",
+		zone: "@AREA1",
+		type: "ZONE_COUNT",
+		val: 2,
+		then: {
+			event: "MAKEB1",
+		},
+		else: {
+			event: "MAKEB2"
+		}
+	})
+
+	expect(engine.refs.AREA2.cards[0].b).toBe(1);
+})
