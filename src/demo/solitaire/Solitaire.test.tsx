@@ -30,7 +30,33 @@ let gameDef = {
 				event: "MOVE",
 				from: "@DECK",
 				to: "@PILE",
-				at: "BOT"		
+				at: "TOP"		
+			}	
+		},
+		{
+			event: "CLICK_DECK",
+			def: {
+				event: "IF",
+				zone: "@DECK",
+				type: "ZONE_COUNT",
+				val: 0,
+				then: {
+					event: "SEQUENCE",
+					events: [
+						{
+							event: "REVERSE",
+							zone: "@PILE"
+						}
+						, {
+							event: "MOVE_ALL",
+							from: "@PILE",
+							to: "@DECK"
+						}
+					]
+				},
+				else: {
+					event: "DRAW"
+				}	
 			}	
 		}
 	],
@@ -74,5 +100,75 @@ test("Draw", () => {
 	let pile: Zone = engine.refs.PILE;
 	expect(pile.count()).toBe(1);
 });
+
+test ("Reset Pile", () => {
+	let engine: Engine = new Engine();
+
+	engine.loadGame(gameDef);
+
+	let pile : Zone = engine.refs.PILE;
+	let deck : Zone = engine.refs.DECK;
+
+	pile.addCard(engine.createCardFromList("H3"));
+	engine.eval({event: "CLICK_DECK"});	
+	expect(deck.cards[0].num).toBe(3);
+});
+
+test ("Reverse Pile", () => {
+	let engine: Engine = new Engine();
+
+	engine.loadGame(gameDef);
+
+	let pile : Zone = engine.refs.PILE;
+	let deck : Zone = engine.refs.DECK;
+
+	pile.addCard(engine.createCardFromList("H3"));
+	pile.addCard(engine.createCardFromList("S2"));
+
+	engine.eval({event: "CLICK_DECK"});	
+	expect(deck.cards[0].num).toBe(2);
+});
+
+test ("Draw", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let pile : Zone = engine.refs.PILE;
+	let deck : Zone = engine.refs.DECK;
+
+	deck.addCard(engine.createCardFromList("H3"));
+
+	engine.eval({event : "DRAW"});
+	expect(pile.count()).toBe(1);
+});
+
+
+test ("Multi Draw", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let pile : Zone = engine.refs.PILE;
+	let deck : Zone = engine.refs.DECK;
+
+	deck.addCard(engine.createCardFromList("H3"));
+	deck.addCard(engine.createCardFromList("S2"));
+
+	expect(pile.count()).toBe(0);
+
+	engine.eval({event : "CLICK_DECK"});
+	expect(pile.count()).toBe(1);
+
+	engine.eval({event : "CLICK_DECK"});
+	expect(pile.count()).toBe(2);
+
+	engine.eval({event : "CLICK_DECK"});
+	expect(pile.count()).toBe(0);
+	
+	engine.eval({event : "CLICK_DECK"});
+	expect(pile.count()).toBe(1);
+});
+
 
 

@@ -471,7 +471,6 @@ export default class Engine {
 			zone.reverse();		
 		}
 		else if (e.event === "MOVE_ALL") {
-
 			targets = this.evalMoveAll(e);
 		}
 		else if (e.event === "IF") {
