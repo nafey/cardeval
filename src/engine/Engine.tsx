@@ -282,6 +282,13 @@ export default class Engine {
 		if (e?.card) {
 			card = e.card;
 		}
+		else if (e?.after) {
+			// card = e.after;
+			// let cardIndex = from.getIndex(card.cardId);
+			// let cardCount = from.count();
+			
+			
+		}
 		else if (e?.at) {
 			if (typeof e.at === "string" && e.at === "TOP") {
 				card = from.getArr()[from.getArr().length - 1];

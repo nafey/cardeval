@@ -21,7 +21,8 @@ let gameDef = {
 	refs: {
 		DECK: { type: "ZONE", index: 0 },
 		PILE: { type: "ZONE", index: 1 },
-		Z1: { type: "ZONE", index: 2 }
+		Z1: { type: "ZONE", index: 2 },
+		Z2 : { type: "ZONE", index: 3}
 	},
 	eventDefs: [
 		{
@@ -62,14 +63,34 @@ let gameDef = {
 	],
 	cardList: [
 		{
+			code: "H1",
+			suit: "H",
+			num: 1
+		},
+		{
+			code: "H2",
+			suit: "H",
+			num: 3
+		},
+		{
 			code: "H3",
 			suit: "H",
 			num: 3
 		},
 		{
+			code: "S1",
+			suit: "S",
+			num: 1
+		},
+		{
 			code: "S2",
 			suit: "S",
-			num: 2,
+			num: 2
+		},
+		{
+			code: "S3",
+			suit: "S",
+			num: 3,
 		},
 	]
 
@@ -165,10 +186,11 @@ test ("Multi Draw", () => {
 
 	engine.eval({event : "CLICK_DECK"});
 	expect(pile.count()).toBe(0);
-	
+
 	engine.eval({event : "CLICK_DECK"});
 	expect(pile.count()).toBe(1);
 });
+
 
 
 
