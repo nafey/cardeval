@@ -914,4 +914,29 @@ test("If zone count", () => {
 	})
 
 	expect(engine.refs.AREA2.cards[0].b).toBe(1);
-})
+});
+
+test ("Move After", () => {
+	let engine: Engine = new Engine(); 
+
+	engine.loadGame(gameDef);
+
+	engine.eval({ event: "MAKEA1" });
+	engine.eval({ event: "MAKEA1" });
+	engine.eval({ event: "MAKEA2" });
+
+	let area1 : Zone = engine.refs.AREA1;
+	let area2 : Zone = engine.refs.AREA2;
+
+	let card : Card = area1.cards[1];
+
+	engine.eval({
+		event : "MOVE",
+		after : card,
+		from : "@AREA1",
+		to : "@AREA2"
+	})
+
+	expect(area2.count()).toBe(2);
+});
+

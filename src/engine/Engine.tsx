@@ -278,16 +278,18 @@ export default class Engine {
 		let to: Zone = e.to;	
 
 		let card!: Card; 
+		let moveCount : number = 1;
 
 		if (e?.card) {
 			card = e.card;
 		}
 		else if (e?.after) {
-			// card = e.after;
-			// let cardIndex = from.getIndex(card.cardId);
-			// let cardCount = from.count();
-			
-			
+			card = e.after;
+			let cardIndex : number = from.getIndex(card.cardId);
+			let lastIndex : number = from.count() - 1;
+
+			moveCount = lastIndex - cardIndex + 1;	
+
 		}
 		else if (e?.at) {
 			if (typeof e.at === "string" && e.at === "TOP") {
@@ -304,7 +306,7 @@ export default class Engine {
 			}
 		}
 
-		return this.moveCards(from.zoneId, card.cardId, to.zoneId);
+		return this.moveCards(from.zoneId, card.cardId, to.zoneId, moveCount);
 	}
 
 	evalDelete = (e: Event): Card[] => {
