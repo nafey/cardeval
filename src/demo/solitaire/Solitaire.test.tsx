@@ -1,6 +1,7 @@
 import { test, expect, beforeEach } from "vitest";
 import Engine from "src/engine/Engine";
 import Zone from "src/engine/Zone";
+import Card from "src/engine/Card";
 
 const consoleDebug: any = console.debug;
 
@@ -65,13 +66,43 @@ let gameDef = {
 		{
 			event : "FIND_MOVER",
 			def : {
+				event : "FIND",
+				in : "@EVENT.in",
+				key : "visible",
+				val: true
+			}
+		},
 
+		{
+			event: "FLIP",
+			def : {
+				event : "UPDATE",
+				card : "@EVENT.card",
+				op : "NOT",
+				key : "visible",
+			}
+		},
+
+		{
+			event : "VALIDATE_MOVE",
+			def: {
+				event : "SEQUENCE",
+				events: [
+				{
+					event : "VALIDATE",
+
+				}
+				]
 			}
 		}
-
 	],
 
 	cardList: [
+		{
+			code : "HIDDEN",
+			suit : "H",
+			num : 1
+		},
 		{
 			code: "H1",
 			suit: "H",
@@ -201,6 +232,40 @@ test ("Multi Draw", () => {
 	expect(pile.count()).toBe(1);
 });
 
-test ("Find Mover")
+test ("Find Mover", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1 : Zone = engine.refs.Z1;
+	z1.addCard(engine.createCardFromList("HIDDEN"));
+	z1.addCard(engine.createCardFromList("H1"));
+
+	engine.eval({
+		event : "FIND_MOVER",
+		in : "@Z1"
+	})
+
+	let found : Card = engine.refs.found; 	
+	expect(found.visible).toBe(true);
+});
+
+test ("Flip", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1 : Zone = engine.refs.Z1;
+	z1.addCard(engine.createCardFromList("HIDDEN"));
+
+	let card : Card = z1.cards[0];
+
+	engine.eval({
+		event : "FLIP",
+		card : card
+	})
+
+	expect(card.visible).toBe(true);
+});
 
 

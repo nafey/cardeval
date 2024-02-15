@@ -336,29 +336,24 @@ export default class Engine {
 		logParams("evalUpdate");
 		let ret: Card[] = [];
 
-		if (e?.card) {
-			let card: Card = e.card;
+		let card: Card = e.card;
 
-			let key : string = e.key;
-			let val = e.val;
+		let key : string = e.key;
+		let val = e.val;
 
-			if (e?.op === "ADD") {
-				card[key] += e.val;
-			}
-			else {
-				card[key] = val;
-			}
-			ret.push(card);
+		if (e?.op === "ADD") {
+			card[key] += e.val;
 		}
-		// else if (e?.zone) {
-		// 	let zone: Zone = e.zone;
-
-		// 	zone.cards.forEach((target: Card) => {
-		// 		if (e?.skip && e.skip === target) return;	
-		// 		target.update(e.update);
-		// 		ret.push(target);
-		// 	})	
-		// }
+		else if (e?.op === "SUB") {
+			card[key] -= e.val;
+		}
+		else if (e?.op === "NOT") {
+			card[key] = !e.val;
+		}
+		else {
+			card[key] = val;
+		}
+		ret.push(card);
 
 		return ret;
 	}
@@ -453,7 +448,7 @@ export default class Engine {
 			let c : Card = zone.cards[i];
 
 			if (c[key] === val) {
-				this.refs.find = c;
+				this.refs.found = c;
 			}
 		}
 	}

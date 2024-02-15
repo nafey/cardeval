@@ -383,13 +383,6 @@ test("Skip On Self", () => {
 	let a2: Card = zone.addCard(new Card({ a: 2 }));
 
 	engine.eval({
-		event: "UPDATE",
-		skip: "@this",
-		in: "@MAIN",
-		update: { a: { op: "add", val: 1 } }
-	}, { this: a2 }) 
-	
-	engine.eval({
 		event: "FOREACH",
 		skip: "@this",
 		in: "@MAIN",
@@ -401,7 +394,6 @@ test("Skip On Self", () => {
 			val: 1,
 		}
 	}, { this: a2 });
-
 
 	expect(a1.a).toBe(2);
 	expect(a2.a).toBe(2);
@@ -955,8 +947,7 @@ test("Find", () => {
 		val : 2
 	});		
 
-	let card : Card = engine.refs.find;
+	let card : Card = engine.refs.found;
 	expect(card.a).toBe(2);
-
 });
 
