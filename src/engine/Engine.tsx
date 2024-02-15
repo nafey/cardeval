@@ -444,6 +444,20 @@ export default class Engine {
 		}
 	}
 
+	evalFind = (e : Event) => {
+		let zone : Zone = e.in;
+		let key : string = e.key;
+		let val = e.val;
+
+		for (let i = 0; i < zone.count(); i++) {
+			let c : Card = zone.cards[i];
+
+			if (c[key] === val) {
+				this.refs.find = c;
+			}
+		}
+	}
+
 	eval = (e: Event, refs?: Dict): Card[] => {
 		logParams("eval");
 
@@ -496,6 +510,9 @@ export default class Engine {
 		}
 		else if (e.event === "VALIDATE") {
 			this.evalValidate(e);
+		}
+		else if (e.event === "FIND") {
+			this.evalFind(e);
 		}
 		else if (e.event in this.eventDefs) {
 			let nextEvent: Event = this.eventDefs[e.event];

@@ -940,3 +940,23 @@ test ("Move After", () => {
 	expect(area2.count()).toBe(2);
 });
 
+test("Find", () => {
+	let engine: Engine = new Engine(); 
+
+	engine.loadGame(gameDef);
+
+	engine.eval({event : "MAKEA1"});
+	engine.eval({event : "MAKEA2"});
+
+	engine.eval ({
+		event : "FIND",
+		in : "@AREA1",
+		key: "a",
+		val : 2
+	});		
+
+	let card : Card = engine.refs.find;
+	expect(card.a).toBe(2);
+
+});
+

@@ -34,6 +34,7 @@ let gameDef = {
 				at: "TOP"		
 			}	
 		},
+
 		{
 			event: "CLICK_DECK",
 			def: {
@@ -59,8 +60,17 @@ let gameDef = {
 					event: "DRAW"
 				}	
 			}	
+		},
+
+		{
+			event : "FIND_MOVER",
+			def : {
+
+			}
 		}
+
 	],
+
 	cardList: [
 		{
 			code: "H1",
@@ -191,6 +201,6 @@ test ("Multi Draw", () => {
 	expect(pile.count()).toBe(1);
 });
 
-
+test ("Find Mover")
 
 
