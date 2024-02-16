@@ -360,21 +360,42 @@ export default class Engine {
 
 	evalIf = (e: Event) : Card[] => {
 		logParams("evalIf");
+		let isTrue : boolean = true;
 
 		if (e.type === "ZONE_COUNT") {
 			let zone : Zone = e.zone;	
-			if (zone.count() === e.val) {
-				return this.eval(e.then);
-			}
-			else {
-				return this.eval(e.else);
-			}
+			isTrue = (zone.count() === e.val);
 		}		
-		else if (e.type === "COMPARE_VAL") {
-
+		else if (e.type === "COMPARE") {
+			if (e.op === "EQ") {
+				isTrue = (e.val1 === e.val2);
+			}
+			else if (e.op === "DIFF") {
+				isTrue = (e.val1 - e.val2 === e.diff);
+			}
+			else if (e.op === "SUM") {
+				isTrue = (e.val1 + e.val2 === e.sum);
+			}
+			else if (e.op === "GT") {
+				isTrue = (e.val1 > e.val2);
+			}
+			else if (e.op === "GTE") {
+				isTrue = (e.val1 >= e.val2);
+			}
+			else if (e.op === "LT") {
+				isTrue = (e.val1 < e.val2);
+			}
+			else if (e.op === "LTE") {
+				isTrue = (e.val1 <= e.val2);
+			}
+		}
+		else {
+			throw new Error ("Not implemented type");
 		}
 
-		throw new Error ("Not implemented type");
+		if (e?.then && isTrue) return this.eval(e.then) 
+		else if (e?.else && !isTrue) return this.eval(e.else);
+		else return [];
 	}
 
 	evalForEach = (e: Event, refs? : Dict) : Card[] => {
@@ -407,28 +428,6 @@ export default class Engine {
 		return [];
 	}
 
-	evalValidate = (e : Event) => {
-		logParams("evalValidate");
-			
-
-		let errorMsg = e?.errorMsg ? e.errorMsg : "Val comparison failed";
-
-		let val1 = e.val1;
-		let val2 = e.val2;
-
-
-		if (e.op === "EQ") {
-			if (val1 === val2) return;
-			throw new Error(errorMsg);	
-		}
-		if (e.op === "GT") {
-			if (val1 > val2) return;
-			throw new Error(errorMsg);
-		}
-		else {
-			throw new Error("Unknown operation type");
-		}
-	}
 
 	evalCalc = (e : Event) => {
 		if (e.op === "SUM") {
@@ -451,6 +450,10 @@ export default class Engine {
 				this.refs.found = c;
 			}
 		}
+	}
+
+	evalError = (e : Event) => {
+		throw new Error(e.errorMsg);
 	}
 
 	eval = (e: Event, refs?: Dict): Card[] => {
@@ -503,11 +506,11 @@ export default class Engine {
 		else if (e.event === "CALC") {
 			this.evalCalc(e);
 		}
-		else if (e.event === "VALIDATE") {
-			this.evalValidate(e);
-		}
 		else if (e.event === "FIND") {
 			this.evalFind(e);
+		}
+		else if (e.event === "RAISE_ERROR") {
+			this.evalError(e);
 		}
 		else if (e.event in this.eventDefs) {
 			let nextEvent: Event = this.eventDefs[e.event];

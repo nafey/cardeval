@@ -88,13 +88,18 @@ let gameDef = {
 			def: {
 				event : "SEQUENCE",
 				events: [
-				{
-					event : "VALIDATE",
-
-				}
+					{
+						event : "IF",
+						type : "COMPARE_VALS",
+						op : "DIFF",
+						val1 : "@target.num",
+						val2 : "@source.num",
+						diff : 1
+					}
 				]
 			}
-		}
+		},
+		
 	],
 
 	cardList: [

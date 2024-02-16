@@ -735,12 +735,15 @@ test("Validate", () => {
 	})
 
 	expect(() => engine.eval({
-		event: "VALIDATE",
-		type: "COMPARE_VALS",
+		event: "IF",
+		type: "COMPARE",
 		op: "EQ",
 		val1: "@TEST",
 		val2: 2,
-		errorMsg: "Custom"
+		else: {
+			event : "RAISE_ERROR",
+			errorMsg: "Custom error message here"
+		}
 	})).toThrowError("Custom");
 });
 
@@ -760,12 +763,15 @@ test("Validate Update", () => {
 		event: "SEQUENCE",
 		events: [
 			{
-				event: "VALIDATE",
-				type: "COMPARE_VALS",
+				event: "IF",
+				type: "COMPARE",
 				op: "GT",
 				va1: "@this.a",
 				val2: 5,
-				errorMsg: "a val should be greater than 5",
+				else : {
+					event : "RAISE_ERROR",
+					errorMsg:"a val should be greater than 5", 
+				}
 			},
 			{
 				event: "MOVE",
@@ -798,12 +804,15 @@ test("Validate Update Pass", () => {
 		event: "SEQUENCE",
 		events: [
 			{
-				event: "VALIDATE",
-				type: "COMPARE_VALS",
+				event: "IF",
+				type: "COMPARE",
 				op: "GT",
 				val1: "@this.a",
 				val2: 5,
-				errorMsg: "a val should be greater than 5",
+				else: {
+					event : "RAISE_ERROR",
+					errorMsg: "a val should be greater than 5"
+				}
 			},
 			{
 				event: "MOVE",
