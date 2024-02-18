@@ -358,7 +358,7 @@ export default class Engine {
 		return ret;
 	}
 
-	evalIf = (e: Event) : Card[] => {
+	evalIf = (e: Event) : boolean => {
 		logParams("evalIf");
 		let isTrue : boolean = true;
 
@@ -388,14 +388,23 @@ export default class Engine {
 			else if (e.op === "LTE") {
 				isTrue = (e.val1 <= e.val2);
 			}
+			else if (e.op === "IN") {
+				console.debug(e);
+				isTrue = (e.array.includes(e.val));
+			}
+			else if (e.op === "NOT_IN") {
+				isTrue = !(e.array.includes(e.val));
+			}
 		}
 		else {
 			throw new Error ("Not implemented type");
 		}
 
-		if (e?.then && isTrue) return this.eval(e.then) 
-		else if (e?.else && !isTrue) return this.eval(e.else);
-		else return [];
+		return isTrue;
+
+		// if (e?.then && isTrue) return this.eval(e.then) 
+		// else if (e?.else && !isTrue) return this.eval(e.else);
+		// else return [];
 	}
 
 	evalForEach = (e: Event, refs? : Dict) : Card[] => {
@@ -478,6 +487,8 @@ export default class Engine {
 			targets = this.evalMove(e);
 		}
 		else if (e.event === "SEQUENCE") {
+			logParams("evalSequence");
+
 			let events = e.events;
 			events.forEach((i : Event) => {
 				targets = targets.concat(this.eval(i, refs));		
@@ -495,7 +506,13 @@ export default class Engine {
 			targets = this.evalMoveAll(e);
 		}
 		else if (e.event === "IF") {
-			targets = this.evalIf(e);
+			let ret : boolean = this.evalIf(e);
+			if (ret) {
+				targets = this.eval(e.then, refs);
+			}
+			else {
+				targets = this.eval(e.else, refs);
+			}
 		}
 		else if (e.event === "FOREACH") {
 			targets = this.evalForEach(e, refs);	
@@ -513,6 +530,7 @@ export default class Engine {
 			this.evalError(e);
 		}
 		else if (e.event in this.eventDefs) {
+			logParams("Custom Event " + e.event);
 			let nextEvent: Event = this.eventDefs[e.event];
 			targets = this.eval(nextEvent, this.mergeRefs(this.makeEventRefs(e), refs));
 		}
@@ -534,11 +552,6 @@ export default class Engine {
 
 		return targets;
 	}
-
-	// evalOnCard = (e: Event, c: Card) => {
-	// 	let refs: Dict = this.makeCardRefs(c);	
-	// 	this.eval(e, refs);
-	// }
 
 	defineEvent = (eventName: string, e: Event) => {
 		this.eventDefs[eventName] = e;

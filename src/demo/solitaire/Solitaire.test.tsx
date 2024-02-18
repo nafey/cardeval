@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "") {
+	if (context.task.name === "Suit Fail") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -18,7 +18,7 @@ beforeEach((context: any) => {
         
 
 let gameDef = {
-	zones: 3,
+	zones: 4,
 	refs: {
 		DECK: { type: "ZONE", index: 0 },
 		PILE: { type: "ZONE", index: 1 },
@@ -84,22 +84,57 @@ let gameDef = {
 		},
 
 		{
-			event : "VALIDATE_MOVE",
+			event : "MOVE_CARDS",
 			def: {
 				event : "SEQUENCE",
 				events: [
 					{
 						event : "IF",
-						type : "COMPARE_VALS",
+						type : "COMPARE",
 						op : "DIFF",
-						val1 : "@target.num",
-						val2 : "@source.num",
-						diff : 1
+						val1 : "@EVENT.target.num",
+						val2 : "@EVENT.source.num",
+						diff : 1,
+						else : {
+							event: "RAISE_ERROR",
+							errorMsg: "The difference of Card values should be 1"
+						}
+					},
+					{
+
+						event : "IF",
+						type : "COMPARE",
+						op : "IN",
+						val : "@EVENT.source.suit",
+						array : ["H", "D"],
+						then : {
+							event : "IF",
+							type : "COMPARE",
+							op : "IN",
+							val : "@EVENT.target.suit",
+							array : ["H", "D"],
+							then : {
+								event : "RAISE_ERROR",
+								errorMsg : "Source and Target cannot have same color suits",
+							}	
+						},
+						else : {
+							event : "IF",
+							type : "COMPARE",
+							op : "IN",
+							val : "@EVENT.target.suit",
+							array : ["S", "C"],
+							then : {
+								event : "RAISE_ERROR",
+								errorMsg : "Source and Target cannot have same color suits",
+							}	
+						}
+
 					}
 				]
 			}
 		},
-		
+
 	],
 
 	cardList: [
@@ -273,4 +308,43 @@ test ("Flip", () => {
 	expect(card.visible).toBe(true);
 });
 
+test ("Move Cards Fail", () => {
+	let engine : Engine = new Engine();	
 
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+	let z2: Zone = engine.refs.Z2;
+
+	let h2 : Card = z1.addCard(engine.createCardFromList("H2"));
+	let s2 : Card = z2.addCard(engine.createCardFromList("S2"));
+
+	let testfn = () => engine.eval({
+		event : "MOVE_CARDS",
+		target : s2,
+		source : h2
+	});
+
+	expect(testfn).toThrowError("difference");
+}) 
+
+
+test ("Suit Fail", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+	let z2: Zone = engine.refs.Z2;
+
+	let s1 : Card = z1.addCard(engine.createCardFromList("S1"));
+	let s2 : Card = z2.addCard(engine.createCardFromList("S2"));
+
+	let testfn = () => engine.eval({
+		event : "MOVE_CARDS",
+		target : s2,
+		source : s1
+	});
+
+	expect(testfn).toThrowError("color");
+}) 

@@ -9,7 +9,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "") {
+	if (context.task.name === "Validate Update Pass") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -959,4 +959,6 @@ test("Find", () => {
 	let card : Card = engine.refs.found;
 	expect(card.a).toBe(2);
 });
+
+
 

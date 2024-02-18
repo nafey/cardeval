@@ -88,7 +88,7 @@ export default class Parser {
 	// }
 
 	parseEvent = (event: Event): Event => {
-		// logParams("Parser.parseEvent", ["event"], [event.event]);
+		logParams("Parser.parseEvent", ["event"], [event.event]);
 
 		if (!event?.event) throw new Error("Missing event name on Event obj");
 
@@ -106,7 +106,7 @@ export default class Parser {
 				return;
 			}
 
-			if (["card", "skip",].includes(eventKey)) {
+			if (["card", "skip"].includes(eventKey)) {
 				ret[eventKey] = this.lookup(eventVal) as Card;
 			} 
 			else if (["zone", "from", "to", "in"].includes(eventKey)) {
