@@ -456,8 +456,14 @@ export default class Engine {
 			let c : Card = zone.cards[i];
 
 			if (c[key] === val) {
-				this.refs.found = c;
+				if (e?.set) {
+					this.refs[e.set] = c;
+				}
+				else {
+					this.refs.found = c;
+				}
 			}
+			
 		}
 	}
 

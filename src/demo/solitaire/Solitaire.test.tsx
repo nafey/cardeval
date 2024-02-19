@@ -69,6 +69,7 @@ let gameDef = {
 				event : "FIND",
 				in : "@EVENT.in",
 				key : "visible",
+				set : "source",
 				val: true
 			}
 		},
@@ -130,7 +131,7 @@ let gameDef = {
 							}	
 						}
 
-					}
+					},
 				]
 			}
 		},
@@ -286,7 +287,7 @@ test ("Find Mover", () => {
 		in : "@Z1"
 	})
 
-	let found : Card = engine.refs.found; 	
+	let found : Card = engine.refs.source; 	
 	expect(found.visible).toBe(true);
 });
 
