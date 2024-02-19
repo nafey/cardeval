@@ -508,10 +508,20 @@ export default class Engine {
 		else if (e.event === "IF") {
 			let ret : boolean = this.evalIf(e);
 			if (ret) {
-				targets = this.eval(e.then, refs);
+				if (e?.then) {
+					targets = this.eval(e.then, refs);
+				}
+				else {
+					targets = [];
+				}
 			}
 			else {
-				targets = this.eval(e.else, refs);
+				if (e?.else) {
+					targets = this.eval(e.else, refs);
+				}
+				else {
+					targets = [];
+				}
 			}
 		}
 		else if (e.event === "FOREACH") {

@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "Suit Fail") {
+	if (context.task.name === "") {
 		console.debug = consoleDebug;
 	}
 	else {

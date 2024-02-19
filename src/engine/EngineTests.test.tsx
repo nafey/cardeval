@@ -9,7 +9,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "Validate Update Pass") {
+	if (context.task.name === "") {
 		console.debug = consoleDebug;
 	}
 	else {
