@@ -452,8 +452,14 @@ export default class Engine {
 		let key : string = e.key;
 		let val = e.val;
 
-		for (let i = 0; i < zone.count(); i++) {
-			let c : Card = zone.cards[i];
+		let list : Card[] = [...zone.cards];
+
+		if (e?.dir === "DESC") {
+			list = list.reverse();
+		}	
+
+		for (let i = 0; i < list.length; i++) {
+			let c : Card = list[i];
 
 			if (c[key] === val) {
 				if (e?.set) {
@@ -462,6 +468,8 @@ export default class Engine {
 				else {
 					this.refs.found = c;
 				}
+
+				return;
 			}
 			
 		}

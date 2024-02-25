@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "") {
+	if (context.task.name === "Find Target") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -64,13 +64,26 @@ let gameDef = {
 		},
 
 		{
-			event : "FIND_MOVER",
+			event : "FIND_SOURCE",
 			def : {
 				event : "FIND",
 				in : "@EVENT.in",
 				key : "visible",
 				set : "source",
 				val: true
+			}
+		},
+
+
+		{
+			event : "FIND_TARGET",
+			def : {
+				event : "FIND",
+				in : "@EVENT.in",
+				dir : "DESC",
+				key : "visible",
+				set : "target",
+				val : true
 			}
 		},
 
@@ -82,6 +95,10 @@ let gameDef = {
 				op : "NOT",
 				key : "visible",
 			}
+		},
+
+		{
+
 		},
 
 		{
@@ -101,6 +118,7 @@ let gameDef = {
 							errorMsg: "The difference of Card values should be 1"
 						}
 					},
+
 					{
 
 						event : "IF",
@@ -132,6 +150,7 @@ let gameDef = {
 						}
 
 					},
+
 				]
 			}
 		},
@@ -152,7 +171,7 @@ let gameDef = {
 		{
 			code: "H2",
 			suit: "H",
-			num: 3
+			num: 2
 		},
 		{
 			code: "H3",
@@ -283,13 +302,34 @@ test ("Find Mover", () => {
 	z1.addCard(engine.createCardFromList("H1"));
 
 	engine.eval({
-		event : "FIND_MOVER",
+		event : "FIND_SOURCE",
 		in : "@Z1"
 	})
 
 	let found : Card = engine.refs.source; 	
 	expect(found.visible).toBe(true);
 });
+
+test ("Find Target", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1 : Zone = engine.refs.Z1;
+	z1.addCard(engine.createCardFromList("HIDDEN"));
+	z1.addCard(engine.createCardFromList("H1"));
+	z1.addCard(engine.createCardFromList("H2"));
+
+	engine.eval({
+		event : "FIND_TARGET",
+		in : "@Z1"
+	})
+
+	let found : Card = engine.refs.target; 	
+	expect(found.num).toBe(2);
+});
+
+
 
 test ("Flip", () => {
 	let engine : Engine = new Engine();	
