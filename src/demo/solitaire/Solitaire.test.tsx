@@ -8,7 +8,7 @@ const consoleDebug: any = console.debug;
 console.debug = () => {};
 
 beforeEach((context: any) => {
-	if (context.task.name === "Find Target") {
+	if (context.task.name === "") {
 		console.debug = consoleDebug;
 	}
 	else {
@@ -99,13 +99,10 @@ let gameDef = {
 
 		{
 
-		},
-
-		{
-			event : "MOVE_CARDS",
-			def: {
+			event : "CHECK_CARDS",
+			def : {
 				event : "SEQUENCE",
-				events: [
+				events : [
 					{
 						event : "IF",
 						type : "COMPARE",
@@ -149,6 +146,70 @@ let gameDef = {
 							}	
 						}
 
+					},
+				]
+			}
+
+		},
+
+		{
+			event : "MOVE_CARD",
+			def : {
+				event : "SEQUENCE",
+				events : [
+					{
+						event : "CHECK_MOVE",
+						from : "@EVENT.from",
+						to : "@EVENT.to"
+					},
+					{
+						event : "MOVE",
+						after : "@source",
+						from : "@EVENT.from",
+						to : "@EVENT.to"
+					}
+				]
+
+			}
+		},
+
+
+		{
+			event : "CHECK_MOVE",
+			def: {
+				event : "SEQUENCE",
+				events: [
+					{
+						event : "IF",
+						type : "ZONE_COUNT",
+						zone : "@EVENT.from",
+						val : 0,
+						then : {
+							event : "RAISE_ERROR",
+							errorMsg : "No card to move"	
+						}	
+					},
+
+					{
+						event : "FIND_SOURCE",
+						in : "@EVENT.from",
+					},
+
+					{
+						event : "FIND_TARGET",
+						in : "@EVENT.to"
+					},
+
+					{
+						event : "IF",
+						type : "ZONE_COUNT",
+						zone : "@EVENT.to",
+						val : 0,
+						else: {
+							event : "CHECK_CARDS",
+							target : "@target",
+							source : "@source"
+						}
 					},
 
 				]
@@ -357,13 +418,13 @@ test ("Move Cards Fail", () => {
 	let z1: Zone = engine.refs.Z1;
 	let z2: Zone = engine.refs.Z2;
 
-	let h2 : Card = z1.addCard(engine.createCardFromList("H2"));
-	let s2 : Card = z2.addCard(engine.createCardFromList("S2"));
+	z1.addCard(engine.createCardFromList("H2"));
+	z2.addCard(engine.createCardFromList("S2"));
 
 	let testfn = () => engine.eval({
-		event : "MOVE_CARDS",
-		target : s2,
-		source : h2
+		event : "CHECK_MOVE",
+		from : "@Z1",
+		to : "@Z2"
 	});
 
 	expect(testfn).toThrowError("difference");
@@ -378,14 +439,63 @@ test ("Suit Fail", () => {
 	let z1: Zone = engine.refs.Z1;
 	let z2: Zone = engine.refs.Z2;
 
-	let s1 : Card = z1.addCard(engine.createCardFromList("S1"));
-	let s2 : Card = z2.addCard(engine.createCardFromList("S2"));
+	z1.addCard(engine.createCardFromList("S1"));
+	z2.addCard(engine.createCardFromList("S2"));
 
 	let testfn = () => engine.eval({
-		event : "MOVE_CARDS",
-		target : s2,
-		source : s1
+		event : "CHECK_MOVE",
+		from : "@Z1",
+		to: "@Z2"
 	});
 
 	expect(testfn).toThrowError("color");
-}) 
+}); 
+
+test ("Move to Empty", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+	let z2: Zone = engine.refs.Z2;
+
+	z1.addCard(engine.createCardFromList("S1"));
+
+	expect(z1.count()).toBe(1);
+
+	engine.eval({
+		event : "MOVE_CARD",
+		from : "@Z1",
+		to : "@Z2"
+	});
+
+	expect(z2.count()).toBe(1);
+	expect(z1.count()).toBe(0);
+
+});
+
+test ("Move to Card", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+	let z2: Zone = engine.refs.Z2;
+
+	z1.addCard(engine.createCardFromList("S1"));
+	z2.addCard(engine.createCardFromList("H2"));
+	
+	expect(z1.count()).toBe(1);
+
+	engine.eval({
+		event : "MOVE_CARD",
+		from : "@Z1",
+		to : "@Z2"
+	});
+
+	expect(z2.count()).toBe(2);
+	expect(z1.count()).toBe(0);
+
+});
+
+
