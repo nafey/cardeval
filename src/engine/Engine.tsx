@@ -502,6 +502,7 @@ export default class Engine {
 	}
 
 	eval = (e: Event, refs?: Dict): Card[] => {
+		// console.debug(e)
 		logParams("eval");
 
 		let targets: Card[] = [];
@@ -574,6 +575,16 @@ export default class Engine {
 		}
 		else if (e.event === "RAISE_ERROR") {
 			this.evalError(e);
+		}
+		else if (e.event === "SWITCH") {
+			let card : Card = e.card;
+			let val = card[e.key];
+
+			(e.cases as Array<any>).forEach((c: any) => {
+				if (c.val === val) {
+					targets = this.eval(c.do, refs);
+				}
+			})
 		}
 		else if (e.event in this.eventDefs) {
 			let nextEvent: Event = this.eventDefs[e.event];

@@ -16,7 +16,96 @@ beforeEach((context: any) => {
 		console.debug = () => {};
 	}
 });
-		
+	
+let gameDef = {
+	zones: 2,
+	refs: {
+		AREA1: { type: "ZONE", index: 0 },
+		AREA2: { type: "ZONE", index: 1 }
+	},
+	eventDefs: [
+		{
+			event: "MAKEA1",
+			def: {
+				event: "CREATE",
+				code: "A1",
+				zone: "@AREA1",
+				set: "A1"
+			} 
+		},
+		{
+			event: "MAKEA2",
+			def: {
+				event: "CREATE",
+				code: "A2",
+				zone: "@AREA1",
+				set: "A2"
+			} 
+		},
+		{
+			event: "MAKEA3",
+			def: {
+				event: "CREATE",
+				code: "A3",
+				zone: "@AREA1",
+				set: "A3"
+			} 
+		},
+		{
+			event: "MAKEB1",
+			def: {
+				event: "CREATE",
+				code: "B1",
+				zone: "@AREA2",
+				set: "B1"
+			} 
+		},
+		{
+			event: "MAKEB2",
+			def: {
+				event: "CREATE",
+				code: "B2",
+				zone: "@AREA2",
+				set: "B2"
+			} 
+		},
+		{
+			event: "MAKEB3",
+			def: {
+				event: "CREATE",
+				code: "B3",
+				zone: "@AREA2",
+				set: "B3"
+			} 
+		},
+	],
+	cardList: [
+		{
+			code: "A1",
+			a: 1
+		},
+		{
+			code: "B1",
+			b: 1
+		},
+		{
+			code: "A2",
+			a: 2
+		},
+		{
+			code: "B2",
+			b: 2
+		},
+		{
+			code: "A3",
+			a: 3
+		},
+		{
+			code: "B3",
+			b: 3
+		}
+	]
+}
 
 test("Match", () => {
 	expect(match({ a: 1 }, { a: 2 })).toBe(false);
@@ -505,69 +594,6 @@ test("Receive Custom Event", () => {
 
 
 
-let gameDef = {
-	zones: 2,
-	refs: {
-		AREA1: { type: "ZONE", index: 0 },
-		AREA2: { type: "ZONE", index: 1 }
-	},
-	eventDefs: [
-		{
-			event: "MAKEA1",
-			def: {
-				event: "CREATE",
-				code: "A1",
-				zone: "@AREA1",
-				set: "A1"
-			} 
-		},
-		{
-			event: "MAKEA2",
-			def: {
-				event: "CREATE",
-				code: "A2",
-				zone: "@AREA1",
-				set: "A2"
-			} 
-		},
-		{
-			event: "MAKEB1",
-			def: {
-				event: "CREATE",
-				code: "B1",
-				zone: "@AREA2",
-				set: "B1"
-			} 
-		},
-		{
-			event: "MAKEB2",
-			def: {
-				event: "CREATE",
-				code: "B2",
-				zone: "@AREA2",
-				set: "B2"
-			} 
-		},
-	],
-	cardList: [
-		{
-			code: "A1",
-			a: 1
-		},
-		{
-			code: "B1",
-			b: 1
-		},
-		{
-			code: "A2",
-			a: 2
-		},
-		{
-			code: "B2",
-			b: 2
-		}
-	]
-}
 
 test("Game Def", () => {
 	let engine: Engine = new Engine(); 
@@ -978,4 +1004,50 @@ test("Find Last", () => {
 	let card : Card = engine.refs.target;
 	expect(card.a).toBe(1);
 });
+
+
+test("Switch Case", () => {
+
+	let engine: Engine = new Engine(); 
+
+	engine.loadGame(gameDef);
+
+	engine.eval({event : "MAKEA1"});
+
+	let area1 : Zone = engine.refs.AREA1;
+	let area2 : Zone = engine.refs.AREA2;
+
+	let card : Card = area1.cards[0];	
+
+	engine.eval({
+		event : "SWITCH",
+		card : card,
+		key : "a",
+		cases: [
+			{
+				val : 1,
+				do : {
+					event : "MAKEB1"
+				}
+			},
+			{
+				val : 2,
+				do : {
+					event : "MAKEB2"
+				}
+			},
+			{
+				val : 3,
+				do : {
+					event : "MAKEB3"
+				}
+			},
+		] 
+	})	
+
+	expect(area2.cards[0].b).toBe(1);
+
+})
+
+
 

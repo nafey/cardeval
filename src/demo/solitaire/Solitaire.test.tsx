@@ -197,9 +197,8 @@ let gameDef = {
 			events: [
 				{
 					event : "IF",
-					type : "ZONE_COUNT",
+					type : "IS_EMPTY",
 					zone : "@EVENT.from",
-					val : 0,
 					then : {
 						event : "RAISE_ERROR",
 						errorMsg : "No card to move"	
@@ -513,7 +512,6 @@ test ("Move to Card", () => {
 	expect(z1.count()).toBe(0);
 });
 
-
 test ("Flip Last", () => {
 	let engine : Engine = new Engine();	
 
@@ -534,4 +532,36 @@ test ("Flip Last", () => {
 
 	expect(hidden.visible).toBe(true);
 });
+
+test ("Move Stack", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+	let z2: Zone = engine.refs.Z2;
+
+	z1.addCard(engine.createCardFromList("H3"));
+	z1.addCard(engine.createCardFromList("H2"));
+	z1.addCard(engine.createCardFromList("S1"));
+
+	z2.addCard(engine.createCardFromList("S3"));
+
+	z1.cards[0].visible = false;
+	
+
+	engine.eval({
+		event : "MOVE_CARD",
+		from : "@Z1",
+		to : "@Z2"
+	});
+
+	expect(z2.count()).toBe(3);
+	expect(z1.count()).toBe(1);
+
+	expect(z1.cards[0].visible).toBe(true);
+});
+
+
+
 
