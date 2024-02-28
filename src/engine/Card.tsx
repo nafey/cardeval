@@ -14,11 +14,9 @@ export default class Card {
 	visible?: boolean = true;
 	refs: Record<string, any> = {};
 	
-	constructor(vals : Record<string, any> = {}, visible: boolean = true) {
-		this.visible = visible;
-
+	constructor(vals : Record<string, any> = {}) {
 		Object.keys(vals).forEach((k: string) => {
-			if (k === "cardId" || k === "visible") return;
+			if (k === "cardId") return;
 			this[k] = vals[k];
 		});
 	}

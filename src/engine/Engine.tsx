@@ -17,7 +17,8 @@ export interface Trigger {
 
 export interface EventDef {
 	event : string,
-	def : Event
+	def? : Event,
+	events?: Event[]
 }
 
 export interface Func {
@@ -117,7 +118,16 @@ export default class Engine {
 
 		let eventDefs = gameDef.eventDefs;
 		eventDefs.forEach((eventDef : EventDef) => {
-			this.eventDefs[eventDef.event] = eventDef.def;	
+			if (eventDef?.def) {
+
+				this.eventDefs[eventDef.event] = eventDef.def;	
+			}
+			else {
+				this.eventDefs[eventDef.event] = {
+					event : "SEQUENCE",
+					events : eventDef.events
+				}
+			}
 		});
 	}
 
@@ -366,6 +376,10 @@ export default class Engine {
 			let zone : Zone = e.zone;	
 			isTrue = (zone.count() === e.val);
 		}		
+		else if (e.type === "IS_EMPTY") {
+			let zone : Zone = e.zone;
+			isTrue = (zone.count() === 0);
+		}
 		else if (e.type === "COMPARE") {
 			if (e.op === "EQ") {
 				isTrue = (e.val1 === e.val2);
@@ -452,27 +466,35 @@ export default class Engine {
 		let key : string = e.key;
 		let val = e.val;
 
-		let list : Card[] = [...zone.cards];
-
-		if (e?.dir === "DESC") {
-			list = list.reverse();
-		}	
-
-		for (let i = 0; i < list.length; i++) {
-			let c : Card = list[i];
-
-			if (c[key] === val) {
-				if (e?.set) {
-					this.refs[e.set] = c;
-				}
-				else {
-					this.refs.found = c;
-				}
-
-				return;
-			}
-			
+		if (e?.at === "LAST") {
+			this.refs[e.set] = zone.last()
+			return;
 		}
+		else {
+			let list : Card[] = [...zone.cards];
+
+			if (e?.dir === "DESC") {
+				list = list.reverse();
+			}	
+
+			for (let i = 0; i < list.length; i++) {
+				let c : Card = list[i];
+
+				if (c[key] === val) {
+					if (e?.set) {
+						this.refs[e.set] = c;
+					}
+					else {
+						this.refs.found = c;
+					}
+
+					return;
+				}
+				
+			}
+
+		}
+
 	}
 
 	evalError = (e : Event) => {
@@ -554,7 +576,6 @@ export default class Engine {
 			this.evalError(e);
 		}
 		else if (e.event in this.eventDefs) {
-			logParams("Custom Event " + e.event);
 			let nextEvent: Event = this.eventDefs[e.event];
 			targets = this.eval(nextEvent, this.mergeRefs(this.makeEventRefs(e), refs));
 		}

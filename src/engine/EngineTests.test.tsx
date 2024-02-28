@@ -960,5 +960,22 @@ test("Find", () => {
 	expect(card.a).toBe(2);
 });
 
+test("Find Last", () => {
+	let engine: Engine = new Engine(); 
 
+	engine.loadGame(gameDef);
+
+	engine.eval({event : "MAKEA2"});
+	engine.eval({event : "MAKEA1"});
+
+	engine.eval ({
+		event : "FIND",
+		in : "@AREA1",
+		at : "LAST",
+		set : "target"
+	});		
+
+	let card : Card = engine.refs.target;
+	expect(card.a).toBe(1);
+});
 

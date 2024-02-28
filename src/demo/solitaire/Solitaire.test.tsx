@@ -98,128 +98,144 @@ let gameDef = {
 		},
 
 		{
+			event : "FLIP_LAST",
+			events : [
+				{
+					event: "FIND",
+					in : "@EVENT.in",		
+					at : "LAST",
+					set : "target"
+				},
+				{
+					event : "FLIP",
+					card : "@target"
+				}
+			]
+		},
+
+		{
 
 			event : "CHECK_CARDS",
-			def : {
-				event : "SEQUENCE",
-				events : [
-					{
-						event : "IF",
-						type : "COMPARE",
-						op : "DIFF",
-						val1 : "@EVENT.target.num",
-						val2 : "@EVENT.source.num",
-						diff : 1,
-						else : {
-							event: "RAISE_ERROR",
-							errorMsg: "The difference of Card values should be 1"
-						}
-					},
+			events : [
+				{
+					event : "IF",
+					type : "COMPARE",
+					op : "DIFF",
+					val1 : "@EVENT.target.num",
+					val2 : "@EVENT.source.num",
+					diff : 1,
+					else : {
+						event: "RAISE_ERROR",
+						errorMsg: "The difference of Card values should be 1"
+					}
+				},
 
-					{
+				{
 
+					event : "IF",
+					type : "COMPARE",
+					op : "IN",
+					val : "@EVENT.source.suit",
+					array : ["H", "D"],
+					then : {
 						event : "IF",
 						type : "COMPARE",
 						op : "IN",
-						val : "@EVENT.source.suit",
+						val : "@EVENT.target.suit",
 						array : ["H", "D"],
 						then : {
-							event : "IF",
-							type : "COMPARE",
-							op : "IN",
-							val : "@EVENT.target.suit",
-							array : ["H", "D"],
-							then : {
-								event : "RAISE_ERROR",
-								errorMsg : "Source and Target cannot have same color suits",
-							}	
-						},
-						else : {
-							event : "IF",
-							type : "COMPARE",
-							op : "IN",
-							val : "@EVENT.target.suit",
-							array : ["S", "C"],
-							then : {
-								event : "RAISE_ERROR",
-								errorMsg : "Source and Target cannot have same color suits",
-							}	
-						}
-
+							event : "RAISE_ERROR",
+							errorMsg : "Source and Target cannot have same color suits",
+						}	
 					},
-				]
-			}
+					else : {
+						event : "IF",
+						type : "COMPARE",
+						op : "IN",
+						val : "@EVENT.target.suit",
+						array : ["S", "C"],
+						then : {
+							event : "RAISE_ERROR",
+							errorMsg : "Source and Target cannot have same color suits",
+						}	
+					}
+
+				},
+			]
 
 		},
 
 		{
 			event : "MOVE_CARD",
-			def : {
-				event : "SEQUENCE",
-				events : [
-					{
-						event : "CHECK_MOVE",
-						from : "@EVENT.from",
-						to : "@EVENT.to"
-					},
-					{
-						event : "MOVE",
-						after : "@source",
-						from : "@EVENT.from",
-						to : "@EVENT.to"
+			events : [
+				{
+					event : "CHECK_MOVE",
+					from : "@EVENT.from",
+					to : "@EVENT.to"
+				},
+				{
+					event : "MOVE",
+					after : "@source",
+					from : "@EVENT.from",
+					to : "@EVENT.to"
+				},
+				{
+					event : "IF",
+					type : "IS_EMPTY",
+					zone: "@EVENT.from",
+					else : {
+						event : "FLIP_LAST",
+						in : "@EVENT.from"
 					}
-				]
-
-			}
+				}
+			]
 		},
 
 
 		{
 			event : "CHECK_MOVE",
-			def: {
-				event : "SEQUENCE",
-				events: [
-					{
-						event : "IF",
-						type : "ZONE_COUNT",
-						zone : "@EVENT.from",
-						val : 0,
-						then : {
-							event : "RAISE_ERROR",
-							errorMsg : "No card to move"	
-						}	
-					},
+			events: [
+				{
+					event : "IF",
+					type : "ZONE_COUNT",
+					zone : "@EVENT.from",
+					val : 0,
+					then : {
+						event : "RAISE_ERROR",
+						errorMsg : "No card to move"	
+					}	
+				},
 
-					{
-						event : "FIND_SOURCE",
-						in : "@EVENT.from",
-					},
+				{
+					event : "FIND_SOURCE",
+					in : "@EVENT.from",
+				},
 
-					{
-						event : "FIND_TARGET",
-						in : "@EVENT.to"
-					},
+				{
+					event : "FIND_TARGET",
+					in : "@EVENT.to"
+				},
 
-					{
-						event : "IF",
-						type : "ZONE_COUNT",
-						zone : "@EVENT.to",
-						val : 0,
-						else: {
-							event : "CHECK_CARDS",
-							target : "@target",
-							source : "@source"
-						}
-					},
+				{
+					event : "IF",
+					type : "ZONE_COUNT",
+					zone : "@EVENT.to",
+					val : 0,
+					else: {
+						event : "CHECK_CARDS",
+						target : "@target",
+						source : "@source"
+					}
+				},
 
-				]
-			}
+			]
 		},
 
 	],
 
 	cardList: [
 		{
+			visible: false,
 			code : "HIDDEN",
 			suit : "H",
 			num : 1
@@ -495,7 +511,27 @@ test ("Move to Card", () => {
 
 	expect(z2.count()).toBe(2);
 	expect(z1.count()).toBe(0);
-
 });
 
+
+test ("Flip Last", () => {
+	let engine : Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+
+	let hidden : Card = z1.addCard(engine.createCardFromList("HIDDEN"));
+	z1.addCard(engine.createCardFromList("H2"));
+	
+	expect(hidden.visible).toBe(false);
+
+	engine.eval({
+		event : "MOVE_CARD",
+		from : "@Z1",
+		to : "@Z2"
+	});
+
+	expect(hidden.visible).toBe(true);
+});
 
