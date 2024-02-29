@@ -1,5 +1,5 @@
 import Card from "./Card";
-import Context from "./Context";
+import Player from "./Player";
 import Zone from "./Zone";
 import { logParams } from "./Logger";
 import Parser from "./Parser";
@@ -36,7 +36,7 @@ export default class Engine {
 	
 	private zones: Zone[] = []; 
 
-	private players: Context[] = [];
+	private players: Player[] = [];
 
 	private activePlayer: number = 0;
 
@@ -46,8 +46,8 @@ export default class Engine {
 
 	refs: Record<string, any> = {};
 
-	newPlayer = (): Context => {
-		let p: Context = new Context();
+	newPlayer = (): Player => {
+		let p: Player = new Player();
 		this.players.push(p);
 		return p;
 	}
@@ -58,11 +58,11 @@ export default class Engine {
 		return z;		
 	}
 
-	getActivePlayer = (): Context => {
+	getActivePlayer = (): Player => {
 		return this.players[this.activePlayer];
 	}
 
-	getNextPlayer = (): Context => {
+	getNextPlayer = (): Player => {
 		return this.players[(this.activePlayer + 1) % this.players.length];
 	}
 
@@ -70,13 +70,13 @@ export default class Engine {
 		this.activePlayer = (this.activePlayer + 1) % this.players.length;
 	}
 
-	getPlayers = (): Context[] => {
+	getPlayers = (): Player[] => {
 		return this.players;
 	}
 
-	getPlayerById = (playerId: string): Context => {
+	getPlayerById = (playerId: string): Player => {
 		let idx = -1;
-		this.players.forEach((p: Context, i: number) => {
+		this.players.forEach((p: Player, i: number) => {
 			if (p.playerId === playerId) { 
 				idx = i 
 			} 

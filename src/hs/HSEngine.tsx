@@ -1,5 +1,5 @@
 import Card from "src/engine/Card";
-import Context from "src/engine/Context";
+import Player from "src/engine/Player";
 import Engine from "src/engine/Engine";
 import Zone from "src/engine/Zone";
 import {
@@ -50,10 +50,10 @@ class HSEngine {
 	private state : Engine = new Engine();
 
 	constructor () {
-		let p1 : Context = this.state.newPlayer();
-		let p2 : Context = this.state.newPlayer();
+		let p1 : Player = this.state.newPlayer();
+		let p2 : Player = this.state.newPlayer();
 
-		this.state.getPlayers().forEach((p:Context) => {
+		this.state.getPlayers().forEach((p:Player) => {
 			p.addZone("BF", this.state.newZone());
 			p.addZone("HAND", this.state.newZone());
 			p.addZone("DECK", this.state.newZone());
@@ -87,16 +87,16 @@ class HSEngine {
 		p2.zones.OPP_DECK = p1.zones.DECK; 
 	}
 
-	getActivePlayer = () : Context => {
+	getActivePlayer = () : Player => {
 		return this.state.getActivePlayer();
 	}
 
-	getOtherPlayer = () : Context => {
+	getOtherPlayer = () : Player => {
 		return this.state.getNextPlayer();
 	}
 
 	removeDead = () => {
-		let removeDeadForP = (player : Context) => {
+		let removeDeadForP = (player : Player) => {
 
 			let deadIds : string [] = [];
 			player.zones.BF.forEach ((card) => {
@@ -124,7 +124,7 @@ class HSEngine {
 		logParams("resolveEvent", ["name", "event"], [card.name, eventObj.event]);
 		let playerId : string = card.playerId!;
 		if (!playerId) throw new Error("No player Id for Card");	
-		let player : Context = this.state.getPlayerById(playerId);	
+		let player : Player = this.state.getPlayerById(playerId);	
 		let event : HSEventType = eventObj.event;
 
 		if (!event) throw new Error("Event is missing");
@@ -148,7 +148,7 @@ class HSEngine {
 	raiseTrigger = (raiser : Card, on : TriggerType) => {
 		logParams("raiseTrigger", ["name", "on"], [raiser.name, on]);
 
-		[this.getActivePlayer(), this.getOtherPlayer()].forEach((p : Context) => {
+		[this.getActivePlayer(), this.getOtherPlayer()].forEach((p : Player) => {
 			let triggeredCards : Card[] = p.zones.BF.match({
 				trigger : {
 					on : on
@@ -168,7 +168,7 @@ class HSEngine {
 		});
 	}
 
-	draw = (player : Context) => {
+	draw = (player : Player) => {
 		logParams("draw");
 		if (player.zones.DECK.count() < 1) return;
 
@@ -190,14 +190,14 @@ class HSEngine {
 		card.health = Math.min(card.health + val, card.maxHealth);
 	}
 
-	healMultiple = (cards: Card[], players: Context[], val: number) => {
+	healMultiple = (cards: Card[], players: Player[], val: number) => {
 		logParams("healMultiple", ["cardsNum", "players", "val"], [cards.length, players.length, val]);
 
 		cards.forEach((c : Card) => {
 			c.health = Math.min(c.health + val, c.maxHealth);
 		});
 
-		players.forEach((p : Context) => {
+		players.forEach((p : Player) => {
 			let health = p.refs.self.health;
 			let maxHealth = p.refs.self.maxHealth;
 			p.refs.self.health = Math.min(health + val, maxHealth); 
@@ -206,8 +206,8 @@ class HSEngine {
 
 
 	doHeal = (card: Card, healEvent: HealEvent, playerTarget? : Target) => {
-		let p : Context = this.state.getPlayerById(card.playerId!);	
-		let o : Context = p.players.OPP;
+		let p : Player = this.state.getPlayerById(card.playerId!);	
+		let o : Player = p.players.OPP;
 
 		if (healEvent.to === HSEventArea.TARGET) {
 			let type : string = playerTarget?.type!;
@@ -239,14 +239,14 @@ class HSEngine {
 
 	}
 
-	damageMultiple = (cards: Card[], players: Context[], val: number) => {
+	damageMultiple = (cards: Card[], players: Player[], val: number) => {
 		logParams("damageMultiple", ["cardsNum", "players", "val"], [cards.length, players.length, val]);
 
 		cards.forEach((c : Card) => {
 			c.health -= val;
 		});
 
-		players.forEach((p : Context) => {
+		players.forEach((p : Player) => {
 			p.refs.self.health -= val;
 		});
 
@@ -259,8 +259,8 @@ class HSEngine {
 
 
 	doDamage = (card: Card, damageEvent : DamageEvent, playerTarget? : Target) => {
-		let p : Context = this.state.getPlayerById(card.playerId!);	
-		let o : Context = p.players.OPP;
+		let p : Player = this.state.getPlayerById(card.playerId!);	
+		let o : Player = p.players.OPP;
 
 		if (damageEvent.to === HSEventArea.RANDOM_ENEMY) {
 			let mins : Card[] = o.zones.BF.match({health : {op : "gt", val : 0}});
@@ -310,12 +310,12 @@ class HSEngine {
 
 	turnStart = () => {
 		logParams("turnStart", [], []);
-		let p : Context = this.getActivePlayer();
+		let p : Player = this.getActivePlayer();
 
 		p.zones.BF.modifyCards({sick: true}, {sick: false});
 	}
 
-	summon = (player : Context, card : Card) => {
+	summon = (player : Player, card : Card) => {
 		logParams("summon", ["cardName"], [card.name]);
 		card.sick = true;
 		this.raiseTrigger(card, TriggerType.SUMMON);
@@ -346,7 +346,7 @@ class HSEngine {
 	play = (card : Card, playerTarget?: Target) => {
 		logParams("play", ["CardName"], [card.name]);
 		let playerId : string = card.playerId!;
-		let p : Context = this.state.getPlayerById(playerId);
+		let p : Player = this.state.getPlayerById(playerId);
 		if (playerId !== this.getActivePlayer().playerId) throw new Error ("Inactive player attempting to play card");
 		if (card.type !== CardType.MINION) throw new Error ("Only Minions can be played");
 
@@ -364,7 +364,7 @@ class HSEngine {
 	
 	attackOpponent = (attacker : Card) => {
 		logParams("attackPlayer", ["name"], [attacker.name]);
-		let p : Context = this.getActivePlayer();
+		let p : Player = this.getActivePlayer();
 		if (attacker.playerId !== p.playerId) throw new Error("Only minions of active player can attack");
 		if (attacker.zoneId !== p.zones.BF.zoneId) throw new Error("Only minions in Battlefield can attack");
 
@@ -373,8 +373,8 @@ class HSEngine {
 	
 	attack = (attacker : Card, defender : Card) => {
 		logParams("attack", ["attackerName", "defenderName"], [attacker.name, defender.name]);
-		let p : Context = this.getActivePlayer();
-		let o : Context = this.getOtherPlayer();
+		let p : Player = this.getActivePlayer();
+		let o : Player = this.getOtherPlayer();
 
 		if (attacker.playerId !== p.playerId) throw new Error("Only minions of active player can attack");
 		if (attacker.zoneId !== p.zones.BF.zoneId) throw new Error("Only minions in Battlefield can attack");
@@ -399,7 +399,7 @@ class HSEngine {
 	}
 
 	cast = (spell : Card, playerTarget? : Target) => {
-		let p : Context = this.getActivePlayer();
+		let p : Player = this.getActivePlayer();
 		
 		if (spell.playerId !== p.playerId) throw new Error("Only active player can cast spells");	
 		if (!p.zones.HAND.hasCard(spell)) throw new Error("Spells can only be cast from hand");

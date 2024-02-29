@@ -1,12 +1,12 @@
 import Card from "./Card";
-import Context from "./Context";
+import Player from "./Player";
 import { generateId, match } from "./Utils";
 
 export default class Zone {
 	zoneId: string = generateId();
 	cards: Card[] = [];
 	private lookup: Record<string, number> = {};
-	context: Context = new Context();
+	context: Player = new Player();
 	playerId?: string = ""; 
 	limit: number = 0;
 	haveLimit: boolean = false;
