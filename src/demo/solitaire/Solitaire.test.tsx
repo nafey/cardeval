@@ -23,7 +23,16 @@ let gameDef = {
 		DECK: { type: "ZONE", index: 0 },
 		PILE: { type: "ZONE", index: 1 },
 		Z1: { type: "ZONE", index: 2 },
-		Z2 : { type: "ZONE", index: 3}
+		Z2: { type: "ZONE", index: 3 },
+		Z3: { type: "ZONE", index: 4 },
+		Z4: { type: "ZONE", index: 5 },
+		Z5: { type: "ZONE", index: 6 },
+		Z6: { type: "ZONE", index: 7 },
+		Z7: { type: "ZONE", index: 8 },
+		ZS: { type: "ZONE", index: 9 },
+		ZH: { type: "ZONE", index: 10 },
+		ZC: { type: "ZONE", index: 11 },
+		ZD: { type: "ZONE", index: 12 },
 	},
 	eventDefs: [
 		{
@@ -64,67 +73,67 @@ let gameDef = {
 		},
 
 		{
-			event : "FIND_SOURCE",
-			def : {
-				event : "FIND",
-				in : "@EVENT.in",
-				key : "visible",
-				set : "source",
+			event: "FIND_SOURCE",
+			def: {
+				event: "FIND",
+				in: "@EVENT.in",
+				key: "visible",
+				set: "source",
 				val: true
 			}
 		},
 
 
 		{
-			event : "FIND_TARGET",
-			def : {
-				event : "FIND",
-				in : "@EVENT.in",
-				dir : "DESC",
-				key : "visible",
-				set : "target",
-				val : true
+			event: "FIND_TARGET",
+			def: {
+				event: "FIND",
+				in: "@EVENT.in",
+				dir: "DESC",
+				key: "visible",
+				set: "target",
+				val: true
 			}
 		},
 
 		{
 			event: "FLIP",
-			def : {
-				event : "UPDATE",
-				card : "@EVENT.card",
-				op : "NOT",
-				key : "visible",
+			def: {
+				event: "UPDATE",
+				card: "@EVENT.card",
+				op: "NOT",
+				key: "visible",
 			}
 		},
 
 		{
-			event : "FLIP_LAST",
-			events : [
+			event: "FLIP_LAST",
+			events: [
 				{
 					event: "FIND",
-					in : "@EVENT.in",		
-					at : "LAST",
-					set : "target"
+					in: "@EVENT.in",		
+					at: "LAST",
+					set: "target"
 				},
 				{
-					event : "FLIP",
-					card : "@target"
+					event: "FLIP",
+					card: "@target"
 				}
 			]
 		},
 
 		{
 
-			event : "CHECK_CARDS",
-			events : [
+			event: "CHECK_CARDS",
+			events: [
 				{
-					event : "IF",
-					type : "COMPARE",
-					op : "DIFF",
-					val1 : "@EVENT.target.num",
-					val2 : "@EVENT.source.num",
-					diff : 1,
-					else : {
+					event: "IF",
+					type: "COMPARE",
+					op: "DIFF",
+					val1: "@EVENT.target.num",
+					val2: "@EVENT.source.num",
+					diff: 1,
+					else: {
 						event: "RAISE_ERROR",
 						errorMsg: "The difference of Card values should be 1"
 					}
@@ -132,31 +141,31 @@ let gameDef = {
 
 				{
 
-					event : "IF",
-					type : "COMPARE",
-					op : "IN",
-					val : "@EVENT.source.suit",
-					array : ["H", "D"],
-					then : {
-						event : "IF",
-						type : "COMPARE",
-						op : "IN",
-						val : "@EVENT.target.suit",
-						array : ["H", "D"],
-						then : {
-							event : "RAISE_ERROR",
-							errorMsg : "Source and Target cannot have same color suits",
+					event: "IF",
+					type: "COMPARE",
+					op: "IN",
+					val: "@EVENT.source.suit",
+					array: ["H", "D"],
+					then: {
+						event: "IF",
+						type: "COMPARE",
+						op: "IN",
+						val: "@EVENT.target.suit",
+						array: ["H", "D"],
+						then: {
+							event: "RAISE_ERROR",
+							errorMsg: "Source and Target cannot have same color suits",
 						}	
 					},
-					else : {
-						event : "IF",
-						type : "COMPARE",
-						op : "IN",
-						val : "@EVENT.target.suit",
-						array : ["S", "C"],
-						then : {
-							event : "RAISE_ERROR",
-							errorMsg : "Source and Target cannot have same color suits",
+					else: {
+						event: "IF",
+						type: "COMPARE",
+						op: "IN",
+						val: "@EVENT.target.suit",
+						array: ["S", "C"],
+						then: {
+							event: "RAISE_ERROR",
+							errorMsg: "Source and Target cannot have same color suits",
 						}	
 					}
 
@@ -166,26 +175,26 @@ let gameDef = {
 		},
 
 		{
-			event : "MOVE_CARD",
-			events : [
+			event: "MOVE_CARD",
+			events: [
 				{
-					event : "CHECK_MOVE",
-					from : "@EVENT.from",
-					to : "@EVENT.to"
+					event: "CHECK_MOVE",
+					from: "@EVENT.from",
+					to: "@EVENT.to"
 				},
 				{
-					event : "MOVE",
-					after : "@source",
-					from : "@EVENT.from",
-					to : "@EVENT.to"
+					event: "MOVE",
+					after: "@source",
+					from: "@EVENT.from",
+					to: "@EVENT.to"
 				},
 				{
-					event : "IF",
-					type : "IS_EMPTY",
+					event: "IF",
+					type: "IS_EMPTY",
 					zone: "@EVENT.from",
-					else : {
-						event : "FLIP_LAST",
-						in : "@EVENT.from"
+					else: {
+						event: "FLIP_LAST",
+						in: "@EVENT.from"
 					}
 				}
 			]
@@ -193,51 +202,79 @@ let gameDef = {
 
 
 		{
-			event : "CHECK_MOVE",
+			event: "CHECK_MOVE",
 			events: [
 				{
-					event : "IF",
-					type : "IS_EMPTY",
-					zone : "@EVENT.from",
-					then : {
-						event : "RAISE_ERROR",
-						errorMsg : "No card to move"	
+					event: "IF",
+					type: "IS_EMPTY",
+					zone: "@EVENT.from",
+					then: {
+						event: "RAISE_ERROR",
+						errorMsg: "No card to move"	
 					}	
 				},
 
 				{
-					event : "FIND_SOURCE",
-					in : "@EVENT.from",
+					event: "FIND_SOURCE",
+					in: "@EVENT.from",
 				},
 
 				{
-					event : "FIND_TARGET",
-					in : "@EVENT.to"
+					event: "FIND_TARGET",
+					in: "@EVENT.to"
 				},
 
 				{
-					event : "IF",
-					type : "ZONE_COUNT",
-					zone : "@EVENT.to",
-					val : 0,
+					event: "IF",
+					type: "ZONE_COUNT",
+					zone: "@EVENT.to",
+					val: 0,
 					else: {
-						event : "CHECK_CARDS",
-						target : "@target",
-						source : "@source"
+						event: "CHECK_CARDS",
+						target: "@target",
+						source: "@source"
 					}
 				},
 
 			]
 		},
 
+		{
+			event: "MOVE_UP",
+			events: [
+				{
+					event: "IF",
+					type: "IS_EMPTY",
+					zone: "@EVENT.zone",
+					then: {
+						event: "RAISE_ERROR",
+						errorMsg: "No card to move"
+					}	
+				},
+				{
+					event: "IF",
+					type: "COMPARE",
+					
+				}
+			]
+		},
+
+		{
+			event: "SELECT_SUIT",
+			def: {
+				event: "SET",
+				ref: "SUIT",
+				val: "@EVENT.card.suit"
+			}
+		}	
 	],
 
 	cardList: [
 		{
 			visible: false,
-			code : "HIDDEN",
-			suit : "H",
-			num : 1
+			code: "HIDDEN",
+			suit: "H",
+			num: 1
 		},
 		{
 			code: "H1",
@@ -299,134 +336,134 @@ test("Draw", () => {
 	expect(pile.count()).toBe(1);
 });
 
-test ("Reset Pile", () => {
+test("Reset Pile", () => {
 	let engine: Engine = new Engine();
 
 	engine.loadGame(gameDef);
 
-	let pile : Zone = engine.refs.PILE;
-	let deck : Zone = engine.refs.DECK;
+	let pile: Zone = engine.refs.PILE;
+	let deck: Zone = engine.refs.DECK;
 
 	pile.addCard(engine.createCardFromList("H3"));
-	engine.eval({event: "CLICK_DECK"});	
+	engine.eval({ event: "CLICK_DECK" });	
 	expect(deck.cards[0].num).toBe(3);
 });
 
-test ("Reverse Pile", () => {
+test("Reverse Pile", () => {
 	let engine: Engine = new Engine();
 
 	engine.loadGame(gameDef);
 
-	let pile : Zone = engine.refs.PILE;
-	let deck : Zone = engine.refs.DECK;
+	let pile: Zone = engine.refs.PILE;
+	let deck: Zone = engine.refs.DECK;
 
 	pile.addCard(engine.createCardFromList("H3"));
 	pile.addCard(engine.createCardFromList("S2"));
 
-	engine.eval({event: "CLICK_DECK"});	
+	engine.eval({ event: "CLICK_DECK" });	
 	expect(deck.cards[0].num).toBe(2);
 });
 
-test ("Draw", () => {
-	let engine : Engine = new Engine();	
+test("Draw", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
-	let pile : Zone = engine.refs.PILE;
-	let deck : Zone = engine.refs.DECK;
+	let pile: Zone = engine.refs.PILE;
+	let deck: Zone = engine.refs.DECK;
 
 	deck.addCard(engine.createCardFromList("H3"));
 
-	engine.eval({event : "DRAW"});
+	engine.eval({ event: "DRAW" });
 	expect(pile.count()).toBe(1);
 });
 
 
-test ("Multi Draw", () => {
-	let engine : Engine = new Engine();	
+test("Multi Draw", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
-	let pile : Zone = engine.refs.PILE;
-	let deck : Zone = engine.refs.DECK;
+	let pile: Zone = engine.refs.PILE;
+	let deck: Zone = engine.refs.DECK;
 
 	deck.addCard(engine.createCardFromList("H3"));
 	deck.addCard(engine.createCardFromList("S2"));
 
 	expect(pile.count()).toBe(0);
 
-	engine.eval({event : "CLICK_DECK"});
+	engine.eval({ event: "CLICK_DECK" });
 	expect(pile.count()).toBe(1);
 
-	engine.eval({event : "CLICK_DECK"});
+	engine.eval({ event: "CLICK_DECK" });
 	expect(pile.count()).toBe(2);
 
-	engine.eval({event : "CLICK_DECK"});
+	engine.eval({ event: "CLICK_DECK" });
 	expect(pile.count()).toBe(0);
 
-	engine.eval({event : "CLICK_DECK"});
+	engine.eval({ event: "CLICK_DECK" });
 	expect(pile.count()).toBe(1);
 });
 
-test ("Find Mover", () => {
-	let engine : Engine = new Engine();	
+test("Find Mover", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
-	let z1 : Zone = engine.refs.Z1;
+	let z1: Zone = engine.refs.Z1;
 	z1.addCard(engine.createCardFromList("HIDDEN"));
 	z1.addCard(engine.createCardFromList("H1"));
 
 	engine.eval({
-		event : "FIND_SOURCE",
-		in : "@Z1"
+		event: "FIND_SOURCE",
+		in: "@Z1"
 	})
 
-	let found : Card = engine.refs.source; 	
+	let found: Card = engine.refs.source; 	
 	expect(found.visible).toBe(true);
 });
 
-test ("Find Target", () => {
-	let engine : Engine = new Engine();	
+test("Find Target", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
-	let z1 : Zone = engine.refs.Z1;
+	let z1: Zone = engine.refs.Z1;
 	z1.addCard(engine.createCardFromList("HIDDEN"));
 	z1.addCard(engine.createCardFromList("H1"));
 	z1.addCard(engine.createCardFromList("H2"));
 
 	engine.eval({
-		event : "FIND_TARGET",
-		in : "@Z1"
+		event: "FIND_TARGET",
+		in: "@Z1"
 	})
 
-	let found : Card = engine.refs.target; 	
+	let found: Card = engine.refs.target; 	
 	expect(found.num).toBe(2);
 });
 
 
 
-test ("Flip", () => {
-	let engine : Engine = new Engine();	
+test("Flip", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
-	let z1 : Zone = engine.refs.Z1;
+	let z1: Zone = engine.refs.Z1;
 	z1.addCard(engine.createCardFromList("HIDDEN"));
 
-	let card : Card = z1.cards[0];
+	let card: Card = z1.cards[0];
 
 	engine.eval({
-		event : "FLIP",
-		card : card
+		event: "FLIP",
+		card: card
 	})
 
 	expect(card.visible).toBe(true);
 });
 
-test ("Move Cards Fail", () => {
-	let engine : Engine = new Engine();	
+test("Move Cards Fail", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
@@ -437,17 +474,17 @@ test ("Move Cards Fail", () => {
 	z2.addCard(engine.createCardFromList("S2"));
 
 	let testfn = () => engine.eval({
-		event : "CHECK_MOVE",
-		from : "@Z1",
-		to : "@Z2"
+		event: "CHECK_MOVE",
+		from: "@Z1",
+		to: "@Z2"
 	});
 
 	expect(testfn).toThrowError("difference");
 }) 
 
 
-test ("Suit Fail", () => {
-	let engine : Engine = new Engine();	
+test("Suit Fail", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
@@ -458,16 +495,16 @@ test ("Suit Fail", () => {
 	z2.addCard(engine.createCardFromList("S2"));
 
 	let testfn = () => engine.eval({
-		event : "CHECK_MOVE",
-		from : "@Z1",
+		event: "CHECK_MOVE",
+		from: "@Z1",
 		to: "@Z2"
 	});
 
 	expect(testfn).toThrowError("color");
 }); 
 
-test ("Move to Empty", () => {
-	let engine : Engine = new Engine();	
+test("Move to Empty", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
@@ -479,9 +516,9 @@ test ("Move to Empty", () => {
 	expect(z1.count()).toBe(1);
 
 	engine.eval({
-		event : "MOVE_CARD",
-		from : "@Z1",
-		to : "@Z2"
+		event: "MOVE_CARD",
+		from: "@Z1",
+		to: "@Z2"
 	});
 
 	expect(z2.count()).toBe(1);
@@ -489,8 +526,8 @@ test ("Move to Empty", () => {
 
 });
 
-test ("Move to Card", () => {
-	let engine : Engine = new Engine();	
+test("Move to Card", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
@@ -503,38 +540,38 @@ test ("Move to Card", () => {
 	expect(z1.count()).toBe(1);
 
 	engine.eval({
-		event : "MOVE_CARD",
-		from : "@Z1",
-		to : "@Z2"
+		event: "MOVE_CARD",
+		from: "@Z1",
+		to: "@Z2"
 	});
 
 	expect(z2.count()).toBe(2);
 	expect(z1.count()).toBe(0);
 });
 
-test ("Flip Last", () => {
-	let engine : Engine = new Engine();	
+test("Flip Last", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
 	let z1: Zone = engine.refs.Z1;
 
-	let hidden : Card = z1.addCard(engine.createCardFromList("HIDDEN"));
+	let hidden: Card = z1.addCard(engine.createCardFromList("HIDDEN"));
 	z1.addCard(engine.createCardFromList("H2"));
 	
 	expect(hidden.visible).toBe(false);
 
 	engine.eval({
-		event : "MOVE_CARD",
-		from : "@Z1",
-		to : "@Z2"
+		event: "MOVE_CARD",
+		from: "@Z1",
+		to: "@Z2"
 	});
 
 	expect(hidden.visible).toBe(true);
 });
 
-test ("Move Stack", () => {
-	let engine : Engine = new Engine();	
+test("Move Stack", () => {
+	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
@@ -551,15 +588,63 @@ test ("Move Stack", () => {
 	
 
 	engine.eval({
-		event : "MOVE_CARD",
-		from : "@Z1",
-		to : "@Z2"
+		event: "MOVE_CARD",
+		from: "@Z1",
+		to: "@Z2"
 	});
 
 	expect(z2.count()).toBe(3);
 	expect(z1.count()).toBe(1);
 
 	expect(z1.cards[0].visible).toBe(true);
+});
+
+test("Select suit", () => {
+	let engine: Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+
+	let card: Card = z1.addCard(engine.createCardFromList("S1"));
+
+	engine.eval({
+		event: "SELECT_SUIT",
+		card: card,
+	})
+
+	expect(engine.refs.SUIT).toBe("S");
+
+});
+
+test("Select Suit Zone", () => {
+
+	let engine: Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+	let card: Card = z1.addCard(engine.createCardFromList("S1"));
+})
+
+test("Move up", () => {
+	let engine: Engine = new Engine();	
+
+	engine.loadGame(gameDef);
+
+	let z1: Zone = engine.refs.Z1;
+	let zS: Zone = engine.refs.ZS;
+
+	z1.addCard(engine.createCardFromList("S1"));
+	
+	expect(zS.count()).toBe(0);
+
+	engine.eval({
+		event: "MOVE_UP",
+		from: "@Z1"
+	})	
+
+	expect(zS.count()).toBe(1);
 });
 
 
