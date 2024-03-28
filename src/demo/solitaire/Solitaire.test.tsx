@@ -18,7 +18,7 @@ beforeEach((context: any) => {
         
 
 let gameDef = {
-	zones: 4,
+	zones: 13,
 	refs: {
 		DECK: { type: "ZONE", index: 0 },
 		PILE: { type: "ZONE", index: 1 },
@@ -245,7 +245,7 @@ let gameDef = {
 				{
 					event: "IF",
 					type: "IS_EMPTY",
-					zone: "@EVENT.zone",
+					zone: "@EVENT.from",
 					then: {
 						event: "RAISE_ERROR",
 						errorMsg: "No card to move"
@@ -253,7 +253,7 @@ let gameDef = {
 				},
 				{
 					event: "IF",
-					type: "COMPARE",
+					type: "",
 					
 				}
 			]
@@ -266,7 +266,69 @@ let gameDef = {
 				ref: "SUIT",
 				val: "@EVENT.card.suit"
 			}
-		}	
+		},
+
+		{
+			event: "SELECT_SUIT_ZONE",
+			events: [
+				{
+					event: "SELECT_SUIT",
+					card: "@EVENT.card",
+				},
+				{
+					event:"IF",
+					type: "COMPARE",
+					op : "EQ",
+					val1: "@SUIT",
+					val2: "H",
+					then: {
+						event : "SET",
+						ref: "SUIT_ZONE",
+						val: "@ZH"
+					}
+				},
+
+				{
+					event:"IF",
+					type: "COMPARE",
+					op : "EQ",
+					val1: "@SUIT",
+					val2: "S",
+					then: {
+						event : "SET",
+						ref: "SUIT_ZONE",
+						val: "@ZS"
+					}
+				},
+
+
+				{
+					event:"IF",
+					type: "COMPARE",
+					op : "EQ",
+					val1: "@SUIT",
+					val2: "D",
+					then: {
+						event : "SET",
+						ref: "SUIT_ZONE",
+						val: "@ZD"
+					}
+				},
+
+				{
+					event:"IF",
+					type: "COMPARE",
+					op : "EQ",
+					val1: "@SUIT",
+					val2: "C",
+					then: {
+						event : "SET",
+						ref: "SUIT_ZONE",
+						val: "@ZC"
+					}
+				},
+			]
+		}
 	],
 
 	cardList: [
@@ -617,15 +679,25 @@ test("Select suit", () => {
 
 });
 
-test("Select Suit Zone", () => {
 
+test("Select suit zone", () => {
 	let engine: Engine = new Engine();	
 
 	engine.loadGame(gameDef);
 
 	let z1: Zone = engine.refs.Z1;
+
 	let card: Card = z1.addCard(engine.createCardFromList("S1"));
-})
+
+	engine.eval({
+		event: "SELECT_SUIT_ZONE",
+		card: card,
+	})
+
+	expect(engine.refs.SUIT_ZONE).toBe(engine.refs.ZS);
+
+});
+
 
 test("Move up", () => {
 	let engine: Engine = new Engine();	

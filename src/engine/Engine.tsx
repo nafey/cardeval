@@ -116,6 +116,7 @@ export default class Engine {
 
 		});
 
+
 		let eventDefs = gameDef.eventDefs;
 		eventDefs.forEach((eventDef : EventDef) => {
 			if (eventDef?.def) {
@@ -378,6 +379,7 @@ export default class Engine {
 		}		
 		else if (e.type === "IS_EMPTY") {
 			let zone : Zone = e.zone;
+
 			isTrue = (zone.count() === 0);
 		}
 		else if (e.type === "COMPARE") {
@@ -403,7 +405,6 @@ export default class Engine {
 				isTrue = (e.val1 <= e.val2);
 			}
 			else if (e.op === "IN") {
-				console.debug(e);
 				isTrue = (e.array.includes(e.val));
 			}
 			else if (e.op === "NOT_IN") {
@@ -502,7 +503,6 @@ export default class Engine {
 	}
 
 	eval = (e: Event, refs?: Dict): Card[] => {
-		// console.debug(e)
 		logParams("eval");
 
 		let targets: Card[] = [];
