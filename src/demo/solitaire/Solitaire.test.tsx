@@ -265,11 +265,46 @@ let gameDef = {
 				},
 
 				{
-					event: "MOVE",
-					from: "@EVENT.from",
-					to: "@SUIT_ZONE",
-					card: "@FOUND"
-				}
+					event: "IF",
+					type : "IS_EMPTY",
+					zone: "@SUIT_ZONE",
+					then: {
+						event: "MOVE",
+						from: "@EVENT.from",
+						to: "@SUIT_ZONE",
+						card: "@FOUND"
+					},	
+					else : {
+						event: "SEQUENCE",
+						events: [
+							{
+								event: "FIND",
+								in: "@SUIT_ZONE",
+								at: "LAST",
+								set: "target"
+							},
+							{
+								event: "IF",
+								type: "COMPARE",
+								op: "DIFF",
+								diff: 1,
+								val1: "@target.num",
+								val2: "@FOUND.num",
+								then: {
+									event: "MOVE",
+									from: "@EVENT.from",
+									to: "@SUIT_ZONE",
+									card: "@FOUND",	
+								},
+								else: {
+									event: "RAISE_ERROR",
+									errorMsg: "Card cannot be moved up"
+								}
+							}
+						]
+					}
+				},
+
 			]
 		},
 
