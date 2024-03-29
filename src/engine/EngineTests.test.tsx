@@ -982,7 +982,7 @@ test("Find", () => {
 		val : 2
 	});		
 
-	let card : Card = engine.refs.found;
+	let card : Card = engine.refs.FOUND;
 	expect(card.a).toBe(2);
 });
 
@@ -1046,7 +1046,6 @@ test("Switch Case", () => {
 
 	expect(area2.cards[0].b).toBe(1);
 
-})
-
+});
 
 

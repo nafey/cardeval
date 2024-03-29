@@ -251,10 +251,24 @@ let gameDef = {
 						errorMsg: "No card to move"
 					}	
 				},
+
 				{
-					event: "IF",
-					type: "",
-					
+					event: "FIND",
+					in : "@EVENT.from",
+					at: "LAST",
+				},
+
+
+				{
+					event: "SELECT_SUIT_ZONE",
+					card: "@FOUND",
+				},
+
+				{
+					event: "MOVE",
+					from: "@EVENT.from",
+					to: "@SUIT_ZONE",
+					card: "@FOUND"
 				}
 			]
 		},
@@ -705,6 +719,7 @@ test("Move up", () => {
 		from: "@Z1"
 	})	
 
+	// expect(engine.refs.SUIT_ZONE).toBe(engine.refs.ZS);
 	expect(zS.count()).toBe(1);
 });
 

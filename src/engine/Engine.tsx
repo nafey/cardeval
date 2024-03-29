@@ -468,7 +468,12 @@ export default class Engine {
 		let val = e.val;
 
 		if (e?.at === "LAST") {
-			this.refs[e.set] = zone.last()
+			if (e?.set) {
+				this.refs[e.set] = zone.last();
+			}
+			else {
+				this.refs.FOUND = zone.last();
+			}
 			return;
 		}
 		else {
@@ -486,7 +491,7 @@ export default class Engine {
 						this.refs[e.set] = c;
 					}
 					else {
-						this.refs.found = c;
+						this.refs.FOUND = c;
 					}
 
 					return;
@@ -587,7 +592,14 @@ export default class Engine {
 		}
 		else if (e.event in this.eventDefs) {
 			let nextEvent: Event = this.eventDefs[e.event];
-			targets = this.eval(nextEvent, this.mergeRefs(this.makeEventRefs(e), refs));
+			logParams(e.event)
+
+			let r : Dict = this.mergeRefs(this.makeEventRefs(e), refs);
+			// console.debug(e);
+			// console.debug(r);
+
+
+			targets = this.eval(nextEvent, r);
 		}
 		else {
 			throw new Error("Event type not implemented");
