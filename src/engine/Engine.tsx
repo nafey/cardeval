@@ -577,8 +577,7 @@ export default class Engine {
 			this.evalError(e);
 		}
 		else if (e.event === "SWITCH") {
-			let card : Card = e.card;
-			let val = card[e.key];
+			let val = e.val;
 
 			(e.cases as Array<any>).forEach((c: any) => {
 				if (c.val === val) {

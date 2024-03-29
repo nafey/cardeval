@@ -275,57 +275,46 @@ let gameDef = {
 					event: "SELECT_SUIT",
 					card: "@EVENT.card",
 				},
-				{
-					event:"IF",
-					type: "COMPARE",
-					op : "EQ",
-					val1: "@SUIT",
-					val2: "H",
-					then: {
-						event : "SET",
-						ref: "SUIT_ZONE",
-						val: "@ZH"
-					}
-				},
 
 				{
-					event:"IF",
-					type: "COMPARE",
-					op : "EQ",
-					val1: "@SUIT",
-					val2: "S",
-					then: {
-						event : "SET",
-						ref: "SUIT_ZONE",
-						val: "@ZS"
-					}
-				},
+					event: "SWITCH",
+					val: "@SUIT",
+					cases: [
+						{
+							val : "H",
+							do: {
+								event: "SET",
+								ref: "SUIT_ZONE",
+								val: "@ZH"
+							}
+						},
+						{
+							val : "S",
+							do: {
+								event: "SET",
+								ref: "SUIT_ZONE",
+								val: "@ZS"
+							}
+						},
 
+						{
+							val : "D",
+							do: {
+								event: "SET",
+								ref: "SUIT_ZONE",
+								val: "@ZD"
+							}
+						},
 
-				{
-					event:"IF",
-					type: "COMPARE",
-					op : "EQ",
-					val1: "@SUIT",
-					val2: "D",
-					then: {
-						event : "SET",
-						ref: "SUIT_ZONE",
-						val: "@ZD"
-					}
-				},
-
-				{
-					event:"IF",
-					type: "COMPARE",
-					op : "EQ",
-					val1: "@SUIT",
-					val2: "C",
-					then: {
-						event : "SET",
-						ref: "SUIT_ZONE",
-						val: "@ZC"
-					}
+						{
+							val : "C",
+							do: {
+								event: "SET",
+								ref: "SUIT_ZONE",
+								val: "@ZC"
+							}
+						},
+					]
 				},
 			]
 		}

@@ -1021,8 +1021,7 @@ test("Switch Case", () => {
 
 	engine.eval({
 		event : "SWITCH",
-		card : card,
-		key : "a",
+		val: card.a,
 		cases: [
 			{
 				val : 1,
