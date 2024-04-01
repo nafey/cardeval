@@ -46,8 +46,15 @@ export default class Engine {
 
 	refs: Record<string, any> = {};
 
+	addPlayer = (name: string) : Player => {
+		let player: Player = new Player(this);	
+		this.players.push(player);
+		this.refs[name] = player;
+		return this.refs[name];
+	}
+
 	newPlayer = (): Player => {
-		let p: Player = new Player();
+		let p: Player = new Player(this);
 		this.players.push(p);
 		return p;
 	}
@@ -130,6 +137,42 @@ export default class Engine {
 				}
 			}
 		});
+	}
+
+	loadGame2 = (gameDef: any) => {
+
+		let pls = gameDef.players;
+		pls.forEach((pl: any) => {
+			let player: Player = this.addPlayer(pl.name);	
+			pl.zones.forEach((z: any) => {
+				player.addZone(z.name);
+			});
+
+			pl.allowedEvents.forEach((event: string) => {
+				player.allowedEvents.add(event);	
+			})
+		})
+
+		let cardList = gameDef.cardList;
+		cardList.forEach((item: Dict) => {
+			if (item?.code) this.cardList[item.code] = item;
+		})
+
+
+		let eventDefs = gameDef.eventDefs;
+		eventDefs.forEach((eventDef : EventDef) => {
+			if (eventDef?.def) {
+				this.eventDefs[eventDef.event] = eventDef.def;	
+			}
+			else {
+				this.eventDefs[eventDef.event] = {
+					event : "SEQUENCE",
+					events : eventDef.events
+				}
+			}
+		});
+
+
 	}
 
 

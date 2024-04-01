@@ -1048,4 +1048,75 @@ test("Switch Case", () => {
 
 });
 
+let gameDef2 = {
+
+	players: [
+		{
+			name: "P1",
+			zones: [
+				{
+					name: "AREA1",
+				},
+				{
+					name: "AREA2",
+				}
+			],
+			allowedEvents: ["MAKEA1"]
+		}
+	],
+
+	cardList: [
+		{
+			code: "A1",
+			a: 1
+		},
+		{
+			code: "B1",
+			b: 1
+		},
+	],
+
+	eventDefs: [
+		{
+			event: "MAKEA1",
+			def: {
+				event: "CREATE",
+				code: "A1",
+				zone: "@AREA1",
+				set: "A1"
+			} 
+		},
+
+		{
+			event: "MAKEB1",
+			def: {
+				event: "CREATE",
+				code: "B1",
+				zone: "@AREA2",
+				set: "B1"
+			} 
+		},
+	],
+
+}
+
+test("Load game 2", () => {
+
+	let engine: Engine = new Engine(); 
+
+	engine.loadGame2(gameDef2);
+
+	let player: Player = engine.getActivePlayer();
+
+
+	expect(player.refs.AREA1.count()).toBe(0)
+
+	player.eval({
+		event: "MAKEA1",
+	});
+
+	expect(player.refs.AREA1.count()).toBe(1)
+
+})
+
 

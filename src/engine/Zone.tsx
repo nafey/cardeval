@@ -54,6 +54,7 @@ export default class Zone {
 		this.cards.push(card);
 	}
 
+
 	addCard = (card: Card): Card => {
 		if (this.haveLimit) {
 			if (this.cards.length < this.limit) {

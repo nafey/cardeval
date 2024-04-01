@@ -1,5 +1,4 @@
-import Card from "./Card";
-import Engine, {Event} from "./Engine";
+import Engine, {Event, Dict} from "./Engine";
 import { generateId } from "./Utils";
 import Zone from "./Zone";
 
@@ -13,20 +12,27 @@ export default class Player {
 	players : Record<string, Player> = {};
 	allowedEvents : Set<string>;
 
-	refs: Record<string, Card> = {}
+	refs: Dict = {}
 
 	constructor (engine : Engine) {
 		this.engine = engine;
 		this.allowedEvents = new Set<string>()
 	}
 
-	addZone = (zoneName: string, zone: Zone) => {
+	addZone = (zoneName: string) => {
+		let zone : Zone = new Zone();
 		zone.playerId = this.playerId;
+
 		this.zones[zoneName] = zone;
+		
+		this.refs[zoneName] = zone; 
+
+		return zone;
 	} 
 	
 	eval = (event: Event) => {
-		if (this.allowedEvents.has(event.event))
+		if (!this.allowedEvents.has(event.event)) throw Error("This action is not allowed")
+					
 		this.engine.eval(event, this.refs)
 	}
 
